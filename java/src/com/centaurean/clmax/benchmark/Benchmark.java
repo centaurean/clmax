@@ -2,12 +2,7 @@ package com.centaurean.clmax.benchmark;
 
 import com.centaurean.clmax.schema.Platform;
 import com.centaurean.clmax.schema.impl.PlatformsImpl;
-import com.centaurean.commons.chronometers.Chronometer;
 import com.centaurean.commons.logs.Log;
-
-import java.nio.ByteBuffer;
-import java.nio.ByteOrder;
-import java.nio.IntBuffer;
 
 /*
  * Copyright (c) 2013, Centaurean software
@@ -45,36 +40,7 @@ public class Benchmark {
         System.loadLibrary("clmax");
     }
 
-    public static final int SIZE = 65536 * 16384;
-
     public Benchmark() {
-        ByteBuffer buffer = ByteBuffer.allocateDirect(SIZE);
-        buffer.order(ByteOrder.nativeOrder());
-        if (!buffer.isDirect())
-            throw new RuntimeException("Not direct");
-
-        IntBuffer viewAsInt = buffer.asIntBuffer();
-        for (int i = 0; i < SIZE / 4; i++)
-            viewAsInt.put(i);
-
-        display(viewAsInt);
-
-        Chronometer chronometer = new Chronometer();
-        chronometer.start();
-        process(viewAsInt);
-        chronometer.stop();
-        Log.message("JNI : " + chronometer.toString());
-
-        chronometer.reset();
-        chronometer.start();
-        for (int i = 0; i < SIZE / 4; i++)
-            viewAsInt.put(i, viewAsInt.get(i) + 1);
-        chronometer.stop();
-        Log.message("JVM : " + chronometer.toString());
-
-        display(viewAsInt);
-
-        System.out.println();
         PlatformsImpl platforms = new PlatformsImpl();
         platforms.populate();
         for (Platform platform : platforms.values())
@@ -84,13 +50,4 @@ public class Benchmark {
     public static void main(String... args) {
         new Benchmark();
     }
-
-    private void display(IntBuffer buffer) {
-        buffer.rewind();
-        for (int i = 0; i < 10; i++)
-            System.out.print(buffer.get() + " ");
-        System.out.println();
-    }
-
-    private native void process(IntBuffer buffer);
 }
