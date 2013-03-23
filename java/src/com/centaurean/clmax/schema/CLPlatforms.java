@@ -1,7 +1,4 @@
-package com.centaurean.clmax.schema.impl;
-
-import com.centaurean.clmax.schema.Platform;
-import com.centaurean.clmax.schema.PlatformsA;
+package com.centaurean.clmax.schema;
 
 import java.util.Hashtable;
 
@@ -33,23 +30,9 @@ import java.util.Hashtable;
  *
  * jetFlow
  *
- * 23/03/13 19:47
+ * 23/03/13 21:44
  * @author gpnuma
  */
-public class PlatformsImpl extends Hashtable<Long, Platform> implements PlatformsA {
-    @Override
-    public void populate() {
-        nativePlatforms(this);
-    }
-
-    @Override
-    public void add(Platform platform) {
-        put(platform.getPointer(), platform);
-    }
-
-    public void destroy() {
-
-    }
-
-    private native void nativePlatforms(PlatformsA container);
+public class CLPlatforms extends Hashtable<Long, CLPlatform> {
+    public native CLPlatforms getPlatforms();
 }

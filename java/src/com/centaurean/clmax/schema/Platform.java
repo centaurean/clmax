@@ -34,7 +34,7 @@ package com.centaurean.clmax.schema;
 public class Platform {
     private static int idGenerator = 0;
 
-    private int id;
+    private long pointer;
     private String profile;
     private String version;
     private String name;
@@ -47,8 +47,8 @@ public class Platform {
         return ++idGenerator;
     }
 
-    public Platform(String profile, String version, String name, String vendor, String extensions) {
-        this.id = newId();
+    private Platform(long pointer, String profile, String version, String name, String vendor, String extensions) {
+        this.pointer = pointer;
         this.profile = profile;
         this.version = version;
         this.name = name;
@@ -60,8 +60,8 @@ public class Platform {
         this.minorVersion = Short.decode(version.substring(indexMinor, indexMinor + 1));
     }
 
-    public int getId() {
-        return id;
+    public long getPointer() {
+        return pointer;
     }
 
     public String getExtensions() {
@@ -98,7 +98,7 @@ public class Platform {
     @Override
     public String toString() {
         StringBuilder stringBuilder = new StringBuilder();
-        stringBuilder.append("{id='").append(getId()).append("', profile='").append(getProfile()).append("', version='").append(getVersion()).append("', name='").append(getName()).append("', vendor='").append(getVendor()).append("', extensions='").append(getExtensions()).append("'}");
+        stringBuilder.append("{pointer='").append(getPointer()).append("', profile='").append(getProfile()).append("', version='").append(getVersion()).append("', name='").append(getName()).append("', vendor='").append(getVendor()).append("', extensions='").append(getExtensions()).append("'}");
         return stringBuilder.toString();
     }
 }

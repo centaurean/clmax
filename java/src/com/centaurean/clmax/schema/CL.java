@@ -28,11 +28,16 @@ package com.centaurean.clmax.schema;
  *
  * jetFlow
  *
- * 23/03/13 19:43
+ * 23/03/13 21:35
  * @author gpnuma
  */
-public interface Platforms {
-    public void populate();
-
-    public void add(Platform platform);
+public class CL {
+    static {
+        Runtime.getRuntime().addShutdownHook(new Thread() {
+            @Override
+            public void run() {
+                // Clean memory
+            }
+        });
+    }
 }
