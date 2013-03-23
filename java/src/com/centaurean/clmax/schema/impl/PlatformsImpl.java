@@ -38,7 +38,14 @@ import java.util.Hashtable;
  */
 public class PlatformsImpl extends Hashtable<Integer, Platform> implements Platforms {
     @Override
+    public void populate() {
+        nativePlatforms(this);
+    }
+
+    @Override
     public void add(Platform platform) {
         put(platform.getId(), platform);
     }
+
+    private native void nativePlatforms(Platforms container);
 }

@@ -28,24 +28,77 @@ package com.centaurean.clmax.schema;
  *
  * jetFlow
  *
- * 23/03/13 19:44
+ * 23/03/13 19:46
  * @author gpnuma
  */
-public interface Platform {
-    public int getId();
+public class Platform {
+    private static int idGenerator = 0;
 
-    public String getExtensions();
+    private int id;
+    private String profile;
+    private String version;
+    private String name;
+    private String vendor;
+    private String extensions;
+    private short majorVersion;
+    private short minorVersion;
 
-    public String getVendor();
+    private static synchronized int newId() {
+        return ++idGenerator;
+    }
 
-    public String getName();
+    public Platform(String profile, String version, String name, String vendor, String extensions) {
+        this.id = newId();
+        this.profile = profile;
+        this.version = version;
+        this.name = name;
+        this.vendor = vendor;
+        this.extensions = extensions;
+        int indexMajor = version.indexOf(' ') + 1;
+        this.majorVersion = Short.decode(version.substring(indexMajor, indexMajor + 1));
+        int indexMinor = version.indexOf('.') + 1;
+        this.minorVersion = Short.decode(version.substring(indexMinor, indexMinor + 1));
+    }
 
-    public String getVersion();
+    public int getId() {
+        return id;
+    }
 
-    public short getMajorVersion();
+    public String getExtensions() {
+        return extensions;
+    }
 
-    public short getMinorVersion();
+    public String getVendor() {
+        return vendor;
+    }
 
-    public String getProfile();
+    public String getName() {
+        return name;
+    }
+
+    /**
+     * @return OpenCL<space><major_version.minor_ version><space><platform-specific information>
+     */
+    public String getVersion() {
+        return version;
+    }
+
+    public short getMajorVersion() {
+        return majorVersion;
+    }
+
+    public short getMinorVersion() {
+        return minorVersion;
+    }
+
+    public String getProfile() {
+        return profile;
+    }
+
+    @Override
+    public String toString() {
+        StringBuilder stringBuilder = new StringBuilder();
+        stringBuilder.append("{id='").append(getId()).append("', profile='").append(getProfile()).append("', version='").append(getVersion()).append("', name='").append(getName()).append("', vendor='").append(getVendor()).append("', extensions='").append(getExtensions()).append("'}");
+        return stringBuilder.toString();
+    }
 }
-

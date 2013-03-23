@@ -32,5 +32,7 @@ package com.centaurean.clmax.schema;
  * @author gpnuma
  */
 public interface Platforms {
+    public void populate();
+
     public void add(Platform platform);
 }
