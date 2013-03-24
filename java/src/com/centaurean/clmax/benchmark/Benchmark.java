@@ -1,9 +1,6 @@
 package com.centaurean.clmax.benchmark;
 
-import com.centaurean.clmax.schema.CLDevice;
-import com.centaurean.clmax.schema.CLDevices;
-import com.centaurean.clmax.schema.CLPlatform;
-import com.centaurean.clmax.schema.CLPlatforms;
+import com.centaurean.clmax.schema.*;
 import com.centaurean.commons.logs.Log;
 import com.centaurean.commons.logs.LogStatus;
 
@@ -57,6 +54,14 @@ public class Benchmark {
             Log.message("Found " + devices.size() + " device(s)");
             for(CLDevice device : devices.values())
                 Log.message(device.toString());
+        }
+        for (CLPlatform platform : platforms.values()) {
+            Log.startMessage("Creating context on platform " + platform.getPointer());
+            CLContext context = platform.createContext();
+            Log.endMessage(LogStatus.OK);
+            Log.startMessage("Releasing context");
+            context.release();
+            Log.endMessage(LogStatus.OK);
         }
     }
 

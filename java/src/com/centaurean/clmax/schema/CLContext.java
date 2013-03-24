@@ -28,16 +28,21 @@ package com.centaurean.clmax.schema;
  *
  * jetFlow
  *
- * 24/03/13 16:33
+ * 24/03/13 17:37
  * @author gpnuma
  */
-public class CL {
-    static native long[] getPlatformsNative();
-    static native String getPlatformInfoNative(long pointer, int parameter);
-    static native long[] getDevicesNative(long pointer);
-    static native long getDeviceInfoLongNative(long pointer, int parameter);
-    static native long[] getDeviceInfoLongArrayNative(long pointer, int parameter);
-    static native String getDeviceInfoStringNative(long pointer, int parameter);
-    static native long createContextNative(long pointer);
-    static native void releaseContextNative(long pointer);
+public class CLContext {
+    private long pointer;
+
+    CLContext(long pointer) {
+        this.pointer = pointer;
+    }
+
+    public long getPointer() {
+        return pointer;
+    }
+
+    public void release() {
+        CL.releaseContextNative(getPointer());
+    }
 }

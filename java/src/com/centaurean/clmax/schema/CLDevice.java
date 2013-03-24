@@ -1,5 +1,7 @@
 package com.centaurean.clmax.schema;
 
+import java.util.Arrays;
+
 /*
  * Copyright (c) 2013, Centaurean software
  * All rights reserved.
@@ -84,36 +86,40 @@ public class CLDevice {
     public static final int CL_DEVICE_PLATFORM = 0x1031;
 
     // OpenCL 1.1
-    public static final int CL_DEVICE_PREFERRED_VECTOR_WIDTH_HALF       = 0x1034;
-    public static final int CL_DEVICE_HOST_UNIFIED_MEMORY               = 0x1035;
-    public static final int CL_DEVICE_NATIVE_VECTOR_WIDTH_CHAR          = 0x1036;
-    public static final int CL_DEVICE_NATIVE_VECTOR_WIDTH_SHORT         = 0x1037;
-    public static final int CL_DEVICE_NATIVE_VECTOR_WIDTH_INT           = 0x1038;
-    public static final int CL_DEVICE_NATIVE_VECTOR_WIDTH_LONG          = 0x1039;
-    public static final int CL_DEVICE_NATIVE_VECTOR_WIDTH_FLOAT         = 0x103A;
-    public static final int CL_DEVICE_NATIVE_VECTOR_WIDTH_DOUBLE        = 0x103B;
-    public static final int CL_DEVICE_NATIVE_VECTOR_WIDTH_HALF          = 0x103C;
-    public static final int CL_DEVICE_OPENCL_C_VERSION                  = 0x103D;
+    public static final int CL_DEVICE_PREFERRED_VECTOR_WIDTH_HALF = 0x1034;
+    public static final int CL_DEVICE_HOST_UNIFIED_MEMORY = 0x1035;
+    public static final int CL_DEVICE_NATIVE_VECTOR_WIDTH_CHAR = 0x1036;
+    public static final int CL_DEVICE_NATIVE_VECTOR_WIDTH_SHORT = 0x1037;
+    public static final int CL_DEVICE_NATIVE_VECTOR_WIDTH_INT = 0x1038;
+    public static final int CL_DEVICE_NATIVE_VECTOR_WIDTH_LONG = 0x1039;
+    public static final int CL_DEVICE_NATIVE_VECTOR_WIDTH_FLOAT = 0x103A;
+    public static final int CL_DEVICE_NATIVE_VECTOR_WIDTH_DOUBLE = 0x103B;
+    public static final int CL_DEVICE_NATIVE_VECTOR_WIDTH_HALF = 0x103C;
+    public static final int CL_DEVICE_OPENCL_C_VERSION = 0x103D;
 
     // OpenCL 1.2
-    public static final int CL_DEVICE_LINKER_AVAILABLE                  = 0x103E;
-    public static final int CL_DEVICE_BUILT_IN_KERNELS                  = 0x103F;
-    public static final int CL_DEVICE_IMAGE_MAX_BUFFER_SIZE             = 0x1040;
-    public static final int CL_DEVICE_IMAGE_MAX_ARRAY_SIZE              = 0x1041;
-    public static final int CL_DEVICE_PARENT_DEVICE                     = 0x1042;
-    public static final int CL_DEVICE_PARTITION_MAX_SUB_DEVICES         = 0x1043;
-    public static final int CL_DEVICE_PARTITION_PROPERTIES              = 0x1044;
-    public static final int CL_DEVICE_PARTITION_AFFINITY_DOMAIN         = 0x1045;
-    public static final int CL_DEVICE_PARTITION_TYPE                    = 0x1046;
-    public static final int CL_DEVICE_REFERENCE_COUNT                   = 0x1047;
-    public static final int CL_DEVICE_PREFERRED_INTEROP_USER_SYNC       = 0x1048;
-    public static final int CL_DEVICE_PRINTF_BUFFER_SIZE                = 0x1049;
+    public static final int CL_DEVICE_LINKER_AVAILABLE = 0x103E;
+    public static final int CL_DEVICE_BUILT_IN_KERNELS = 0x103F;
+    public static final int CL_DEVICE_IMAGE_MAX_BUFFER_SIZE = 0x1040;
+    public static final int CL_DEVICE_IMAGE_MAX_ARRAY_SIZE = 0x1041;
+    public static final int CL_DEVICE_PARENT_DEVICE = 0x1042;
+    public static final int CL_DEVICE_PARTITION_MAX_SUB_DEVICES = 0x1043;
+    public static final int CL_DEVICE_PARTITION_PROPERTIES = 0x1044;
+    public static final int CL_DEVICE_PARTITION_AFFINITY_DOMAIN = 0x1045;
+    public static final int CL_DEVICE_PARTITION_TYPE = 0x1046;
+    public static final int CL_DEVICE_REFERENCE_COUNT = 0x1047;
+    public static final int CL_DEVICE_PREFERRED_INTEROP_USER_SYNC = 0x1048;
+    public static final int CL_DEVICE_PRINTF_BUFFER_SIZE = 0x1049;
 
     private long pointer;
     private long type = Long.MAX_VALUE;
     private int vendorId = Integer.MAX_VALUE;
     private int maxComputeUnits = Integer.MAX_VALUE;
+    private int maxWorkItemDimensions = Integer.MAX_VALUE;
+    private long maxWorkGroupSize = Long.MAX_VALUE;
+    private long[] maxWorkItemSizes;
 
+    private long image2dMaxHeight = Long.MAX_VALUE;
     private String name;
     private String vendor;
     private String version;
@@ -145,8 +151,6 @@ public class CLDevice {
     private size_t maxParameterSize;
     private int maxReadImageArgs;
     private int maxSamplers;
-    private size_t maxWorkGroupSize;
-    private int maxWorkItemDimensions;
     private size_t[] maxWorkItemSizes;
     private int maxWriteImageArgs;
     private int memBaseAddrAlign;
@@ -176,31 +180,55 @@ public class CLDevice {
     }
 
     public long getType() {
-        if(type == Long.MAX_VALUE)
+        if (type == Long.MAX_VALUE)
             type = CL.getDeviceInfoLongNative(getPointer(), CL_DEVICE_TYPE);
         return type;
     }
 
     public int getVendorId() {
-        if(vendorId == Integer.MAX_VALUE)
-            vendorId = (int)CL.getDeviceInfoLongNative(getPointer(), CL_DEVICE_VENDOR_ID);
+        if (vendorId == Integer.MAX_VALUE)
+            vendorId = (int) CL.getDeviceInfoLongNative(getPointer(), CL_DEVICE_VENDOR_ID);
         return vendorId;
     }
 
     public int getMaxComputeUnits() {
-        if(maxComputeUnits == Integer.MAX_VALUE)
-            maxComputeUnits = (int)CL.getDeviceInfoLongNative(getPointer(), CL_DEVICE_MAX_COMPUTE_UNITS);
+        if (maxComputeUnits == Integer.MAX_VALUE)
+            maxComputeUnits = (int) CL.getDeviceInfoLongNative(getPointer(), CL_DEVICE_MAX_COMPUTE_UNITS);
         return maxComputeUnits;
     }
 
+    public long getMaxWorkGroupSize() {
+        if (maxWorkGroupSize == Long.MAX_VALUE)
+            maxWorkGroupSize = CL.getDeviceInfoLongNative(getPointer(), CL_DEVICE_MAX_WORK_GROUP_SIZE);
+        return maxWorkGroupSize;
+    }
+
+    public int getMaxWorkItemDimensions() {
+        if (maxWorkItemDimensions == Integer.MAX_VALUE)
+            maxWorkItemDimensions = (int) CL.getDeviceInfoLongNative(getPointer(), CL_DEVICE_MAX_WORK_ITEM_DIMENSIONS);
+        return maxWorkItemDimensions;
+    }
+
+    public long[] getMaxWorkItemSizes() {
+        if (maxWorkItemSizes == null)
+            maxWorkItemSizes = CL.getDeviceInfoLongArrayNative(getPointer(), CL_DEVICE_MAX_WORK_ITEM_SIZES);
+        return maxWorkItemSizes;
+    }
+
+    public long getImage2dMaxHeight() {
+        if (image2dMaxHeight == Long.MAX_VALUE)
+            image2dMaxHeight = CL.getDeviceInfoLongNative(getPointer(), CL_DEVICE_IMAGE2D_MAX_HEIGHT);
+        return image2dMaxHeight;
+    }
+
     public String getName() {
-        if(name == null)
+        if (name == null)
             name = CL.getDeviceInfoStringNative(getPointer(), CL_DEVICE_NAME);
         return name;
     }
 
     public String getVersion() {
-        if(version == null)
+        if (version == null)
             version = CL.getDeviceInfoStringNative(getPointer(), CL_DEVICE_VERSION);
         int indexMajor = version.indexOf(' ') + 1;
         this.majorVersion = Short.decode(version.substring(indexMajor, indexMajor + 1));
@@ -210,19 +238,19 @@ public class CLDevice {
     }
 
     public short getMajorVersion() {
-        if(version == null)
+        if (version == null)
             getVersion();
         return majorVersion;
     }
 
     public short getMinorVersion() {
-        if(version == null)
+        if (version == null)
             getVersion();
         return minorVersion;
     }
 
     public String getVendor() {
-        if(vendor == null)
+        if (vendor == null)
             vendor = CL.getDeviceInfoStringNative(getPointer(), CL_DEVICE_VENDOR);
         return vendor;
     }
@@ -230,8 +258,9 @@ public class CLDevice {
     @Override
     public String toString() {
         StringBuilder stringBuilder = new StringBuilder();
-        stringBuilder.append("{pointer='").append(getPointer()).append("', type='").append(getType()).append("', vendorId='").append(getVendorId()).append("', maxComputeUnits='").append(getMaxComputeUnits())
-                .append("', name='").append(getName()).append("', version='").append(getVersion()).append("', vendor='").append(getVendor()).append("'}");
+        stringBuilder.append("{pointer='0x").append(Long.toHexString(getPointer())).append("', type='").append(getType()).append("', vendorId='").append(getVendorId()).append("', maxComputeUnits='").append(getMaxComputeUnits())
+                .append("', maxWorkGroupSize='").append(getMaxWorkGroupSize()).append("', maxWorkItemDimensions='").append(getMaxWorkItemDimensions()).append("', maxWorkItemSizes='").append(Arrays.toString(getMaxWorkItemSizes()))
+                .append("', image2dMaxHeight='").append(getImage2dMaxHeight()).append("', name='").append(getName()).append("', version='").append(getVersion()).append("', vendor='").append(getVendor()).append("'}");
         return stringBuilder.toString();
     }
 }

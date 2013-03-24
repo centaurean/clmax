@@ -63,6 +63,11 @@ public class CLPlatform {
         return devices;
     }
 
+    public CLContext createContext() {
+        long pointer = CL.createContextNative(getPointer());
+        return new CLContext(pointer);
+    }
+
     public long getPointer() {
         return pointer;
     }
@@ -119,7 +124,7 @@ public class CLPlatform {
     @Override
     public String toString() {
         StringBuilder stringBuilder = new StringBuilder();
-        stringBuilder.append("{pointer='").append(getPointer()).append("', profile='").append(getProfile()).append("', version='").append(getVersion()).append("', name='").append(getName()).append("', vendor='").append(getVendor()).append("', extensions='").append(getExtensions()).append("'}");
+        stringBuilder.append("{pointer='0x").append(Long.toHexString(getPointer())).append("', profile='").append(getProfile()).append("', version='").append(getVersion()).append("', name='").append(getName()).append("', vendor='").append(getVendor()).append("', extensions='").append(getExtensions()).append("'}");
         return stringBuilder.toString();
     }
 }
