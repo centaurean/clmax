@@ -69,7 +69,7 @@ public class CLPlatform {
     }
 
     public CLContext createCLGLContext() {
-        long pointer = CL.createContextCLGLNative(getPointer());
+        long pointer = CL.createCLGLContextNative(getPointer());
         return new CLContext(pointer);
     }
 

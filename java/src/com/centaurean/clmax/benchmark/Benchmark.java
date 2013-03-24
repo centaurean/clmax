@@ -41,6 +41,17 @@ public class Benchmark {
     }
 
     public Benchmark() {
+        /*Log.startMessage("Creating GL context");
+        GLProfile.initSingleton();
+        GLProfile glp = GLProfile.getDefault();
+        GLCapabilities caps = new GLCapabilities(null);
+        GLCanvas glCanvas = new GLCanvas(caps);
+        Frame frame = new Frame("Window Test");
+        frame.setSize(300, 300);
+        frame.add(glCanvas);
+        frame.setVisible(true);
+        Log.endMessage(LogStatus.OK);*/
+
         Log.startMessage("Getting platforms");
         CLPlatforms platforms = CLPlatforms.getPlatforms();
         Log.endMessage(LogStatus.OK);
@@ -52,7 +63,7 @@ public class Benchmark {
             CLDevices devices = platform.getDevices();
             Log.endMessage(LogStatus.OK);
             Log.message("Found " + devices.size() + " device(s)");
-            for(CLDevice device : devices.values())
+            for (CLDevice device : devices.values())
                 Log.message(device.toString());
         }
         for (CLPlatform platform : platforms.values()) {
@@ -62,12 +73,12 @@ public class Benchmark {
             Log.startMessage("Releasing context");
             context.release();
             Log.endMessage(LogStatus.OK);
-            Log.startMessage("Creating CL GL context on platform " + platform.getPointer());
+            /*Log.startMessage("Creating CL GL context on platform " + platform.getPointer());
             context = platform.createCLGLContext();
             Log.endMessage(LogStatus.OK);
             Log.startMessage("Releasing context");
             context.release();
-            Log.endMessage(LogStatus.OK);
+            Log.endMessage(LogStatus.OK);*/
         }
     }
 

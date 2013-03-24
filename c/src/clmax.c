@@ -126,7 +126,7 @@ JNIEXPORT jlong JNICALL Java_com_centaurean_clmax_schema_CL_createContextNative(
     return (long long)context;
 }
 
-JNIEXPORT jlong JNICALL Java_com_centaurean_clmax_schema_CL_createContextCLGLNative(JNIEnv *env, jclass this, jlong pointer) {
+JNIEXPORT jlong JNICALL Java_com_centaurean_clmax_schema_CL_createCLGLContextNative(JNIEnv *env, jclass this, jlong pointer) {
     cl_context context = NULL;
     cl_int errcode_ret;
 #ifdef __APPLE__
