@@ -120,7 +120,85 @@ JNIEXPORT jlong JNICALL Java_com_centaurean_clmax_schema_CL_createContextNative(
     cl_context context = clCreateContext(properties, num_devices, devices, NULL, NULL, &errcode_ret);
     checkResult(errcode_ret);
 
+    // Check for const in method clCreateContext
     free(devices);
+
+    return (long long)context;
+}
+
+JNIEXPORT jlong JNICALL Java_com_centaurean_clmax_schema_CL_createContextCLGLNative(JNIEnv *env, jclass this, jlong pointer) {
+    cl_context context = NULL;
+    cl_int errcode_ret;
+#ifdef __APPLE__
+    /*CGLContextObj glContext;
+    CGLPixelFormatAttribute attributes[4] = {
+      kCGLPFAAccelerated,   // no software rendering
+      kCGLPFAOpenGLProfile, // core profile with the version stated below
+      (CGLPixelFormatAttribute) kCGLOGLPVersion_3_2_Core,
+      (CGLPixelFormatAttribute) 0
+    };
+    CGLPixelFormatObj pix;
+    CGLError errorCode;
+    GLint num;
+    errorCode = CGLChoosePixelFormat(attributes, &pix, &num);
+    errorCode = CGLCreateContext(pix, NULL, &glContext);
+    CGLDestroyPixelFormat( pix );
+    errorCode = CGLSetCurrentContext(glContext);*/
+
+    // Get current CGL Context and CGL Share group
+    CGLContextObj kCGLContext = CGLGetCurrentContext();
+    if(kCGLContext == NULL)
+        return 0;
+    CGLShareGroupObj kCGLShareGroup = CGLGetShareGroup(kCGLContext);
+
+    // Create CL context properties, add handle & share-group enum
+    cl_context_properties properties[] = {
+        CL_CONTEXT_PROPERTY_USE_CGL_SHAREGROUP_APPLE,
+        (cl_context_properties)kCGLShareGroup, 0
+    };
+
+    // Optional: Get the CPU device (we can request this in addition to GPUs in Share Group)
+    cl_device_id cpu_devices[32]; cl_uint count;
+    checkResult(clGetDeviceIDs((cl_platform_id)pointer, CL_DEVICE_TYPE_CPU, 32 * sizeof(cl_device_id), cpu_devices, &count));
+
+    // Create a context from a CGL share group (note: only use CPU if software renderer is enabled!)
+    context = clCreateContext(properties, /*0, 0*/count, cpu_devices, NULL, 0, &errcode_ret);
+#elif _WIN32
+    // Create CL context properties, add WGL context & handle to DC
+    cl_context_properties properties[] = {
+        CL_GL_CONTEXT_KHR, (cl_context_properties)wglGetCurrentContext(),       // WGL Context
+        CL_WGL_HDC_KHR, (cl_context_properties)wglGetCurrentDC(),               // WGL HDC
+        CL_CONTEXT_PLATFORM, (cl_context_properties)(cl_platform_id)pointer,    // OpenCL platform
+        0
+    };
+
+    // Find CL capable devices in the current GL context
+    cl_device_id devices[32];
+    size_t size;
+    clGetGLContextInfoKHR(properties, CL_DEVICES_FOR_GL_CONTEXT_KHR, 32 * sizeof(cl_device_id), devices, &size);
+
+    // Create a context using the supported devices
+    cl_int count = size / sizeof(cl_device_id);
+    context = clCreateContext(properties, devices, count, NULL, 0, &errcode_ret);
+#elif __linux__
+    // Create CL context properties, add GLX context & handle to DC
+    cl_context_properties properties[] = {
+        CL_GL_CONTEXT_KHR, (cl_context_properties)glXGetCurrentContext(),       // GLX Context
+        CL_GLX_DISPLAY_KHR, (cl_context_properties)glXGetCurrentDisplay(),      // GLX Display
+        CL_CONTEXT_PLATFORM, (cl_context_properties)(cl_platform_id)pointer,    // OpenCL platform
+        0
+    };
+
+    // Find CL capable devices in the current GL context
+    cl_device_id devices[32]; size_t size;
+    clGetGLContextInfoKHR(properties, CL_DEVICES_FOR_GL_CONTEXT_KHR, 32 * sizeof(cl_device_id), devices, &size);
+
+    // Create a context using the supported devices
+    cl_int count = size / sizeof(cl_device_id);
+    context = clCreateContext(properties, devices, count, NULL, 0, &errcode_ret);
+#endif
+
+    checkResult(errcode_ret);
 
     return (long long)context;
 }

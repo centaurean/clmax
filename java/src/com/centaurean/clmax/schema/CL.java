@@ -39,5 +39,6 @@ public class CL {
     static native long[] getDeviceInfoLongArrayNative(long pointer, int parameter);
     static native String getDeviceInfoStringNative(long pointer, int parameter);
     static native long createContextNative(long pointer);
+    static native long createContextCLGLNative(long pointer);
     static native void releaseContextNative(long pointer);
 }

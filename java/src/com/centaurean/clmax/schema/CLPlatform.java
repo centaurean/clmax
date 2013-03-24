@@ -68,6 +68,11 @@ public class CLPlatform {
         return new CLContext(pointer);
     }
 
+    public CLContext createCLGLContext() {
+        long pointer = CL.createContextCLGLNative(getPointer());
+        return new CLContext(pointer);
+    }
+
     public long getPointer() {
         return pointer;
     }

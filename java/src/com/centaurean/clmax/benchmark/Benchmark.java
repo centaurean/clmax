@@ -62,6 +62,12 @@ public class Benchmark {
             Log.startMessage("Releasing context");
             context.release();
             Log.endMessage(LogStatus.OK);
+            Log.startMessage("Creating CL GL context on platform " + platform.getPointer());
+            context = platform.createCLGLContext();
+            Log.endMessage(LogStatus.OK);
+            Log.startMessage("Releasing context");
+            context.release();
+            Log.endMessage(LogStatus.OK);
         }
     }
 

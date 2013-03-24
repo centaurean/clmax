@@ -65,6 +65,14 @@ JNIEXPORT jlong JNICALL Java_com_centaurean_clmax_schema_CL_createContextNative
 
 /*
  * Class:     com_centaurean_clmax_schema_CL
+ * Method:    createContextCLGLNative
+ * Signature: (J)J
+ */
+JNIEXPORT jlong JNICALL Java_com_centaurean_clmax_schema_CL_createContextCLGLNative
+  (JNIEnv *, jclass, jlong);
+
+/*
+ * Class:     com_centaurean_clmax_schema_CL
  * Method:    releaseContextNative
  * Signature: (J)V
  */

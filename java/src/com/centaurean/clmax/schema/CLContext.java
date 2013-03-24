@@ -1,5 +1,7 @@
 package com.centaurean.clmax.schema;
 
+import java.security.InvalidParameterException;
+
 /*
  * Copyright (c) 2013, Centaurean software
  * All rights reserved.
@@ -35,6 +37,8 @@ public class CLContext {
     private long pointer;
 
     CLContext(long pointer) {
+        if(pointer == 0)
+            throw new InvalidParameterException();
         this.pointer = pointer;
     }
 

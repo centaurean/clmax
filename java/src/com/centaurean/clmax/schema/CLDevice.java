@@ -119,6 +119,7 @@ public class CLDevice {
     private long maxWorkGroupSize = Long.MAX_VALUE;
     private long[] maxWorkItemSizes;
 
+    private String extensions;
     private long image2dMaxHeight = Long.MAX_VALUE;
     private String name;
     private String vendor;
@@ -130,7 +131,6 @@ public class CLDevice {
     private boolean endianLittle;
     private boolean errorCorrectionSupport;
     private bitField executionCapabilities;
-    private String extensions;
     private long globalMemCacheSize;
     private bitField globalMemCacheType;
     private int globalMemCachelineSize;
@@ -165,9 +165,7 @@ public class CLDevice {
     private String profile;
     private size_t profilingTimerResolution;
     private bitField queueProperties;
-    private bitField singleFpConfig;
-    private String vendor;
-    private String version; */
+    private bitField singleFpConfig;*/
     private short majorVersion;
     private short minorVersion;
 
@@ -215,6 +213,12 @@ public class CLDevice {
         return maxWorkItemSizes;
     }
 
+    public String getExtensions() {
+        if(extensions == null)
+            extensions = CL.getDeviceInfoStringNative(getPointer(), CL_DEVICE_EXTENSIONS);
+        return extensions;
+    }
+
     public long getImage2dMaxHeight() {
         if (image2dMaxHeight == Long.MAX_VALUE)
             image2dMaxHeight = CL.getDeviceInfoLongNative(getPointer(), CL_DEVICE_IMAGE2D_MAX_HEIGHT);
@@ -260,7 +264,7 @@ public class CLDevice {
         StringBuilder stringBuilder = new StringBuilder();
         stringBuilder.append("{pointer='0x").append(Long.toHexString(getPointer())).append("', type='").append(getType()).append("', vendorId='").append(getVendorId()).append("', maxComputeUnits='").append(getMaxComputeUnits())
                 .append("', maxWorkGroupSize='").append(getMaxWorkGroupSize()).append("', maxWorkItemDimensions='").append(getMaxWorkItemDimensions()).append("', maxWorkItemSizes='").append(Arrays.toString(getMaxWorkItemSizes()))
-                .append("', image2dMaxHeight='").append(getImage2dMaxHeight()).append("', name='").append(getName()).append("', version='").append(getVersion()).append("', vendor='").append(getVendor()).append("'}");
+                .append("', extensions='").append(getExtensions()).append("', image2dMaxHeight='").append(getImage2dMaxHeight()).append("', name='").append(getName()).append("', version='").append(getVersion()).append("', vendor='").append(getVendor()).append("'}");
         return stringBuilder.toString();
     }
 }
