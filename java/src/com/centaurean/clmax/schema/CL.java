@@ -28,16 +28,13 @@ package com.centaurean.clmax.schema;
  *
  * jetFlow
  *
- * 23/03/13 21:35
+ * 24/03/13 16:33
  * @author gpnuma
  */
 public class CL {
-    static {
-        Runtime.getRuntime().addShutdownHook(new Thread() {
-            @Override
-            public void run() {
-                // Clean memory
-            }
-        });
-    }
+    static native long[] getPlatformsNative();
+    static native String getPlatformInfoNative(long pointer, int parameter);
+    static native long[] getDevicesNative(long pointer);
+    static native long getDeviceInfoLongNative(long pointer, int parameter);
+    static native String getDeviceInfoStringNative(long pointer, int parameter);
 }

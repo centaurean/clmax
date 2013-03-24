@@ -1,8 +1,11 @@
 package com.centaurean.clmax.benchmark;
 
-import com.centaurean.clmax.schema.Platform;
-import com.centaurean.clmax.schema.impl.PlatformsImpl;
+import com.centaurean.clmax.schema.CLDevice;
+import com.centaurean.clmax.schema.CLDevices;
+import com.centaurean.clmax.schema.CLPlatform;
+import com.centaurean.clmax.schema.CLPlatforms;
 import com.centaurean.commons.logs.Log;
+import com.centaurean.commons.logs.LogStatus;
 
 /*
  * Copyright (c) 2013, Centaurean software
@@ -41,10 +44,20 @@ public class Benchmark {
     }
 
     public Benchmark() {
-        PlatformsImpl platforms = new PlatformsImpl();
-        platforms.populate();
-        for (Platform platform : platforms.values())
+        Log.startMessage("Getting platforms");
+        CLPlatforms platforms = CLPlatforms.getPlatforms();
+        Log.endMessage(LogStatus.OK);
+        Log.message("Found " + platforms.size() + " platform(s)");
+        for (CLPlatform platform : platforms.values())
             Log.message(platform.toString());
+        for (CLPlatform platform : platforms.values()) {
+            Log.startMessage("Getting devices for platform " + platform.getPointer());
+            CLDevices devices = platform.getDevices();
+            Log.endMessage(LogStatus.OK);
+            Log.message("Found " + devices.size() + " device(s)");
+            for(CLDevice device : devices.values())
+                Log.message(device.toString());
+        }
     }
 
     public static void main(String... args) {

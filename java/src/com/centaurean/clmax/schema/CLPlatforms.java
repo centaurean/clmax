@@ -1,6 +1,7 @@
 package com.centaurean.clmax.schema;
 
 import java.util.Hashtable;
+import java.util.NoSuchElementException;
 
 /*
  * Copyright (c) 2013, Centaurean software
@@ -34,5 +35,31 @@ import java.util.Hashtable;
  * @author gpnuma
  */
 public class CLPlatforms extends Hashtable<Long, CLPlatform> {
-    public native CLPlatforms getPlatforms();
+    private static CLPlatforms platforms = null;
+
+    public static CLPlatforms getPlatforms() {
+        if(platforms == null) {
+            platforms = new CLPlatforms();
+            long[] pointers = CL.getPlatformsNative();
+            for(long pointer : pointers)
+                platforms.add(new CLPlatform(pointer));
+        }
+        return platforms;
+    }
+
+    private CLPlatforms() {
+        super();
+    }
+
+    public boolean add(CLPlatform platform) {
+        CLPlatform found = put(platform.getPointer(), platform);
+        return found == null;
+    }
+
+    public CLPlatform getFirst() {
+        if(size() > 0)
+            return values().iterator().next();
+        else
+            throw new NoSuchElementException();
+    }
 }

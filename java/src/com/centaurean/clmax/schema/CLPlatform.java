@@ -32,4 +32,94 @@ package com.centaurean.clmax.schema;
  * @author gpnuma
  */
 public class CLPlatform {
+    public static final int CL_PLATFORM_PROFILE = 0x0900;
+    public static final int CL_PLATFORM_VERSION = 0x0901;
+    public static final int CL_PLATFORM_NAME = 0x0902;
+    public static final int CL_PLATFORM_VENDOR = 0x0903;
+    public static final int CL_PLATFORM_EXTENSIONS = 0x0904;
+
+    private long pointer;
+    private String profile;
+    private String version;
+    private String name;
+    private String vendor;
+    private String extensions;
+    private short majorVersion;
+    private short minorVersion;
+
+    private CLDevices devices = null;
+
+    CLPlatform(long pointer) {
+        this.pointer = pointer;
+    }
+
+    public CLDevices getDevices() {
+        if(devices == null) {
+            devices = new CLDevices();
+            long[] pointers = CL.getDevicesNative(getPointer());
+            for(long pointer : pointers)
+                devices.add(new CLDevice(pointer));
+        }
+        return devices;
+    }
+
+    public long getPointer() {
+        return pointer;
+    }
+
+    public String getExtensions() {
+        if(extensions == null)
+            extensions = CL.getPlatformInfoNative(getPointer(), CL_PLATFORM_EXTENSIONS);
+        return extensions;
+    }
+
+    public String getVendor() {
+        if(vendor == null)
+            vendor = CL.getPlatformInfoNative(getPointer(), CL_PLATFORM_VENDOR);
+        return vendor;
+    }
+
+    public String getName() {
+        if(name == null)
+            name = CL.getPlatformInfoNative(getPointer(), CL_PLATFORM_NAME);
+        return name;
+    }
+
+    /**
+     * @return OpenCL<space><major_version.minor_ version><space><platform-specific information>
+     */
+    public String getVersion() {
+        if(version == null)
+            version = CL.getPlatformInfoNative(getPointer(), CL_PLATFORM_VERSION);
+        int indexMajor = version.indexOf(' ') + 1;
+        this.majorVersion = Short.decode(version.substring(indexMajor, indexMajor + 1));
+        int indexMinor = version.indexOf('.') + 1;
+        this.minorVersion = Short.decode(version.substring(indexMinor, indexMinor + 1));
+        return version;
+    }
+
+    public short getMajorVersion() {
+        if(version == null)
+            getVersion();
+        return majorVersion;
+    }
+
+    public short getMinorVersion() {
+        if(version == null)
+            getVersion();
+        return minorVersion;
+    }
+
+    public String getProfile() {
+        if(profile == null)
+            profile = CL.getPlatformInfoNative(getPointer(), CL_PLATFORM_PROFILE);
+        return profile;
+    }
+
+    @Override
+    public String toString() {
+        StringBuilder stringBuilder = new StringBuilder();
+        stringBuilder.append("{pointer='").append(getPointer()).append("', profile='").append(getProfile()).append("', version='").append(getVersion()).append("', name='").append(getName()).append("', vendor='").append(getVendor()).append("', extensions='").append(getExtensions()).append("'}");
+        return stringBuilder.toString();
+    }
 }
