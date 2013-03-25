@@ -53,23 +53,27 @@ public class CLPlatform {
         this.pointer = pointer;
     }
 
-    public CLDevices getDevices() {
-        if(devices == null) {
-            devices = new CLDevices();
-            long[] pointers = CL.getDevicesNative(getPointer());
+    public CLDevices getDevices(CLDevicesType type) {
+        if(devices == null || type != devices.getType()) {
+            long[] pointers = CL.getDevicesNative(getPointer(), type.getType());
+            devices = new CLDevices(type);
             for(long pointer : pointers)
                 devices.add(new CLDevice(pointer));
         }
         return devices;
     }
 
+    public CLDevices attachedDevices() {
+        return devices;
+    }
+
     public CLContext createContext() {
-        long pointer = CL.createContextNative(getPointer());
+        long pointer = CL.createContextNative(getPointer(), devices.getPointers());
         return new CLContext(pointer);
     }
 
     public CLContext createCLGLContext() {
-        long pointer = CL.createCLGLContextNative(getPointer());
+        long pointer = CL.createCLGLContextNative(getPointer(), devices.getPointers());
         return new CLContext(pointer);
     }
 

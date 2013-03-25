@@ -60,13 +60,14 @@ public class Benchmark {
             Log.message(platform.toString());
         for (CLPlatform platform : platforms.values()) {
             Log.startMessage("Getting devices for platform " + platform.getPointer());
-            CLDevices devices = platform.getDevices();
+            CLDevices devices = platform.getDevices(CLDevicesType.CL_DEVICE_TYPE_ALL);
             Log.endMessage(LogStatus.OK);
             Log.message("Found " + devices.size() + " device(s)");
             for (CLDevice device : devices.values())
                 Log.message(device.toString());
         }
         for (CLPlatform platform : platforms.values()) {
+            platform.attachedDevices().ignore(platform.attachedDevices().values().iterator().next());
             Log.startMessage("Creating context on platform " + platform.getPointer());
             CLContext context = platform.createContext();
             Log.endMessage(LogStatus.OK);

@@ -1,12 +1,5 @@
 package com.centaurean.clmax.schema;
 
-import com.centaurean.commons.utilities.Transform;
-
-import java.util.Hashtable;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.NoSuchElementException;
-
 /*
  * Copyright (c) 2013, Centaurean software
  * All rights reserved.
@@ -35,38 +28,19 @@ import java.util.NoSuchElementException;
  *
  * jetFlow
  *
- * 23/03/13 22:35
+ * 25/03/13 14:53
  * @author gpnuma
  */
-public class CLDevices extends Hashtable<Long, CLDevice> {
-    private CLDevicesType type;
-    private LinkedList<CLDevice> ignored;
+public enum CLDevicesType {
+    CL_DEVICE_TYPE_DEFAULT(1), CL_DEVICE_TYPE_CPU(1 << 1), CL_DEVICE_TYPE_GPU(1 << 2), CL_DEVICE_TYPE_ACCELERATOR(1 << 3), CL_DEVICE_TYPE_ALL(0xFFFFFFFF), CL_DEVICE_TYPE_CUSTOM(1 << 4);
 
-    public CLDevices(CLDevicesType type) {
-        super();
-        ignored = new LinkedList<CLDevice>();
+    private long type;
+
+    private CLDevicesType(long type) {
+        this.type = type;
     }
 
-    public boolean add(CLDevice device) {
-        CLDevice found = put(device.getPointer(), device);
-        return found == null;
-    }
-
-    public long[] getPointers() {
-        return Transform.toArray(keySet());
-    }
-
-    public CLDevicesType getType() {
+    public long getType() {
         return type;
-    }
-
-    public void ignore(CLDevice device) {
-        if(remove(device.getPointer()) == null)
-            throw new NoSuchElementException();
-        ignored.add(device);
-    }
-
-    public List<CLDevice> getIgnored() {
-        return ignored;
     }
 }

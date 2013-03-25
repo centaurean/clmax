@@ -1,5 +1,7 @@
 package com.centaurean.clmax.schema;
 
+import com.centaurean.commons.utilities.Transform;
+
 import java.util.Hashtable;
 import java.util.NoSuchElementException;
 
@@ -39,8 +41,8 @@ public class CLPlatforms extends Hashtable<Long, CLPlatform> {
 
     public static CLPlatforms getPlatforms() {
         if(platforms == null) {
-            platforms = new CLPlatforms();
             long[] pointers = CL.getPlatformsNative();
+            platforms = new CLPlatforms();
             for(long pointer : pointers)
                 platforms.add(new CLPlatform(pointer));
         }
@@ -49,6 +51,10 @@ public class CLPlatforms extends Hashtable<Long, CLPlatform> {
 
     private CLPlatforms() {
         super();
+    }
+
+    public long[] getPointers() {
+        return Transform.toArray(keySet());
     }
 
     public boolean add(CLPlatform platform) {

@@ -26,10 +26,10 @@ JNIEXPORT jstring JNICALL Java_com_centaurean_clmax_schema_CL_getPlatformInfoNat
 /*
  * Class:     com_centaurean_clmax_schema_CL
  * Method:    getDevicesNative
- * Signature: (J)[J
+ * Signature: (JJ)[J
  */
 JNIEXPORT jlongArray JNICALL Java_com_centaurean_clmax_schema_CL_getDevicesNative
-  (JNIEnv *, jclass, jlong);
+  (JNIEnv *, jclass, jlong, jlong);
 
 /*
  * Class:     com_centaurean_clmax_schema_CL
@@ -58,18 +58,18 @@ JNIEXPORT jstring JNICALL Java_com_centaurean_clmax_schema_CL_getDeviceInfoStrin
 /*
  * Class:     com_centaurean_clmax_schema_CL
  * Method:    createContextNative
- * Signature: (J)J
+ * Signature: (J[J)J
  */
 JNIEXPORT jlong JNICALL Java_com_centaurean_clmax_schema_CL_createContextNative
-  (JNIEnv *, jclass, jlong);
+  (JNIEnv *, jclass, jlong, jlongArray);
 
 /*
  * Class:     com_centaurean_clmax_schema_CL
  * Method:    createCLGLContextNative
- * Signature: (J)J
+ * Signature: (J[J)J
  */
 JNIEXPORT jlong JNICALL Java_com_centaurean_clmax_schema_CL_createCLGLContextNative
-  (JNIEnv *, jclass, jlong);
+  (JNIEnv *, jclass, jlong, jlongArray);
 
 /*
  * Class:     com_centaurean_clmax_schema_CL

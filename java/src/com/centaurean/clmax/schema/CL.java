@@ -33,12 +33,12 @@ package com.centaurean.clmax.schema;
  */
 public class CL {
     static native long[] getPlatformsNative();
-    static native String getPlatformInfoNative(long pointer, int parameter);
-    static native long[] getDevicesNative(long pointer);
-    static native long getDeviceInfoLongNative(long pointer, int parameter);
-    static native long[] getDeviceInfoLongArrayNative(long pointer, int parameter);
-    static native String getDeviceInfoStringNative(long pointer, int parameter);
-    static native long createContextNative(long pointer);
-    static native long createCLGLContextNative(long pointer);
-    static native void releaseContextNative(long pointer);
+    static native String getPlatformInfoNative(long pointerPlatform, int parameter);
+    static native long[] getDevicesNative(long pointerPlatform, long type);
+    static native long getDeviceInfoLongNative(long pointerDevice, int parameter);
+    static native long[] getDeviceInfoLongArrayNative(long pointerDevice, int parameter);
+    static native String getDeviceInfoStringNative(long pointerDevice, int parameter);
+    static native long createContextNative(long pointerPlatform, long[] pointersDevices);
+    static native long createCLGLContextNative(long pointerPlatform, long[] pointersDevices);
+    static native void releaseContextNative(long pointerContext);
 }

@@ -1,11 +1,4 @@
-package com.centaurean.clmax.schema;
-
-import com.centaurean.commons.utilities.Transform;
-
-import java.util.Hashtable;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.NoSuchElementException;
+package com.centaurean.clmax.schema.exceptions;
 
 /*
  * Copyright (c) 2013, Centaurean software
@@ -35,38 +28,11 @@ import java.util.NoSuchElementException;
  *
  * jetFlow
  *
- * 23/03/13 22:35
+ * 25/03/13 15:43
  * @author gpnuma
  */
-public class CLDevices extends Hashtable<Long, CLDevice> {
-    private CLDevicesType type;
-    private LinkedList<CLDevice> ignored;
-
-    public CLDevices(CLDevicesType type) {
-        super();
-        ignored = new LinkedList<CLDevice>();
-    }
-
-    public boolean add(CLDevice device) {
-        CLDevice found = put(device.getPointer(), device);
-        return found == null;
-    }
-
-    public long[] getPointers() {
-        return Transform.toArray(keySet());
-    }
-
-    public CLDevicesType getType() {
-        return type;
-    }
-
-    public void ignore(CLDevice device) {
-        if(remove(device.getPointer()) == null)
-            throw new NoSuchElementException();
-        ignored.add(device);
-    }
-
-    public List<CLDevice> getIgnored() {
-        return ignored;
+public class CLException extends RuntimeException {
+    public CLException(String message) {
+        super(message);
     }
 }
