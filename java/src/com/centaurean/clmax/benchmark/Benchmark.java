@@ -57,14 +57,14 @@ public class Benchmark {
         Log.endMessage(LogStatus.OK);
         Log.message("Found " + platforms.size() + " platform(s)");
         for (CLPlatform platform : platforms.values())
-            Log.message(platform.toString());
+            Log.message(platform);
         for (CLPlatform platform : platforms.values()) {
             Log.startMessage("Getting devices for platform " + platform.getPointer());
             CLDevices devices = platform.getDevices(CLDevicesType.CL_DEVICE_TYPE_ALL);
             Log.endMessage(LogStatus.OK);
             Log.message("Found " + devices.size() + " device(s)");
             for (CLDevice device : devices.values())
-                Log.message(device.toString());
+                Log.message(device);
         }
         for (CLPlatform platform : platforms.values()) {
             CLDevice first = platform.attachedDevices().values().iterator().next();
@@ -75,13 +75,14 @@ public class Benchmark {
             Log.startMessage("Creating context on platform " + platform.getPointer());
             CLContext context = platform.createContext();
             Log.endMessage(LogStatus.OK);
-            Log.message(context.toString());
+            Log.message(context);
             Log.startMessage("Releasing context");
             context.release();
             Log.endMessage(LogStatus.OK);
             /*Log.startMessage("Creating CL GL context on platform " + platform.getPointer());
             context = platform.createCLGLContext();
             Log.endMessage(LogStatus.OK);
+            Log.message(context);
             Log.startMessage("Releasing context");
             context.release();
             Log.endMessage(LogStatus.OK);*/

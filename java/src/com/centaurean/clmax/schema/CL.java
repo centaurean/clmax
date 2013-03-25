@@ -39,7 +39,7 @@ public class CL {
     static native long[] getDeviceInfoLongArrayNative(long pointerDevice, int parameter);
     static native String getDeviceInfoStringNative(long pointerDevice, int parameter);
     static native long createContextNative(long pointerPlatform, long[] pointersDevices);
-    static native long createCLGLContextNative(long pointerPlatform, long[] pointersDevices);
+    static native long createCLGLContextNative(long pointerPlatform);
     static native void releaseContextNative(long pointerContext);
     static native long getContextInfoLongNative(long pointerContext, int parameter);
     static native long[] getContextInfoLongArrayNative(long pointerContext, int parameter);

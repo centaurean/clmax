@@ -1,8 +1,7 @@
 package com.centaurean.clmax.schema;
 
+import com.centaurean.clmax.schema.exceptions.CLException;
 import com.centaurean.commons.utilities.Transform;
-
-import java.security.InvalidParameterException;
 
 /*
  * Copyright (c) 2013, Centaurean software
@@ -49,7 +48,7 @@ public class CLContext {
 
     CLContext(long pointer) {
         if(pointer == 0)
-            throw new InvalidParameterException();
+            throw new CLException("Context creation failed : null pointer returned");
         this.pointer = pointer;
     }
 

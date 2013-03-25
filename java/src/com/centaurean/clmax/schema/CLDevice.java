@@ -118,6 +118,13 @@ public class CLDevice {
     private int maxWorkItemDimensions = Integer.MAX_VALUE;
     private long maxWorkGroupSize = Long.MAX_VALUE;
     private long[] maxWorkItemSizes;
+    private int preferredVectorWidthChar = Integer.MAX_VALUE;
+    private int preferredVectorWidthShort = Integer.MAX_VALUE;
+    private int preferredVectorWidthInt = Integer.MAX_VALUE;
+    private int preferredVectorWidthLong = Integer.MAX_VALUE;
+    private int preferredVectorWidthFloat = Integer.MAX_VALUE;
+    private int preferredVectorWidthDouble = Integer.MAX_VALUE;
+    private int maxClockFrequency = Integer.MAX_VALUE;
 
     private String extensions;
     private long image2dMaxHeight = Long.MAX_VALUE;
@@ -144,7 +151,6 @@ public class CLDevice {
     private size_t image3dMaxWidth;
     private long localMemSize;
     private bitField localMemType;
-    private int maxClockFrequency;
     private int maxConstantArgs;
     private long maxConstantBufferSize;
     private long maxMemAllocSize;
@@ -156,12 +162,6 @@ public class CLDevice {
     private int memBaseAddrAlign;
     private int minDataTypeAlignSize;
     private long platformPointer;
-    private int preferredVectorWidthChar;
-    private int preferredVectorWidthShort;
-    private int preferredVectorWidthInt;
-    private int preferredVectorWidthLong;
-    private int preferredVectorWidthFloat;
-    private int preferredVectorWidthDouble;
     private String profile;
     private size_t profilingTimerResolution;
     private bitField queueProperties;
@@ -211,6 +211,48 @@ public class CLDevice {
         if (maxWorkItemSizes == null)
             maxWorkItemSizes = CL.getDeviceInfoLongArrayNative(getPointer(), CL_DEVICE_MAX_WORK_ITEM_SIZES);
         return maxWorkItemSizes;
+    }
+
+    public int getPreferredVectorWidthChar() {
+        if(preferredVectorWidthChar == Integer.MAX_VALUE)
+            preferredVectorWidthChar = (int) CL.getDeviceInfoLongNative(getPointer(), CL_DEVICE_PREFERRED_VECTOR_WIDTH_CHAR);
+        return preferredVectorWidthChar;
+    }
+
+    public int getPreferredVectorWidthShort() {
+        if(preferredVectorWidthShort == Integer.MAX_VALUE)
+            preferredVectorWidthShort = (int) CL.getDeviceInfoLongNative(getPointer(), CL_DEVICE_PREFERRED_VECTOR_WIDTH_SHORT);
+        return preferredVectorWidthShort;
+    }
+
+    public int getPreferredVectorWidthInt() {
+        if(preferredVectorWidthInt == Integer.MAX_VALUE)
+            preferredVectorWidthInt = (int) CL.getDeviceInfoLongNative(getPointer(), CL_DEVICE_PREFERRED_VECTOR_WIDTH_INT);
+        return preferredVectorWidthInt;
+    }
+
+    public int getPreferredVectorWidthLong() {
+        if(preferredVectorWidthLong == Integer.MAX_VALUE)
+            preferredVectorWidthLong = (int) CL.getDeviceInfoLongNative(getPointer(), CL_DEVICE_PREFERRED_VECTOR_WIDTH_LONG);
+        return preferredVectorWidthLong;
+    }
+
+    public int getPreferredVectorWidthFloat() {
+        if(preferredVectorWidthFloat == Integer.MAX_VALUE)
+            preferredVectorWidthFloat = (int) CL.getDeviceInfoLongNative(getPointer(), CL_DEVICE_PREFERRED_VECTOR_WIDTH_FLOAT);
+        return preferredVectorWidthFloat;
+    }
+
+    public int getPreferredVectorWidthDouble() {
+        if(preferredVectorWidthDouble == Integer.MAX_VALUE)
+            preferredVectorWidthDouble = (int) CL.getDeviceInfoLongNative(getPointer(), CL_DEVICE_PREFERRED_VECTOR_WIDTH_DOUBLE);
+        return preferredVectorWidthDouble;
+    }
+
+    public int getMaxClockFrequency() {
+        if(maxClockFrequency == Integer.MAX_VALUE)
+            maxClockFrequency = (int) CL.getDeviceInfoLongNative(getPointer(), CL_DEVICE_MAX_CLOCK_FREQUENCY);
+        return maxClockFrequency;
     }
 
     public String getExtensions() {
@@ -281,6 +323,10 @@ public class CLDevice {
         StringBuilder stringBuilder = new StringBuilder();
         stringBuilder.append("{pointer='0x").append(Long.toHexString(getPointer())).append("', type='").append(getType()).append("', vendorId='").append(getVendorId()).append("', maxComputeUnits='").append(getMaxComputeUnits())
                 .append("', maxWorkGroupSize='").append(getMaxWorkGroupSize()).append("', maxWorkItemDimensions='").append(getMaxWorkItemDimensions()).append("', maxWorkItemSizes='").append(Arrays.toString(getMaxWorkItemSizes()))
+                .append("', preferredVectorWidthChar='").append(getPreferredVectorWidthChar()).append("', preferredVectorWidthShort='").append(getPreferredVectorWidthShort()).append("', preferredVectorWidthInt='").append(getPreferredVectorWidthInt())
+                .append("', preferredVectorWidthLong='").append(getPreferredVectorWidthLong()).append("', preferredVectorWidthFloat='").append(getPreferredVectorWidthFloat()).append("', preferredVectorWidthDouble='").append(getPreferredVectorWidthDouble())
+                .append("', maxClockFrequency='").append(getMaxClockFrequency())
+
                 .append("', extensions='").append(getExtensions()).append("', image2dMaxHeight='").append(getImage2dMaxHeight()).append("', name='").append(getName()).append("', version='").append(getVersion()).append("', vendor='").append(getVendor()).append("'}");
         return stringBuilder.toString();
     }

@@ -144,16 +144,13 @@ JNIEXPORT jlong JNICALL Java_com_centaurean_clmax_schema_CL_createContextNative(
     return (long long)context;
 }
 
-JNIEXPORT jlong JNICALL Java_com_centaurean_clmax_schema_CL_createCLGLContextNative(JNIEnv *env, jclass this, jlong pointerPlatform, jlongArray pointersDevices) {
-    cl_uint num_devices = (*env)->GetArrayLength(env, pointersDevices);
-    cl_device_id* devices = (cl_device_id*)malloc(num_devices * sizeof(cl_device_id));
-    jlong *body = (*env)->GetLongArrayElements(env, pointersDevices, 0);
-    for (jint i = 0; i < num_devices; i++)
-        devices[i] = (cl_device_id)body[i];
-	(*env)->ReleaseLongArrayElements(env, pointersDevices, body, 0);
-
+JNIEXPORT jlong JNICALL Java_com_centaurean_clmax_schema_CL_createCLGLContextNative(JNIEnv *env, jclass this, jlong pointerPlatform) {
     cl_context context = NULL;
     cl_int errcode_ret;
+
+    cl_uint num_devices;
+    cl_device_id* devices = (cl_device_id*)malloc(MAX_CL_DEVICES_PER_PLATFORM * sizeof(cl_device_id));
+    
 #ifdef __APPLE__
     /*CGLContextObj glContext;
     CGLPixelFormatAttribute attributes[4] = {
@@ -183,11 +180,7 @@ JNIEXPORT jlong JNICALL Java_com_centaurean_clmax_schema_CL_createCLGLContextNat
     };
 
     // Optional: Get the CPU device (we can request this in addition to GPUs in Share Group)
-    //cl_device_id cpu_devices[32]; cl_uint count;
-    //checkResult(clGetDeviceIDs((cl_platform_id)pointer, CL_DEVICE_TYPE_CPU, 32 * sizeof(cl_device_id), cpu_devices, &count), env);
-
-    // Create a context from a CGL share group (note: only use CPU if software renderer is enabled!)
-    context = clCreateContext(properties, /*0, 0*/num_devices, devices, NULL, 0, &errcode_ret);
+    checkResult(clGetDeviceIDs((cl_platform_id)pointerPlatform, CL_DEVICE_TYPE_CPU, MAX_CL_DEVICES_PER_PLATFORM * sizeof(cl_device_id), devices, &num_devices), env);
 #elif _WIN32
     // Create CL context properties, add WGL context & handle to DC
     cl_context_properties properties[] = {
@@ -198,13 +191,9 @@ JNIEXPORT jlong JNICALL Java_com_centaurean_clmax_schema_CL_createCLGLContextNat
     };
 
     // Find CL capable devices in the current GL context
-    cl_device_id devices[32];
     size_t size;
-    clGetGLContextInfoKHR(properties, CL_DEVICES_FOR_GL_CONTEXT_KHR, 32 * sizeof(cl_device_id), devices, &size);
-
-    // Create a context using the supported devices
-    cl_int count = size / sizeof(cl_device_id);
-    context = clCreateContext(properties, devices, num_devices, NULL, 0, &errcode_ret);
+    checkResult(clGetGLContextInfoKHR(properties, CL_DEVICES_FOR_GL_CONTEXT_KHR, MAX_CL_DEVICES_PER_PLATFORM * sizeof(cl_device_id), devices, &size), env);
+    num_devices = size / sizeof(cl_device_id);
 #elif __linux__
     // Create CL context properties, add GLX context & handle to DC
     cl_context_properties properties[] = {
@@ -215,13 +204,14 @@ JNIEXPORT jlong JNICALL Java_com_centaurean_clmax_schema_CL_createCLGLContextNat
     };
 
     // Find CL capable devices in the current GL context
-    cl_device_id devices[32]; size_t size;
-    clGetGLContextInfoKHR(properties, CL_DEVICES_FOR_GL_CONTEXT_KHR, 32 * sizeof(cl_device_id), devices, &size);
-
-    // Create a context using the supported devices
-    cl_int count = size / sizeof(cl_device_id);
-    context = clCreateContext(properties, devices, num_devices, NULL, 0, &errcode_ret);
+    size_t size;
+    checkResult(clGetGLContextInfoKHR(properties, CL_DEVICES_FOR_GL_CONTEXT_KHR, MAX_CL_DEVICES_PER_PLATFORM * sizeof(cl_device_id), devices, &size), env);
+    num_devices = size / sizeof(cl_device_id);
+#else
+    throwCLException(env, "Unsupported platform");
 #endif
+    
+    context = clCreateContext(properties, num_devices, devices, NULL, 0, &errcode_ret);
     
     free(devices);
 
