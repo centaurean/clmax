@@ -260,6 +260,23 @@ public class CLDevice {
     }
 
     @Override
+    public int hashCode() {
+        return (int)getPointer();
+    }
+
+    @Override
+    public boolean equals(Object object) {
+        if (object == null)
+            return false;
+        if (object == this)
+            return true;
+        if (!(object instanceof CLDevice))
+            return false;
+        CLDevice device = (CLDevice) object;
+        return (getPointer() == device.getPointer());
+    }
+
+    @Override
     public String toString() {
         StringBuilder stringBuilder = new StringBuilder();
         stringBuilder.append("{pointer='0x").append(Long.toHexString(getPointer())).append("', type='").append(getType()).append("', vendorId='").append(getVendorId()).append("', maxComputeUnits='").append(getMaxComputeUnits())

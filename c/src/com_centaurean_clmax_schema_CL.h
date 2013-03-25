@@ -79,6 +79,22 @@ JNIEXPORT jlong JNICALL Java_com_centaurean_clmax_schema_CL_createCLGLContextNat
 JNIEXPORT void JNICALL Java_com_centaurean_clmax_schema_CL_releaseContextNative
   (JNIEnv *, jclass, jlong);
 
+/*
+ * Class:     com_centaurean_clmax_schema_CL
+ * Method:    getContextInfoLongNative
+ * Signature: (JI)J
+ */
+JNIEXPORT jlong JNICALL Java_com_centaurean_clmax_schema_CL_getContextInfoLongNative
+  (JNIEnv *, jclass, jlong, jint);
+
+/*
+ * Class:     com_centaurean_clmax_schema_CL
+ * Method:    getContextInfoLongArrayNative
+ * Signature: (JI)[J
+ */
+JNIEXPORT jlongArray JNICALL Java_com_centaurean_clmax_schema_CL_getContextInfoLongArrayNative
+  (JNIEnv *, jclass, jlong, jint);
+
 #ifdef __cplusplus
 }
 #endif

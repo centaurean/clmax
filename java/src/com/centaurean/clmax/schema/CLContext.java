@@ -1,5 +1,7 @@
 package com.centaurean.clmax.schema;
 
+import com.centaurean.commons.utilities.Transform;
+
 import java.security.InvalidParameterException;
 
 /*
@@ -34,7 +36,16 @@ import java.security.InvalidParameterException;
  * @author gpnuma
  */
 public class CLContext {
+    public static final int CL_CONTEXT_REFERENCE_COUNT = 0x1080;
+    public static final int CL_CONTEXT_DEVICES         = 0x1081;
+    public static final int CL_CONTEXT_PROPERTIES      = 0x1082;
+    public static final int CL_CONTEXT_NUM_DEVICES     = 0x1083;
+
     private long pointer;
+    private int referenceCount = Integer.MAX_VALUE;
+    private int numDevices = Integer.MAX_VALUE;
+    private long[] devices;
+    private long[] properties;
 
     CLContext(long pointer) {
         if(pointer == 0)
@@ -46,7 +57,40 @@ public class CLContext {
         return pointer;
     }
 
+    public int getReferenceCount() {
+        if(referenceCount == Integer.MAX_VALUE)
+            referenceCount = (int)CL.getContextInfoLongNative(getPointer(), CL_CONTEXT_REFERENCE_COUNT);
+        return referenceCount;
+    }
+
+    public int getNumDevices() {
+        if(numDevices == Integer.MAX_VALUE)
+            numDevices = (int)CL.getContextInfoLongNative(getPointer(), CL_CONTEXT_NUM_DEVICES);
+        return numDevices;
+    }
+
+    public long[] getDevices() {
+        if(devices == null)
+            devices = CL.getContextInfoLongArrayNative(getPointer(), CL_CONTEXT_DEVICES);
+        return devices;
+    }
+
+    public long[] getProperties() {
+        if(properties == null)
+            properties = CL.getContextInfoLongArrayNative(getPointer(), CL_CONTEXT_PROPERTIES);
+        return properties;
+    }
+
     public void release() {
         CL.releaseContextNative(getPointer());
+    }
+
+    @Override
+    public String toString() {
+        StringBuilder stringBuilder = new StringBuilder();
+        stringBuilder.append("{pointer='").append(Long.toHexString(getPointer())).append("', referenceCount='").append(getReferenceCount()).append("', numDevices='").append(getNumDevices())
+                .append("', devices='").append(Transform.toHexArray(getDevices())).append("', properties='").append(Transform.toHexArray(getProperties()))
+                .append("'}");
+        return stringBuilder.toString();
     }
 }

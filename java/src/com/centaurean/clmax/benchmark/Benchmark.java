@@ -67,10 +67,15 @@ public class Benchmark {
                 Log.message(device.toString());
         }
         for (CLPlatform platform : platforms.values()) {
-            platform.attachedDevices().ignore(platform.attachedDevices().values().iterator().next());
+            CLDevice first = platform.attachedDevices().values().iterator().next();
+            Log.startMessage("Ignoring and reinstating context");
+            platform.attachedDevices().ignore(first);
+            platform.attachedDevices().reinstate(first);
+            Log.endMessage(LogStatus.OK);
             Log.startMessage("Creating context on platform " + platform.getPointer());
             CLContext context = platform.createContext();
             Log.endMessage(LogStatus.OK);
+            Log.message(context.toString());
             Log.startMessage("Releasing context");
             context.release();
             Log.endMessage(LogStatus.OK);

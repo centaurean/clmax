@@ -2,10 +2,10 @@ package com.centaurean.clmax.schema;
 
 import com.centaurean.commons.utilities.Transform;
 
+import java.util.HashSet;
 import java.util.Hashtable;
-import java.util.LinkedList;
-import java.util.List;
 import java.util.NoSuchElementException;
+import java.util.Set;
 
 /*
  * Copyright (c) 2013, Centaurean software
@@ -40,11 +40,11 @@ import java.util.NoSuchElementException;
  */
 public class CLDevices extends Hashtable<Long, CLDevice> {
     private CLDevicesType type;
-    private LinkedList<CLDevice> ignored;
+    private HashSet<CLDevice> ignored;
 
     public CLDevices(CLDevicesType type) {
         super();
-        ignored = new LinkedList<CLDevice>();
+        ignored = new HashSet<CLDevice>();
     }
 
     public boolean add(CLDevice device) {
@@ -66,7 +66,12 @@ public class CLDevices extends Hashtable<Long, CLDevice> {
         ignored.add(device);
     }
 
-    public List<CLDevice> getIgnored() {
+    public void reinstate(CLDevice device) {
+        if(ignored.remove(device))
+            add(device);
+    }
+
+    public Set<CLDevice> getIgnored() {
         return ignored;
     }
 }

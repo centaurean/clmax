@@ -41,4 +41,6 @@ public class CL {
     static native long createContextNative(long pointerPlatform, long[] pointersDevices);
     static native long createCLGLContextNative(long pointerPlatform, long[] pointersDevices);
     static native void releaseContextNative(long pointerContext);
+    static native long getContextInfoLongNative(long pointerContext, int parameter);
+    static native long[] getContextInfoLongArrayNative(long pointerContext, int parameter);
 }

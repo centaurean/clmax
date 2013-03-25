@@ -4,10 +4,12 @@
 #define MAX_CL_DEVICES_PER_PLATFORM     256
 #define MAX_CL_PLATFORM_INFO_SIZE       512
 #define MAX_CL_DEVICE_INFO_SIZE         1024
+#define MAX_CL_CONTEXT_INFO_SIZE        1024
+#define MAX_ERROR_MESSAGE_SIZE          256
 
 void checkResult(cl_int result, JNIEnv *env) {
     if(result != CL_SUCCESS) {
-        char* message = (char*)malloc(256 * sizeof(char));
+        char* message = (char*)malloc(MAX_ERROR_MESSAGE_SIZE * sizeof(char));
         sprintf(message, "CL error code %d", result);
         throwCLException(env, message);
     }
@@ -81,7 +83,7 @@ JNIEXPORT jlong JNICALL Java_com_centaurean_clmax_schema_CL_getDeviceInfoLongNat
     long result;
     size_t retsize;
 
-    checkResult(clGetDeviceInfo((cl_device_id)pointerDevice, parameter, MAX_CL_DEVICE_INFO_SIZE, &result, &retsize), env);
+    checkResult(clGetDeviceInfo((cl_device_id)pointerDevice, parameter, sizeof(long), &result, &retsize), env);
 
     return (long long)result;
 }
@@ -229,6 +231,38 @@ JNIEXPORT jlong JNICALL Java_com_centaurean_clmax_schema_CL_createCLGLContextNat
 }
 
 // Context release
-JNIEXPORT void JNICALL Java_com_centaurean_clmax_schema_CL_releaseContextNative(JNIEnv *env, jclass this, jlong pointer) {
-    checkResult(clReleaseContext((cl_context)pointer), env);
+JNIEXPORT void JNICALL Java_com_centaurean_clmax_schema_CL_releaseContextNative(JNIEnv *env, jclass this, jlong pointerContext) {
+    checkResult(clReleaseContext((cl_context)pointerContext), env);
+}
+
+// Context infos
+JNIEXPORT jlong JNICALL Java_com_centaurean_clmax_schema_CL_getContextInfoLongNative(JNIEnv *env, jclass this, jlong pointerContext, jint parameter) {
+    long result;
+    size_t retsize;
+    
+    cl_context context = (cl_context)pointerContext;
+    checkResult(clGetContextInfo((cl_context)pointerContext, parameter, sizeof(long), &result, &retsize), env);
+    
+    return (long long)result;
+}
+
+JNIEXPORT jlongArray JNICALL Java_com_centaurean_clmax_schema_CL_getContextInfoLongArrayNative(JNIEnv *env, jclass this, jlong pointerContext, jint parameter) {
+    size_t retsize;
+    size_t* values = (size_t*)malloc(MAX_CL_CONTEXT_INFO_SIZE * sizeof(size_t));
+    
+    checkResult(clGetContextInfo((cl_context)pointerContext, parameter, MAX_CL_CONTEXT_INFO_SIZE, values, &retsize), env);
+    
+    int arraySize = retsize / sizeof(size_t);
+    jlongArray result;
+    result = (*env)->NewLongArray(env, arraySize);
+    if(result == NULL)
+        return NULL;
+    jlong construct[arraySize];
+    for (int i = 0; i < arraySize; i++)
+        construct[i] = (long long)values[i];
+    (*env)->SetLongArrayRegion(env, result, 0, arraySize, construct);
+    
+    free(values);
+    
+    return result;
 }
