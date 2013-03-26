@@ -1,11 +1,4 @@
-package com.centaurean.clmax.schema;
-
-import com.centaurean.commons.utilities.Transform;
-
-import java.util.HashSet;
-import java.util.Hashtable;
-import java.util.NoSuchElementException;
-import java.util.Set;
+package com.centaurean.clmax.schema.versions;
 
 /*
  * Copyright (c) 2013, Centaurean software
@@ -35,43 +28,9 @@ import java.util.Set;
  *
  * jetFlow
  *
- * 23/03/13 22:35
+ * 26/03/13 15:33
  * @author gpnuma
  */
-public class CLDevices extends Hashtable<Long, CLDevice> {
-    private CLDevicesType type;
-    private HashSet<CLDevice> ignored;
-
-    public CLDevices(CLDevicesType type) {
-        super();
-        ignored = new HashSet<CLDevice>();
-    }
-
-    public boolean add(CLDevice device) {
-        CLDevice found = put(device.getPointer(), device);
-        return found == null;
-    }
-
-    public long[] getPointers() {
-        return Transform.toArray(keySet());
-    }
-
-    public CLDevicesType getType() {
-        return type;
-    }
-
-    public void ignore(CLDevice device) {
-        if(remove(device.getPointer()) == null)
-            throw new NoSuchElementException();
-        ignored.add(device);
-    }
-
-    public void reinstate(CLDevice device) {
-        if(ignored.remove(device))
-            add(device);
-    }
-
-    public Set<CLDevice> getIgnored() {
-        return ignored;
-    }
+public interface CLVersionMatcher {
+    public CLVersion getMinimumCLVersion();
 }

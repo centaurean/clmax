@@ -1,4 +1,11 @@
-package com.centaurean.clmax.schema;
+package com.centaurean.clmax.schema.devices;
+
+import com.centaurean.commons.utilities.Transform;
+
+import java.util.HashSet;
+import java.util.Hashtable;
+import java.util.NoSuchElementException;
+import java.util.Set;
 
 /*
  * Copyright (c) 2013, Centaurean software
@@ -28,19 +35,43 @@ package com.centaurean.clmax.schema;
  *
  * jetFlow
  *
- * 24/03/13 16:33
+ * 23/03/13 22:35
  * @author gpnuma
  */
-public class CL {
-    public static native long[] getPlatformsNative();
-    public static native String getPlatformInfoNative(long pointerPlatform, int parameter);
-    public static native long[] getDevicesNative(long pointerPlatform, long type);
-    public static native long getDeviceInfoLongNative(long pointerDevice, int parameter);
-    public static native long[] getDeviceInfoLongArrayNative(long pointerDevice, int parameter);
-    public static native String getDeviceInfoStringNative(long pointerDevice, int parameter);
-    public static native long createContextNative(long pointerPlatform, long[] pointersDevices);
-    public static native long createCLGLContextNative(long pointerPlatform);
-    public static native void releaseContextNative(long pointerContext);
-    public static native long getContextInfoLongNative(long pointerContext, int parameter);
-    public static native long[] getContextInfoLongArrayNative(long pointerContext, int parameter);
+public class CLDevices extends Hashtable<Long, CLDevice> {
+    private CLDeviceType type;
+    private HashSet<CLDevice> ignored;
+
+    public CLDevices(CLDeviceType type) {
+        super();
+        ignored = new HashSet<CLDevice>();
+    }
+
+    public boolean add(CLDevice device) {
+        CLDevice found = put(device.getPointer(), device);
+        return found == null;
+    }
+
+    public long[] getPointers() {
+        return Transform.toArray(keySet());
+    }
+
+    public CLDeviceType getType() {
+        return type;
+    }
+
+    public void ignore(CLDevice device) {
+        if(remove(device.getPointer()) == null)
+            throw new NoSuchElementException();
+        ignored.add(device);
+    }
+
+    public void reinstate(CLDevice device) {
+        if(ignored.remove(device))
+            add(device);
+    }
+
+    public Set<CLDevice> getIgnored() {
+        return ignored;
+    }
 }

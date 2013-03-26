@@ -1,4 +1,9 @@
-package com.centaurean.clmax.schema;
+package com.centaurean.clmax.schema.contexts;
+
+import com.centaurean.clmax.cache.CLQueryCacheKey;
+import com.centaurean.clmax.schema.versions.CLVersion;
+
+import static com.centaurean.clmax.schema.versions.CLVersion.OPENCL_1_0;
 
 /*
  * Copyright (c) 2013, Centaurean software
@@ -28,19 +33,34 @@ package com.centaurean.clmax.schema;
  *
  * jetFlow
  *
- * 24/03/13 16:33
+ * 25/03/13 20:12
  * @author gpnuma
  */
-public class CL {
-    public static native long[] getPlatformsNative();
-    public static native String getPlatformInfoNative(long pointerPlatform, int parameter);
-    public static native long[] getDevicesNative(long pointerPlatform, long type);
-    public static native long getDeviceInfoLongNative(long pointerDevice, int parameter);
-    public static native long[] getDeviceInfoLongArrayNative(long pointerDevice, int parameter);
-    public static native String getDeviceInfoStringNative(long pointerDevice, int parameter);
-    public static native long createContextNative(long pointerPlatform, long[] pointersDevices);
-    public static native long createCLGLContextNative(long pointerPlatform);
-    public static native void releaseContextNative(long pointerContext);
-    public static native long getContextInfoLongNative(long pointerContext, int parameter);
-    public static native long[] getContextInfoLongArrayNative(long pointerContext, int parameter);
+public enum CLContextInfo implements CLQueryCacheKey {
+    CL_CONTEXT_REFERENCE_COUNT(0x1080),
+    CL_CONTEXT_DEVICES(0x1081),
+    CL_CONTEXT_PROPERTIES(0x1082),
+    CL_CONTEXT_NUM_DEVICES(0x1083);
+
+    private int key;
+    private CLVersion minimumVersion;
+
+    private CLContextInfo(int key) {
+        this(key, OPENCL_1_0);
+    }
+
+    private CLContextInfo(int key, CLVersion minimumVersion) {
+        this.key = key;
+        this.minimumVersion = minimumVersion;
+    }
+
+    @Override
+    public int getKey() {
+        return key;
+    }
+
+    @Override
+    public CLVersion getMinimumCLVersion() {
+        return minimumVersion;
+    }
 }

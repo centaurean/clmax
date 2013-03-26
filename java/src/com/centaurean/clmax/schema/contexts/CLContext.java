@@ -1,6 +1,7 @@
-package com.centaurean.clmax.schema;
+package com.centaurean.clmax.schema.contexts;
 
-import com.centaurean.clmax.schema.exceptions.CLException;
+import com.centaurean.clmax.schema.CL;
+import com.centaurean.clmax.schema.CLObject;
 import com.centaurean.commons.utilities.Transform;
 
 /*
@@ -34,31 +35,24 @@ import com.centaurean.commons.utilities.Transform;
  * 24/03/13 17:37
  * @author gpnuma
  */
-public class CLContext {
+public class CLContext extends CLObject {
     public static final int CL_CONTEXT_REFERENCE_COUNT = 0x1080;
     public static final int CL_CONTEXT_DEVICES         = 0x1081;
     public static final int CL_CONTEXT_PROPERTIES      = 0x1082;
     public static final int CL_CONTEXT_NUM_DEVICES     = 0x1083;
 
-    private long pointer;
     private int referenceCount = Integer.MAX_VALUE;
     private int numDevices = Integer.MAX_VALUE;
     private long[] devices;
     private long[] properties;
 
-    CLContext(long pointer) {
-        if(pointer == 0)
-            throw new CLException("Context creation failed : null pointer returned");
-        this.pointer = pointer;
-    }
-
-    public long getPointer() {
-        return pointer;
+    public CLContext(long pointer) {
+        super(pointer);
     }
 
     public int getReferenceCount() {
         if(referenceCount == Integer.MAX_VALUE)
-            referenceCount = (int)CL.getContextInfoLongNative(getPointer(), CL_CONTEXT_REFERENCE_COUNT);
+            referenceCount = (int) CL.getContextInfoLongNative(getPointer(), CL_CONTEXT_REFERENCE_COUNT);
         return referenceCount;
     }
 

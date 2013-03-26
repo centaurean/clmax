@@ -1,9 +1,6 @@
-package com.centaurean.clmax.schema;
+package com.centaurean.clmax.schema.values.exceptions;
 
-import com.centaurean.commons.utilities.Transform;
-
-import java.util.Hashtable;
-import java.util.NoSuchElementException;
+import com.centaurean.clmax.schema.exceptions.CLException;
 
 /*
  * Copyright (c) 2013, Centaurean software
@@ -33,39 +30,11 @@ import java.util.NoSuchElementException;
  *
  * jetFlow
  *
- * 23/03/13 21:44
+ * 26/03/13 15:56
  * @author gpnuma
  */
-public class CLPlatforms extends Hashtable<Long, CLPlatform> {
-    private static CLPlatforms platforms = null;
-
-    public static CLPlatforms getPlatforms() {
-        if(platforms == null) {
-            long[] pointers = CL.getPlatformsNative();
-            platforms = new CLPlatforms();
-            for(long pointer : pointers)
-                platforms.add(new CLPlatform(pointer));
-        }
-        return platforms;
-    }
-
-    private CLPlatforms() {
-        super();
-    }
-
-    public long[] getPointers() {
-        return Transform.toArray(keySet());
-    }
-
-    public boolean add(CLPlatform platform) {
-        CLPlatform found = put(platform.getPointer(), platform);
-        return found == null;
-    }
-
-    public CLPlatform getFirst() {
-        if(size() > 0)
-            return values().iterator().next();
-        else
-            throw new NoSuchElementException();
+public class CLValueFormatException extends CLException {
+    public CLValueFormatException(String message) {
+        super(message);
     }
 }

@@ -1,4 +1,12 @@
-package com.centaurean.clmax.schema;
+package com.centaurean.clmax.schema.platforms;
+
+import com.centaurean.clmax.schema.CL;
+import com.centaurean.clmax.schema.CLObject;
+import com.centaurean.clmax.schema.contexts.CLContext;
+import com.centaurean.clmax.schema.devices.CLDevice;
+import com.centaurean.clmax.schema.devices.CLDeviceType;
+import com.centaurean.clmax.schema.devices.CLDevices;
+import com.centaurean.clmax.schema.versions.CLVersion;
 
 /*
  * Copyright (c) 2013, Centaurean software
@@ -31,29 +39,26 @@ package com.centaurean.clmax.schema;
  * 23/03/13 21:44
  * @author gpnuma
  */
-public class CLPlatform {
+public class CLPlatform extends CLObject {
     public static final int CL_PLATFORM_PROFILE = 0x0900;
     public static final int CL_PLATFORM_VERSION = 0x0901;
     public static final int CL_PLATFORM_NAME = 0x0902;
     public static final int CL_PLATFORM_VENDOR = 0x0903;
     public static final int CL_PLATFORM_EXTENSIONS = 0x0904;
 
-    private long pointer;
     private String profile;
-    private String version;
+    private CLVersion version;
     private String name;
     private String vendor;
     private String extensions;
-    private short majorVersion;
-    private short minorVersion;
 
     private CLDevices devices = null;
 
     CLPlatform(long pointer) {
-        this.pointer = pointer;
+        super(pointer);
     }
 
-    public CLDevices getDevices(CLDevicesType type) {
+    public CLDevices getDevices(CLDeviceType type) {
         if(devices == null || type != devices.getType()) {
             long[] pointers = CL.getDevicesNative(getPointer(), type.getType());
             devices = new CLDevices(type);
@@ -77,10 +82,6 @@ public class CLPlatform {
         return new CLContext(pointer);
     }
 
-    public long getPointer() {
-        return pointer;
-    }
-
     public String getExtensions() {
         if(extensions == null)
             extensions = CL.getPlatformInfoNative(getPointer(), CL_PLATFORM_EXTENSIONS);
@@ -102,26 +103,10 @@ public class CLPlatform {
     /**
      * @return OpenCL<space><major_version.minor_ version><space><platform-specific information>
      */
-    public String getVersion() {
+    public CLVersion getVersion() {
         if(version == null)
-            version = CL.getPlatformInfoNative(getPointer(), CL_PLATFORM_VERSION);
-        int indexMajor = version.indexOf(' ') + 1;
-        this.majorVersion = Short.decode(version.substring(indexMajor, indexMajor + 1));
-        int indexMinor = version.indexOf('.') + 1;
-        this.minorVersion = Short.decode(version.substring(indexMinor, indexMinor + 1));
+            version = CLVersion.parse(CL.getPlatformInfoNative(getPointer(), CL_PLATFORM_VERSION));
         return version;
-    }
-
-    public short getMajorVersion() {
-        if(version == null)
-            getVersion();
-        return majorVersion;
-    }
-
-    public short getMinorVersion() {
-        if(version == null)
-            getVersion();
-        return minorVersion;
     }
 
     public String getProfile() {

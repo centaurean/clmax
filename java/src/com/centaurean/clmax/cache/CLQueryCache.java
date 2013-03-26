@@ -1,4 +1,10 @@
-package com.centaurean.clmax.schema;
+package com.centaurean.clmax.cache;
+
+import com.centaurean.clmax.schema.values.CLValue;
+import com.sun.tools.javac.util.Pair;
+
+import java.util.Hashtable;
+import java.util.concurrent.locks.ReentrantLock;
 
 /*
  * Copyright (c) 2013, Centaurean software
@@ -28,19 +34,50 @@ package com.centaurean.clmax.schema;
  *
  * jetFlow
  *
- * 24/03/13 16:33
+ * 25/03/13 21:31
  * @author gpnuma
  */
-public class CL {
-    public static native long[] getPlatformsNative();
-    public static native String getPlatformInfoNative(long pointerPlatform, int parameter);
-    public static native long[] getDevicesNative(long pointerPlatform, long type);
-    public static native long getDeviceInfoLongNative(long pointerDevice, int parameter);
-    public static native long[] getDeviceInfoLongArrayNative(long pointerDevice, int parameter);
-    public static native String getDeviceInfoStringNative(long pointerDevice, int parameter);
-    public static native long createContextNative(long pointerPlatform, long[] pointersDevices);
-    public static native long createCLGLContextNative(long pointerPlatform);
-    public static native void releaseContextNative(long pointerContext);
-    public static native long getContextInfoLongNative(long pointerContext, int parameter);
-    public static native long[] getContextInfoLongArrayNative(long pointerContext, int parameter);
+public class CLQueryCache {
+    static {
+        cacheStorage = new Hashtable<Pair<Long, CLQueryCacheKey>, CLValue>();
+    }
+
+    private static final ReentrantLock cacheLock = new ReentrantLock(true);
+    private static Hashtable<Pair<Long, CLQueryCacheKey>, CLValue> cacheStorage;
+
+    public static CLValue add(Long pointer, CLQueryCacheKey key, CLValue value) {
+        cacheLock.lock();
+        try {
+            return cacheStorage.put(toPair(pointer, key), value);
+        } finally {
+            cacheLock.unlock();
+        }
+    }
+
+    public static boolean contains(Long pointer, CLQueryCacheKey key) {
+        cacheLock.lock();
+        try {
+            return cacheStorage.containsKey(toPair(pointer, key));
+        } finally {
+            cacheLock.unlock();
+        }
+    }
+
+    public static CLValue get(Long pointer, CLQueryCacheKey key) {
+        cacheLock.lock();
+        try {
+            return cacheStorage.get(toPair(pointer, key));
+        } finally {
+            cacheLock.unlock();
+        }
+    }
+
+    private static Pair<Long, CLQueryCacheKey> toPair(Long pointer, CLQueryCacheKey key) {
+        cacheLock.lock();
+        try {
+            return new Pair<Long, CLQueryCacheKey>(pointer, key);
+        } finally {
+            cacheLock.unlock();
+        }
+    }
 }

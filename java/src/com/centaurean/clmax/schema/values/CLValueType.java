@@ -1,4 +1,4 @@
-package com.centaurean.clmax.schema;
+package com.centaurean.clmax.schema.values;
 
 /*
  * Copyright (c) 2013, Centaurean software
@@ -28,19 +28,9 @@ package com.centaurean.clmax.schema;
  *
  * jetFlow
  *
- * 24/03/13 16:33
+ * 26/03/13 15:12
  * @author gpnuma
  */
-public class CL {
-    public static native long[] getPlatformsNative();
-    public static native String getPlatformInfoNative(long pointerPlatform, int parameter);
-    public static native long[] getDevicesNative(long pointerPlatform, long type);
-    public static native long getDeviceInfoLongNative(long pointerDevice, int parameter);
-    public static native long[] getDeviceInfoLongArrayNative(long pointerDevice, int parameter);
-    public static native String getDeviceInfoStringNative(long pointerDevice, int parameter);
-    public static native long createContextNative(long pointerPlatform, long[] pointersDevices);
-    public static native long createCLGLContextNative(long pointerPlatform);
-    public static native void releaseContextNative(long pointerContext);
-    public static native long getContextInfoLongNative(long pointerContext, int parameter);
-    public static native long[] getContextInfoLongArrayNative(long pointerContext, int parameter);
+public enum CLValueType {
+    BOOLEAN, INT, LONG, SIZE_T, BIT_FIELD, CHAR_ARRAY, LONG_ARRAY, SIZE_T_ARRAY
 }

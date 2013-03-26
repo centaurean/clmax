@@ -1,4 +1,10 @@
-package com.centaurean.clmax.schema;
+package com.centaurean.clmax.schema.platforms;
+
+import com.centaurean.clmax.schema.CL;
+import com.centaurean.commons.utilities.Transform;
+
+import java.util.Hashtable;
+import java.util.NoSuchElementException;
 
 /*
  * Copyright (c) 2013, Centaurean software
@@ -28,19 +34,39 @@ package com.centaurean.clmax.schema;
  *
  * jetFlow
  *
- * 24/03/13 16:33
+ * 23/03/13 21:44
  * @author gpnuma
  */
-public class CL {
-    public static native long[] getPlatformsNative();
-    public static native String getPlatformInfoNative(long pointerPlatform, int parameter);
-    public static native long[] getDevicesNative(long pointerPlatform, long type);
-    public static native long getDeviceInfoLongNative(long pointerDevice, int parameter);
-    public static native long[] getDeviceInfoLongArrayNative(long pointerDevice, int parameter);
-    public static native String getDeviceInfoStringNative(long pointerDevice, int parameter);
-    public static native long createContextNative(long pointerPlatform, long[] pointersDevices);
-    public static native long createCLGLContextNative(long pointerPlatform);
-    public static native void releaseContextNative(long pointerContext);
-    public static native long getContextInfoLongNative(long pointerContext, int parameter);
-    public static native long[] getContextInfoLongArrayNative(long pointerContext, int parameter);
+public class CLPlatforms extends Hashtable<Long, CLPlatform> {
+    private static CLPlatforms platforms = null;
+
+    public static CLPlatforms getPlatforms() {
+        if(platforms == null) {
+            long[] pointers = CL.getPlatformsNative();
+            platforms = new CLPlatforms();
+            for(long pointer : pointers)
+                platforms.add(new CLPlatform(pointer));
+        }
+        return platforms;
+    }
+
+    private CLPlatforms() {
+        super();
+    }
+
+    public long[] getPointers() {
+        return Transform.toArray(keySet());
+    }
+
+    public boolean add(CLPlatform platform) {
+        CLPlatform found = put(platform.getPointer(), platform);
+        return found == null;
+    }
+
+    public CLPlatform getFirst() {
+        if(size() > 0)
+            return values().iterator().next();
+        else
+            throw new NoSuchElementException();
+    }
 }

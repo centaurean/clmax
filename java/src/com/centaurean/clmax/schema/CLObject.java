@@ -1,5 +1,7 @@
 package com.centaurean.clmax.schema;
 
+import com.centaurean.clmax.schema.exceptions.CLException;
+
 /*
  * Copyright (c) 2013, Centaurean software
  * All rights reserved.
@@ -28,19 +30,19 @@ package com.centaurean.clmax.schema;
  *
  * jetFlow
  *
- * 25/03/13 14:53
+ * 26/03/13 16:16
  * @author gpnuma
  */
-public enum CLDevicesType {
-    CL_DEVICE_TYPE_DEFAULT(1), CL_DEVICE_TYPE_CPU(1 << 1), CL_DEVICE_TYPE_GPU(1 << 2), CL_DEVICE_TYPE_ACCELERATOR(1 << 3), CL_DEVICE_TYPE_ALL(0xFFFFFFFF), CL_DEVICE_TYPE_CUSTOM(1 << 4);
+public class CLObject {
+    private long pointer;
 
-    private long type;
-
-    private CLDevicesType(long type) {
-        this.type = type;
+    public CLObject(long pointer) {
+        this.pointer = pointer;
+        if(pointer == 0)
+            throw new CLException("CL object creation failed : null pointer returned");
     }
 
-    public long getType() {
-        return type;
+    public long getPointer() {
+        return pointer;
     }
 }

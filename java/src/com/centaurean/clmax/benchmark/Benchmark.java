@@ -1,6 +1,11 @@
 package com.centaurean.clmax.benchmark;
 
-import com.centaurean.clmax.schema.*;
+import com.centaurean.clmax.schema.contexts.CLContext;
+import com.centaurean.clmax.schema.devices.CLDevice;
+import com.centaurean.clmax.schema.devices.CLDeviceType;
+import com.centaurean.clmax.schema.devices.CLDevices;
+import com.centaurean.clmax.schema.platforms.CLPlatform;
+import com.centaurean.clmax.schema.platforms.CLPlatforms;
 import com.centaurean.commons.logs.Log;
 import com.centaurean.commons.logs.LogStatus;
 
@@ -60,7 +65,7 @@ public class Benchmark {
             Log.message(platform);
         for (CLPlatform platform : platforms.values()) {
             Log.startMessage("Getting devices for platform " + platform.getPointer());
-            CLDevices devices = platform.getDevices(CLDevicesType.CL_DEVICE_TYPE_ALL);
+            CLDevices devices = platform.getDevices(CLDeviceType.CL_DEVICE_TYPE_ALL);
             Log.endMessage(LogStatus.OK);
             Log.message("Found " + devices.size() + " device(s)");
             for (CLDevice device : devices.values())
