@@ -3,6 +3,8 @@ package com.centaurean.clmax.schema.devices;
 import com.centaurean.clmax.schema.versions.CLVersion;
 import com.centaurean.clmax.schema.versions.CLVersionMatcher;
 
+import static com.centaurean.clmax.schema.versions.CLVersion.OPENCL_1_2;
+
 /*
  * Copyright (c) 2013, Centaurean software
  * All rights reserved.
@@ -40,7 +42,7 @@ public enum CLDeviceType implements CLVersionMatcher {
     CL_DEVICE_TYPE_GPU(1 << 2),
     CL_DEVICE_TYPE_ACCELERATOR(1 << 3),
     CL_DEVICE_TYPE_ALL(0xFFFFFFFF),
-    CL_DEVICE_TYPE_CUSTOM(1 << 4, new CLVersion(1, 2));
+    CL_DEVICE_TYPE_CUSTOM(1 << 4, OPENCL_1_2);
 
     private long type;
     private CLVersion minimumVersion;
