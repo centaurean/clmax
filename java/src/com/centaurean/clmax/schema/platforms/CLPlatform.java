@@ -8,6 +8,7 @@ import com.centaurean.clmax.schema.devices.CLDevice;
 import com.centaurean.clmax.schema.devices.CLDeviceType;
 import com.centaurean.clmax.schema.devices.CLDevices;
 import com.centaurean.clmax.schema.exceptions.CLException;
+import com.centaurean.clmax.schema.exceptions.CLNativeException;
 import com.centaurean.clmax.schema.values.CLValue;
 import com.centaurean.clmax.schema.versions.CLVersion;
 import com.centaurean.commons.logs.Log;
@@ -105,8 +106,8 @@ public class CLPlatform extends CLObject {
         for (CLPlatformInfo platformInfo : CLPlatformInfo.values())
             try {
                 stringBuilder.append(", ").append(platformInfo.name()).append("='").append(get(platformInfo)).append("'");
-            } catch (CLException exception) {
-                Log.message(new RuntimeException("Querying platform info " + platformInfo.name() + " returned error " + exception.getMessage()));
+            } catch (CLNativeException exception) {
+                Log.message(new CLException("Querying platform info " + platformInfo.name() + " returned error " + exception.getMessage()));
             } finally {
                 stringBuilder.append("'");
             }

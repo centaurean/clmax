@@ -4,6 +4,7 @@ import com.centaurean.clmax.cache.CLQueryCache;
 import com.centaurean.clmax.schema.CL;
 import com.centaurean.clmax.schema.CLObject;
 import com.centaurean.clmax.schema.exceptions.CLException;
+import com.centaurean.clmax.schema.exceptions.CLNativeException;
 import com.centaurean.clmax.schema.values.CLValue;
 import com.centaurean.commons.logs.Log;
 
@@ -70,8 +71,8 @@ public class CLContext extends CLObject {
         for (CLContextInfo contextInfo : CLContextInfo.values())
             try {
                 stringBuilder.append(", ").append(contextInfo.name()).append("='").append(get(contextInfo)).append("'");
-            } catch (CLException exception) {
-                Log.message(new RuntimeException("Querying context info " + contextInfo.name() + " returned error " + exception.getMessage()));
+            } catch (CLNativeException exception) {
+                Log.message(new CLException("Querying context info " + contextInfo.name() + " returned error " + exception.getMessage()));
             } finally {
                 stringBuilder.append("'");
             }

@@ -17,7 +17,7 @@ void checkResult(cl_int result, JNIEnv *env) {
 
 jint throwCLException(JNIEnv *env, char* code) {
     jclass exClass;
-    char *className = "com/centaurean/clmax/schema/exceptions/CLException" ;
+    char *className = "com/centaurean/clmax/schema/exceptions/CLNativeException" ;
     exClass = (*env)->FindClass(env, className);
     return (*env)->ThrowNew(env, exClass, code);
 }

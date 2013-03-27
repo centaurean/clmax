@@ -4,6 +4,7 @@ import com.centaurean.clmax.cache.CLQueryCache;
 import com.centaurean.clmax.schema.CL;
 import com.centaurean.clmax.schema.CLObject;
 import com.centaurean.clmax.schema.exceptions.CLException;
+import com.centaurean.clmax.schema.exceptions.CLNativeException;
 import com.centaurean.clmax.schema.values.CLValue;
 import com.centaurean.clmax.schema.versions.CLVersion;
 import com.centaurean.clmax.schema.versions.exceptions.CLVersionException;
@@ -105,8 +106,8 @@ public class CLDevice extends CLObject {
             if (getVersion().compareTo(deviceInfo.getMinimumCLVersion()) > 0)
                 try {
                     stringBuilder.append(", ").append(deviceInfo.name()).append("='").append(get(deviceInfo));
-                } catch (CLException exception) {
-                    Log.message(new RuntimeException("Querying device info " + deviceInfo.name() + " returned error " + exception.getMessage()));
+                } catch (CLNativeException exception) {
+                    Log.message(new CLException("Querying device info " + deviceInfo.name() + " returned error " + exception.getMessage()));
                 } finally {
                     stringBuilder.append("'");
                 }
