@@ -3,6 +3,7 @@ package com.centaurean.clmax.schema.devices;
 import com.centaurean.clmax.cache.CLQueryCacheKey;
 import com.centaurean.clmax.schema.values.CLValueType;
 import com.centaurean.clmax.schema.versions.CLVersion;
+import com.centaurean.clmax.schema.versions.CLVersionMatcher;
 
 import static com.centaurean.clmax.schema.values.CLValueType.*;
 import static com.centaurean.clmax.schema.versions.CLVersion.*;
@@ -38,7 +39,7 @@ import static com.centaurean.clmax.schema.versions.CLVersion.*;
  * 25/03/13 19:35
  * @author gpnuma
  */
-public enum CLDeviceInfo implements CLQueryCacheKey {
+public enum CLDeviceInfo implements CLQueryCacheKey, CLVersionMatcher {
     // OpenCL 1.0
     CL_DEVICE_TYPE(0x1000, BIT_FIELD),
     CL_DEVICE_VENDOR_ID(0x1001, INT),

@@ -1,12 +1,16 @@
 package com.centaurean.clmax.schema.platforms;
 
+import com.centaurean.clmax.cache.CLQueryCache;
 import com.centaurean.clmax.schema.CL;
 import com.centaurean.clmax.schema.CLObject;
 import com.centaurean.clmax.schema.contexts.CLContext;
 import com.centaurean.clmax.schema.devices.CLDevice;
 import com.centaurean.clmax.schema.devices.CLDeviceType;
 import com.centaurean.clmax.schema.devices.CLDevices;
+import com.centaurean.clmax.schema.exceptions.CLException;
+import com.centaurean.clmax.schema.values.CLValue;
 import com.centaurean.clmax.schema.versions.CLVersion;
+import com.centaurean.commons.logs.Log;
 
 /*
  * Copyright (c) 2013, Centaurean software
@@ -40,19 +44,8 @@ import com.centaurean.clmax.schema.versions.CLVersion;
  * @author gpnuma
  */
 public class CLPlatform extends CLObject {
-    public static final int CL_PLATFORM_PROFILE = 0x0900;
-    public static final int CL_PLATFORM_VERSION = 0x0901;
-    public static final int CL_PLATFORM_NAME = 0x0902;
-    public static final int CL_PLATFORM_VENDOR = 0x0903;
-    public static final int CL_PLATFORM_EXTENSIONS = 0x0904;
-
-    private String profile;
-    private CLVersion version;
-    private String name;
-    private String vendor;
-    private String extensions;
-
     private CLDevices devices = null;
+    private CLVersion version;
 
     CLPlatform(long pointer) {
         super(pointer);
@@ -82,43 +75,40 @@ public class CLPlatform extends CLObject {
         return new CLContext(pointer);
     }
 
-    public String getExtensions() {
-        if(extensions == null)
-            extensions = CL.getPlatformInfoNative(getPointer(), CL_PLATFORM_EXTENSIONS);
-        return extensions;
+    private CLValue get(CLPlatformInfo platformInfo) {
+        CLValue valueInCache = CLQueryCache.get(getPointer(), platformInfo);
+        if (valueInCache == null) {
+            switch (platformInfo.getReturnType()) {
+                case CHAR_ARRAY:
+                    valueInCache = new CLValue(CL.getPlatformInfoNative(getPointer(), platformInfo.getKey()));
+                    break;
+            }
+            CLQueryCache.add(getPointer(), platformInfo, valueInCache);
+        }
+        return valueInCache;
     }
 
-    public String getVendor() {
-        if(vendor == null)
-            vendor = CL.getPlatformInfoNative(getPointer(), CL_PLATFORM_VENDOR);
-        return vendor;
-    }
-
-    public String getName() {
-        if(name == null)
-            name = CL.getPlatformInfoNative(getPointer(), CL_PLATFORM_NAME);
-        return name;
-    }
-
-    /**
-     * @return OpenCL<space><major_version.minor_ version><space><platform-specific information>
-     */
     public CLVersion getVersion() {
-        if(version == null)
-            version = CLVersion.parse(CL.getPlatformInfoNative(getPointer(), CL_PLATFORM_VERSION));
+        if (version == null)
+            version = CLVersion.parse(get(CLPlatformInfo.CL_PLATFORM_VERSION).getString());
         return version;
     }
 
-    public String getProfile() {
-        if(profile == null)
-            profile = CL.getPlatformInfoNative(getPointer(), CL_PLATFORM_PROFILE);
-        return profile;
+    public void release() {
+        CL.releaseContextNative(getPointer());
     }
 
     @Override
     public String toString() {
         StringBuilder stringBuilder = new StringBuilder();
-        stringBuilder.append("{pointer='0x").append(Long.toHexString(getPointer())).append("', profile='").append(getProfile()).append("', version='").append(getVersion()).append("', name='").append(getName()).append("', vendor='").append(getVendor()).append("', extensions='").append(getExtensions()).append("'}");
-        return stringBuilder.toString();
+        stringBuilder.append("{pointer='0x").append(Long.toHexString(getPointer())).append(" (").append(getPointer()).append(")'");
+        for (CLPlatformInfo platformInfo : CLPlatformInfo.values())
+            try {
+                stringBuilder.append(", ").append(platformInfo.name()).append("='").append(get(platformInfo)).append("'");
+            } catch (CLException exception) {
+                Log.message("Getting " + platformInfo.name() + " failed. See error stream.");
+                Log.message(exception);
+            }
+        return stringBuilder.append("}").toString();
     }
 }

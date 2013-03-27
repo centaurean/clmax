@@ -1,8 +1,11 @@
 package com.centaurean.clmax.schema.contexts;
 
+import com.centaurean.clmax.cache.CLQueryCache;
 import com.centaurean.clmax.schema.CL;
 import com.centaurean.clmax.schema.CLObject;
-import com.centaurean.commons.utilities.Transform;
+import com.centaurean.clmax.schema.exceptions.CLException;
+import com.centaurean.clmax.schema.values.CLValue;
+import com.centaurean.commons.logs.Log;
 
 /*
  * Copyright (c) 2013, Centaurean software
@@ -36,42 +39,24 @@ import com.centaurean.commons.utilities.Transform;
  * @author gpnuma
  */
 public class CLContext extends CLObject {
-    public static final int CL_CONTEXT_REFERENCE_COUNT = 0x1080;
-    public static final int CL_CONTEXT_DEVICES         = 0x1081;
-    public static final int CL_CONTEXT_PROPERTIES      = 0x1082;
-    public static final int CL_CONTEXT_NUM_DEVICES     = 0x1083;
-
-    private int referenceCount = Integer.MAX_VALUE;
-    private int numDevices = Integer.MAX_VALUE;
-    private long[] devices;
-    private long[] properties;
-
     public CLContext(long pointer) {
         super(pointer);
     }
 
-    public int getReferenceCount() {
-        if(referenceCount == Integer.MAX_VALUE)
-            referenceCount = (int) CL.getContextInfoLongNative(getPointer(), CL_CONTEXT_REFERENCE_COUNT);
-        return referenceCount;
-    }
-
-    public int getNumDevices() {
-        if(numDevices == Integer.MAX_VALUE)
-            numDevices = (int)CL.getContextInfoLongNative(getPointer(), CL_CONTEXT_NUM_DEVICES);
-        return numDevices;
-    }
-
-    public long[] getDevices() {
-        if(devices == null)
-            devices = CL.getContextInfoLongArrayNative(getPointer(), CL_CONTEXT_DEVICES);
-        return devices;
-    }
-
-    public long[] getProperties() {
-        if(properties == null)
-            properties = CL.getContextInfoLongArrayNative(getPointer(), CL_CONTEXT_PROPERTIES);
-        return properties;
+    private CLValue get(CLContextInfo contextInfo) {
+        CLValue valueInCache = CLQueryCache.get(getPointer(), contextInfo);
+        if (valueInCache == null) {
+            switch (contextInfo.getReturnType()) {
+                case INT:
+                    valueInCache = new CLValue(CL.getContextInfoLongNative(getPointer(), contextInfo.getKey()));
+                    break;
+                case LONG_ARRAY:
+                    valueInCache = new CLValue(CL.getContextInfoLongArrayNative(getPointer(), contextInfo.getKey()));
+                    break;
+            }
+            CLQueryCache.add(getPointer(), contextInfo, valueInCache);
+        }
+        return valueInCache;
     }
 
     public void release() {
@@ -81,9 +66,14 @@ public class CLContext extends CLObject {
     @Override
     public String toString() {
         StringBuilder stringBuilder = new StringBuilder();
-        stringBuilder.append("{pointer='").append(Long.toHexString(getPointer())).append("', referenceCount='").append(getReferenceCount()).append("', numDevices='").append(getNumDevices())
-                .append("', devices='").append(Transform.toHexArray(getDevices())).append("', properties='").append(Transform.toHexArray(getProperties()))
-                .append("'}");
-        return stringBuilder.toString();
+        stringBuilder.append("{pointer='0x").append(Long.toHexString(getPointer())).append(" (").append(getPointer()).append(")'");
+        for (CLContextInfo contextInfo : CLContextInfo.values())
+            try {
+                stringBuilder.append(", ").append(contextInfo.name()).append("='").append(get(contextInfo)).append("'");
+            } catch (CLException exception) {
+                Log.message("Getting " + contextInfo.name() + " failed. See error stream.");
+                Log.message(exception);
+            }
+        return stringBuilder.append("}").toString();
     }
 }

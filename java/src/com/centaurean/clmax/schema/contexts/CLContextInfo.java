@@ -1,9 +1,10 @@
 package com.centaurean.clmax.schema.contexts;
 
 import com.centaurean.clmax.cache.CLQueryCacheKey;
-import com.centaurean.clmax.schema.versions.CLVersion;
+import com.centaurean.clmax.schema.values.CLValueType;
 
-import static com.centaurean.clmax.schema.versions.CLVersion.OPENCL_1_0;
+import static com.centaurean.clmax.schema.values.CLValueType.INT;
+import static com.centaurean.clmax.schema.values.CLValueType.LONG_ARRAY;
 
 /*
  * Copyright (c) 2013, Centaurean software
@@ -37,21 +38,17 @@ import static com.centaurean.clmax.schema.versions.CLVersion.OPENCL_1_0;
  * @author gpnuma
  */
 public enum CLContextInfo implements CLQueryCacheKey {
-    CL_CONTEXT_REFERENCE_COUNT(0x1080),
-    CL_CONTEXT_DEVICES(0x1081),
-    CL_CONTEXT_PROPERTIES(0x1082),
-    CL_CONTEXT_NUM_DEVICES(0x1083);
+    CL_CONTEXT_REFERENCE_COUNT(0x1080, INT),
+    CL_CONTEXT_DEVICES(0x1081, LONG_ARRAY),
+    CL_CONTEXT_PROPERTIES(0x1082, LONG_ARRAY),
+    CL_CONTEXT_NUM_DEVICES(0x1083, INT);
 
     private int key;
-    private CLVersion minimumVersion;
+    private CLValueType returnType;
 
-    private CLContextInfo(int key) {
-        this(key, OPENCL_1_0);
-    }
-
-    private CLContextInfo(int key, CLVersion minimumVersion) {
+    private CLContextInfo(int key, CLValueType returnType) {
         this.key = key;
-        this.minimumVersion = minimumVersion;
+        this.returnType = returnType;
     }
 
     @Override
@@ -59,8 +56,7 @@ public enum CLContextInfo implements CLQueryCacheKey {
         return key;
     }
 
-    @Override
-    public CLVersion getMinimumCLVersion() {
-        return minimumVersion;
+    public CLValueType getReturnType() {
+        return returnType;
     }
 }

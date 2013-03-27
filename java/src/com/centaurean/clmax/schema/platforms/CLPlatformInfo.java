@@ -1,4 +1,9 @@
-package com.centaurean.clmax.cache;
+package com.centaurean.clmax.schema.platforms;
+
+import com.centaurean.clmax.cache.CLQueryCacheKey;
+import com.centaurean.clmax.schema.values.CLValueType;
+
+import static com.centaurean.clmax.schema.values.CLValueType.CHAR_ARRAY;
 
 /*
  * Copyright (c) 2013, Centaurean software
@@ -25,12 +30,33 @@ package com.centaurean.clmax.cache;
  * ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- *
+ *                                            @
  * jetFlow
  *
- * 26/03/13 14:54
+ * 27/03/13 01:53
  * @author gpnuma
  */
-public interface CLQueryCacheKey {
-    public int getKey();
+public enum CLPlatformInfo implements CLQueryCacheKey {
+    CL_PLATFORM_PROFILE(0x0900, CHAR_ARRAY),
+    CL_PLATFORM_VERSION(0x0901, CHAR_ARRAY),
+    CL_PLATFORM_NAME(0x0902, CHAR_ARRAY),
+    CL_PLATFORM_VENDOR(0x0903, CHAR_ARRAY),
+    CL_PLATFORM_EXTENSIONS(0x0904, CHAR_ARRAY);
+
+    private int key;
+    private CLValueType returnType;
+
+    private CLPlatformInfo(int key, CLValueType returnType) {
+        this.key = key;
+        this.returnType = returnType;
+    }
+
+    @Override
+    public int getKey() {
+        return key;
+    }
+
+    public CLValueType getReturnType() {
+        return returnType;
+    }
 }
