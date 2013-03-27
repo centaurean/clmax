@@ -1,5 +1,7 @@
 package com.centaurean.clmax.schema.exceptions;
 
+import com.centaurean.clmax.schema.CLError;
+
 /*
  * Copyright (c) 2013, Centaurean software
  * All rights reserved.
@@ -32,7 +34,7 @@ package com.centaurean.clmax.schema.exceptions;
  * @author gpnuma
  */
 public class CLException extends RuntimeException {
-    public CLException(String message) {
-        super(message);
+    public CLException(String code) {
+        super(CLError.toString(code));
     }
 }

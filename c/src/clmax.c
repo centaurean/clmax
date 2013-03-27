@@ -5,21 +5,21 @@
 #define MAX_CL_PLATFORM_INFO_SIZE       512
 #define MAX_CL_DEVICE_INFO_SIZE         1024
 #define MAX_CL_CONTEXT_INFO_SIZE        1024
-#define MAX_ERROR_MESSAGE_SIZE          256
+#define MAX_ERROR_MESSAGE_SIZE          32
 
 void checkResult(cl_int result, JNIEnv *env) {
     if(result != CL_SUCCESS) {
-        char* message = (char*)malloc(MAX_ERROR_MESSAGE_SIZE * sizeof(char));
-        sprintf(message, "CL error code %d", result);
-        throwCLException(env, message);
+        char* code = (char*)malloc(MAX_ERROR_MESSAGE_SIZE * sizeof(char));
+        sprintf(code, "%d", result);
+        throwCLException(env, code);
     }
 }
 
-jint throwCLException(JNIEnv *env, char* message) {
+jint throwCLException(JNIEnv *env, char* code) {
     jclass exClass;
     char *className = "com/centaurean/clmax/schema/exceptions/CLException" ;
     exClass = (*env)->FindClass(env, className);
-    return (*env)->ThrowNew(env, exClass, message);
+    return (*env)->ThrowNew(env, exClass, code);
 }
 
 // Platform list

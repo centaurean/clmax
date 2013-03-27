@@ -106,8 +106,9 @@ public class CLPlatform extends CLObject {
             try {
                 stringBuilder.append(", ").append(platformInfo.name()).append("='").append(get(platformInfo)).append("'");
             } catch (CLException exception) {
-                Log.message("Getting " + platformInfo.name() + " failed. See error stream.");
-                Log.message(exception);
+                Log.message(new RuntimeException("Querying platform info " + platformInfo.name() + " returned error " + exception.getMessage()));
+            } finally {
+                stringBuilder.append("'");
             }
         return stringBuilder.append("}").toString();
     }

@@ -71,8 +71,9 @@ public class CLContext extends CLObject {
             try {
                 stringBuilder.append(", ").append(contextInfo.name()).append("='").append(get(contextInfo)).append("'");
             } catch (CLException exception) {
-                Log.message("Getting " + contextInfo.name() + " failed. See error stream.");
-                Log.message(exception);
+                Log.message(new RuntimeException("Querying context info " + contextInfo.name() + " returned error " + exception.getMessage()));
+            } finally {
+                stringBuilder.append("'");
             }
         return stringBuilder.append("}").toString();
     }

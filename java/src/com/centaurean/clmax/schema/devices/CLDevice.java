@@ -104,10 +104,11 @@ public class CLDevice extends CLObject {
         for (CLDeviceInfo deviceInfo : CLDeviceInfo.values()) {
             if (getVersion().compareTo(deviceInfo.getMinimumCLVersion()) > 0)
                 try {
-                    stringBuilder.append(", ").append(deviceInfo.name()).append("='").append(get(deviceInfo)).append("'");
+                    stringBuilder.append(", ").append(deviceInfo.name()).append("='").append(get(deviceInfo));
                 } catch (CLException exception) {
-                    Log.message("Getting " + deviceInfo.name() + " failed. See error stream.");
-                    Log.message(exception);
+                    Log.message(new RuntimeException("Querying device info " + deviceInfo.name() + " returned error " + exception.getMessage()));
+                } finally {
+                    stringBuilder.append("'");
                 }
         }
         return stringBuilder.append("}").toString();
