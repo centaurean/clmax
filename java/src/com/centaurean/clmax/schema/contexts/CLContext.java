@@ -72,7 +72,7 @@ public class CLContext extends CLObject {
             try {
                 stringBuilder.append(", ").append(contextInfo.name()).append("='").append(get(contextInfo)).append("'");
             } catch (CLNativeException exception) {
-                Log.message(new CLException("Querying context info " + contextInfo.name() + " returned error " + exception.getMessage()));
+                Log.message(new CLException("[Context " + super.toString() + "] Querying context info " + contextInfo.name() + " returned error " + exception.getMessage()));
             } finally {
                 stringBuilder.append("'");
             }

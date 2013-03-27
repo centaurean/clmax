@@ -101,13 +101,13 @@ public class CLDevice extends CLObject {
     @Override
     public String toString() {
         StringBuilder stringBuilder = new StringBuilder();
-        stringBuilder.append("{pointer='0x").append(Long.toHexString(getPointer())).append(" (").append(getPointer()).append(")'");
+        stringBuilder.append("{").append(super.toString());
         for (CLDeviceInfo deviceInfo : CLDeviceInfo.values()) {
             if (getVersion().compareTo(deviceInfo.getMinimumCLVersion()) > 0)
                 try {
                     stringBuilder.append(", ").append(deviceInfo.name()).append("='").append(get(deviceInfo));
                 } catch (CLNativeException exception) {
-                    Log.message(new CLException("Querying device info " + deviceInfo.name() + " returned error " + exception.getMessage()));
+                    Log.message(new CLException("[Device " + super.toString() + "] Querying device info " + deviceInfo.name() + " returned error " + exception.getMessage()));
                 } finally {
                     stringBuilder.append("'");
                 }

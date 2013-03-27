@@ -45,4 +45,9 @@ public class CLObject {
     public long getPointer() {
         return pointer;
     }
+
+    @Override
+    public String toString() {
+        return "pointer='0x" + Long.toHexString(getPointer()) + " (" + getPointer() + ")'";
+    }
 }
