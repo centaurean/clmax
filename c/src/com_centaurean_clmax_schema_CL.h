@@ -33,6 +33,14 @@ JNIEXPORT jlongArray JNICALL Java_com_centaurean_clmax_schema_CL_getDevicesNativ
 
 /*
  * Class:     com_centaurean_clmax_schema_CL
+ * Method:    getDeviceInfoIntNative
+ * Signature: (JI)I
+ */
+JNIEXPORT jint JNICALL Java_com_centaurean_clmax_schema_CL_getDeviceInfoIntNative
+  (JNIEnv *, jclass, jlong, jint);
+
+/*
+ * Class:     com_centaurean_clmax_schema_CL
  * Method:    getDeviceInfoLongNative
  * Signature: (JI)J
  */
@@ -81,10 +89,10 @@ JNIEXPORT void JNICALL Java_com_centaurean_clmax_schema_CL_releaseContextNative
 
 /*
  * Class:     com_centaurean_clmax_schema_CL
- * Method:    getContextInfoLongNative
- * Signature: (JI)J
+ * Method:    getContextInfoIntNative
+ * Signature: (JI)I
  */
-JNIEXPORT jlong JNICALL Java_com_centaurean_clmax_schema_CL_getContextInfoLongNative
+JNIEXPORT jint JNICALL Java_com_centaurean_clmax_schema_CL_getContextInfoIntNative
   (JNIEnv *, jclass, jlong, jint);
 
 /*
@@ -94,6 +102,70 @@ JNIEXPORT jlong JNICALL Java_com_centaurean_clmax_schema_CL_getContextInfoLongNa
  */
 JNIEXPORT jlongArray JNICALL Java_com_centaurean_clmax_schema_CL_getContextInfoLongArrayNative
   (JNIEnv *, jclass, jlong, jint);
+
+/*
+ * Class:     com_centaurean_clmax_schema_CL
+ * Method:    createProgramWithSourceNative
+ * Signature: (JLjava/lang/String;)J
+ */
+JNIEXPORT jlong JNICALL Java_com_centaurean_clmax_schema_CL_createProgramWithSourceNative
+  (JNIEnv *, jclass, jlong, jstring);
+
+/*
+ * Class:     com_centaurean_clmax_schema_CL
+ * Method:    releaseProgramNative
+ * Signature: (J)V
+ */
+JNIEXPORT void JNICALL Java_com_centaurean_clmax_schema_CL_releaseProgramNative
+  (JNIEnv *, jclass, jlong);
+
+/*
+ * Class:     com_centaurean_clmax_schema_CL
+ * Method:    buildProgramNative
+ * Signature: (J[JLjava/lang/String;)V
+ */
+JNIEXPORT void JNICALL Java_com_centaurean_clmax_schema_CL_buildProgramNative
+  (JNIEnv *, jclass, jlong, jlongArray, jstring);
+
+/*
+ * Class:     com_centaurean_clmax_schema_CL
+ * Method:    getProgramInfoIntNative
+ * Signature: (JI)I
+ */
+JNIEXPORT jint JNICALL Java_com_centaurean_clmax_schema_CL_getProgramInfoIntNative
+  (JNIEnv *, jclass, jlong, jint);
+
+/*
+ * Class:     com_centaurean_clmax_schema_CL
+ * Method:    getProgramInfoLongNative
+ * Signature: (JI)J
+ */
+JNIEXPORT jlong JNICALL Java_com_centaurean_clmax_schema_CL_getProgramInfoLongNative
+  (JNIEnv *, jclass, jlong, jint);
+
+/*
+ * Class:     com_centaurean_clmax_schema_CL
+ * Method:    getProgramInfoLongArrayNative
+ * Signature: (JI)[J
+ */
+JNIEXPORT jlongArray JNICALL Java_com_centaurean_clmax_schema_CL_getProgramInfoLongArrayNative
+  (JNIEnv *, jclass, jlong, jint);
+
+/*
+ * Class:     com_centaurean_clmax_schema_CL
+ * Method:    getProgramInfoStringNative
+ * Signature: (JI)Ljava/lang/String;
+ */
+JNIEXPORT jstring JNICALL Java_com_centaurean_clmax_schema_CL_getProgramInfoStringNative
+  (JNIEnv *, jclass, jlong, jint);
+
+/*
+ * Class:     com_centaurean_clmax_schema_CL
+ * Method:    getProgramInfoBinariesNative
+ * Signature: (J[J)[Ljava/lang/String;
+ */
+JNIEXPORT jobjectArray JNICALL Java_com_centaurean_clmax_schema_CL_getProgramInfoBinariesNative
+  (JNIEnv *, jclass, jlong, jlongArray);
 
 #ifdef __cplusplus
 }

@@ -1,11 +1,13 @@
 package com.centaurean.clmax.benchmark;
 
+import com.centaurean.clmax.cache.CLQueryCache;
 import com.centaurean.clmax.schema.contexts.CLContext;
 import com.centaurean.clmax.schema.devices.CLDevice;
 import com.centaurean.clmax.schema.devices.CLDeviceType;
 import com.centaurean.clmax.schema.devices.CLDevices;
 import com.centaurean.clmax.schema.platforms.CLPlatform;
 import com.centaurean.clmax.schema.platforms.CLPlatforms;
+import com.centaurean.clmax.schema.programs.CLProgram;
 import com.centaurean.commons.logs.Log;
 import com.centaurean.commons.logs.LogStatus;
 
@@ -45,6 +47,21 @@ public class Benchmark {
         System.loadLibrary("clmax");
     }
 
+    private static final String PROGRAM = "// OpenCL Kernel Function for element by element vector addition\n"+
+            "    kernel void VectorAdd(global const float* a, global const float* b, global float* c, int numElements) {\n"+
+            "\n"+
+            "        // get index into global data array\n"+
+            "        int iGID = get_global_id(0);\n"+
+            "\n"+
+            "        // bound check, equivalent to the limit on a 'for' loop\n"+
+            "        if (iGID >= numElements)  {\n"+
+            "            return;\n"+
+            "        }\n"+
+            "\n"+
+            "        // add the vector elements\n"+
+            "        c[iGID] = a[iGID] + b[iGID];\n"+
+            "    }";
+
     public Benchmark() {
         /*Log.startMessage("Creating GL context");
         GLProfile.initSingleton();
@@ -81,9 +98,20 @@ public class Benchmark {
             CLContext context = platform.createContext();
             Log.endMessage(LogStatus.OK);
             Log.message(context);
+            Log.startMessage("Creating program");
+            CLProgram program = context.createProgram(PROGRAM);
+            Log.endMessage(LogStatus.OK);
+            Log.startMessage("Building program");
+            program.build(platform.attachedDevices());
+            Log.endMessage(LogStatus.OK);
+            Log.message(program);
+            Log.startMessage("Releasing program");
+            program.release();
+            Log.endMessage(LogStatus.OK);
             Log.startMessage("Releasing context");
             context.release();
             Log.endMessage(LogStatus.OK);
+            Log.message(CLQueryCache.status());
             /*Log.startMessage("Creating CL GL context on platform " + platform.getPointer());
             context = platform.createCLGLContext();
             Log.endMessage(LogStatus.OK);

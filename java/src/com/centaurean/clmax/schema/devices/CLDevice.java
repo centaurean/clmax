@@ -57,6 +57,8 @@ public class CLDevice extends CLObject {
             switch (deviceInfo.getReturnType()) {
                 case BOOLEAN:
                 case INT:
+                    valueInCache = new CLValue(CL.getDeviceInfoIntNative(getPointer(), deviceInfo.getKey()));
+                    break;
                 case LONG:
                 case SIZE_T:
                 case BIT_FIELD:

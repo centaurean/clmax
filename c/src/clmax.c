@@ -5,20 +5,20 @@
 #define MAX_CL_PLATFORM_INFO_SIZE       512
 #define MAX_CL_DEVICE_INFO_SIZE         1024
 #define MAX_CL_CONTEXT_INFO_SIZE        1024
+#define MAX_CL_PROGRAM_INFO_SIZE        1024
+#define MAX_CL_PROGRAM_INFO_ARRAY_SIZE  256
 #define MAX_ERROR_MESSAGE_SIZE          32
 
 void checkResult(cl_int result, JNIEnv *env) {
     if(result != CL_SUCCESS) {
-        char* code = (char*)malloc(MAX_ERROR_MESSAGE_SIZE * sizeof(char));
+        char code[MAX_ERROR_MESSAGE_SIZE];
         sprintf(code, "%d", result);
         throwCLException(env, code);
     }
 }
 
 jint throwCLException(JNIEnv *env, char* code) {
-    jclass exClass;
-    char *className = "com/centaurean/clmax/schema/exceptions/CLNativeException" ;
-    exClass = (*env)->FindClass(env, className);
+    jclass exClass = (*env)->FindClass(env, "com/centaurean/clmax/schema/exceptions/CLNativeException");
     return (*env)->ThrowNew(env, exClass, code);
 }
 
@@ -79,11 +79,20 @@ JNIEXPORT jlongArray JNICALL Java_com_centaurean_clmax_schema_CL_getDevicesNativ
 }
 
 // Device info
+JNIEXPORT jint JNICALL Java_com_centaurean_clmax_schema_CL_getDeviceInfoIntNative(JNIEnv *env, jclass this, jlong pointerDevice, jint parameter) {
+    int result;
+    size_t retsize;
+    
+    checkResult(clGetDeviceInfo((cl_device_id)pointerDevice, parameter, sizeof(&result), &result, &retsize), env);
+    
+    return result;
+}
+
 JNIEXPORT jlong JNICALL Java_com_centaurean_clmax_schema_CL_getDeviceInfoLongNative(JNIEnv *env, jclass this, jlong pointerDevice, jint parameter) {
     long result;
     size_t retsize;
 
-    checkResult(clGetDeviceInfo((cl_device_id)pointerDevice, parameter, sizeof(long), &result, &retsize), env);
+    checkResult(clGetDeviceInfo((cl_device_id)pointerDevice, parameter, sizeof(&result), &result, &retsize), env);
 
     return (long long)result;
 }
@@ -226,14 +235,14 @@ JNIEXPORT void JNICALL Java_com_centaurean_clmax_schema_CL_releaseContextNative(
 }
 
 // Context infos
-JNIEXPORT jlong JNICALL Java_com_centaurean_clmax_schema_CL_getContextInfoLongNative(JNIEnv *env, jclass this, jlong pointerContext, jint parameter) {
-    long result;
+JNIEXPORT jint JNICALL Java_com_centaurean_clmax_schema_CL_getContextInfoIntNative(JNIEnv *env, jclass this, jlong pointerContext, jint parameter) {
+    int result;
     size_t retsize;
     
     cl_context context = (cl_context)pointerContext;
-    checkResult(clGetContextInfo((cl_context)pointerContext, parameter, sizeof(long), &result, &retsize), env);
+    checkResult(clGetContextInfo((cl_context)pointerContext, parameter, sizeof(&result), &result, &retsize), env);
     
-    return (long long)result;
+    return result;
 }
 
 JNIEXPORT jlongArray JNICALL Java_com_centaurean_clmax_schema_CL_getContextInfoLongArrayNative(JNIEnv *env, jclass this, jlong pointerContext, jint parameter) {
@@ -253,6 +262,152 @@ JNIEXPORT jlongArray JNICALL Java_com_centaurean_clmax_schema_CL_getContextInfoL
     (*env)->SetLongArrayRegion(env, result, 0, arraySize, construct);
     
     free(values);
+    
+    return result;
+}
+
+// Program creation
+JNIEXPORT jlong JNICALL Java_com_centaurean_clmax_schema_CL_createProgramWithSourceNative(JNIEnv *env, jclass this, jlong pointerContext, jstring programSource) {
+    cl_int errcode_ret;
+    const char* nativeProgramSource = (*env)->GetStringUTFChars(env, programSource, 0);
+    const char* parameters[1];
+    parameters[0] = nativeProgramSource;
+
+    cl_program program = clCreateProgramWithSource((cl_context)pointerContext, 1, parameters, NULL, &errcode_ret);
+
+    (*env)->ReleaseStringUTFChars(env, programSource, nativeProgramSource);
+
+    checkResult(errcode_ret, env);
+
+    return (long long)program;
+}
+
+// Program release
+JNIEXPORT void JNICALL Java_com_centaurean_clmax_schema_CL_releaseProgramNative(JNIEnv *env, jclass this, jlong pointerProgram) {
+    checkResult(clReleaseProgram((cl_program)pointerProgram), env);
+}
+
+// Program build
+JNIEXPORT void JNICALL Java_com_centaurean_clmax_schema_CL_buildProgramNative(JNIEnv *env, jclass this, jlong pointerProgram, jlongArray pointersDevices, jstring options) {
+    cl_uint num_devices = (*env)->GetArrayLength(env, pointersDevices);
+    cl_device_id* devices = (cl_device_id*)malloc(num_devices * sizeof(cl_device_id));
+    jlong *body = (*env)->GetLongArrayElements(env, pointersDevices, 0);
+    for (jint i = 0; i < num_devices; i++)
+        devices[i] = (cl_device_id)body[i];
+	(*env)->ReleaseLongArrayElements(env, pointersDevices, body, 0);
+    
+    const char* nativeOptions = (*env)->GetStringUTFChars(env, options, 0);
+    
+    checkResult(clBuildProgram((cl_program)pointerProgram, num_devices, devices, nativeOptions, NULL, NULL), env);
+    
+    (*env)->ReleaseStringUTFChars(env, options, nativeOptions);
+}
+
+// Program infos
+JNIEXPORT jint JNICALL Java_com_centaurean_clmax_schema_CL_getProgramInfoIntNative(JNIEnv *env, jclass this, jlong pointerProgram, jint parameter) {
+    int result;
+    size_t retsize;
+    
+    checkResult(clGetProgramInfo((cl_program)pointerProgram, parameter, sizeof(&result), &result, &retsize), env);
+    
+    return result;
+}
+
+JNIEXPORT jlong JNICALL Java_com_centaurean_clmax_schema_CL_getProgramInfoLongNative(JNIEnv *env, jclass this, jlong pointerProgram, jint parameter) {
+    long result;
+    size_t retsize;
+    
+    checkResult(clGetProgramInfo((cl_program)pointerProgram, parameter, sizeof(&result), &result, &retsize), env);
+    
+    return (long long)result;
+}
+
+JNIEXPORT jlongArray JNICALL Java_com_centaurean_clmax_schema_CL_getProgramInfoLongArrayNative(JNIEnv *env, jclass this, jlong pointerProgram, jint parameter) {
+    size_t retsize;
+    size_t* values = (size_t*)malloc(MAX_CL_PROGRAM_INFO_SIZE * sizeof(size_t));
+    
+    checkResult(clGetProgramInfo((cl_program)pointerProgram, parameter, MAX_CL_PROGRAM_INFO_SIZE, values, &retsize), env);
+    
+    int arraySize = retsize / sizeof(size_t);
+    jlongArray result;
+    result = (*env)->NewLongArray(env, arraySize);
+    if(result == NULL)
+        return NULL;
+    jlong construct[arraySize];
+    for (int i = 0; i < arraySize; i++)
+        construct[i] = (long long)values[i];
+    (*env)->SetLongArrayRegion(env, result, 0, arraySize, construct);
+    
+    free(values);
+    
+    return result;    
+}
+
+JNIEXPORT jstring JNICALL Java_com_centaurean_clmax_schema_CL_getProgramInfoStringNative(JNIEnv *env, jclass this, jlong pointerProgram, jint parameter) {
+    char* info = (char*)malloc(MAX_CL_PROGRAM_INFO_SIZE * sizeof(char));
+    size_t retsize;
+    
+    checkResult(clGetProgramInfo((cl_program)pointerProgram, parameter, MAX_CL_PROGRAM_INFO_SIZE, info, &retsize), env);
+    
+    jstring result = (*env)->NewStringUTF(env, info);
+    
+    free(info);
+    
+    return result;
+}
+
+JNIEXPORT jobjectArray JNICALL Java_com_centaurean_clmax_schema_CL_getProgramInfoBinariesNative(JNIEnv *env, jclass this, jlong pointerProgram, jlongArray binarySizes) {
+    size_t retsize;
+    jsize length = (*env)->GetArrayLength(env, binarySizes);
+    unsigned char** valuesArray = (unsigned char**)malloc(length * sizeof(unsigned char*));
+    
+    jlong *body = (*env)->GetLongArrayElements(env, binarySizes, 0);
+    
+    for (jint i = 0; i < length; i++)
+        valuesArray[i] = (unsigned char*)malloc(body[i] * sizeof(unsigned char));                                                
+    checkResult(clGetProgramInfo((cl_program)pointerProgram, CL_PROGRAM_BINARIES, length * sizeof(unsigned char*), valuesArray, &retsize), env);
+    
+    jobjectArray result = (*env)->NewObjectArray(env, length, (*env)->FindClass(env, "java/lang/Object"), (*env)->NewCharArray(env, 0));
+    for (int i = 0; i < length; i++) {
+        jbyteArray element = (*env)->NewByteArray(env, body[i]);
+        if(element == NULL)
+            return NULL;
+        jbyte construct[body[i]];
+        for(int j = 0; j < body[i]; j++)
+            construct[i] = valuesArray[i][j];
+        (*env)->SetByteArrayRegion(env, element, 0, body[i], construct);
+        (*env)->SetObjectArrayElement(env, result, i, element);
+    }
+    
+	(*env)->ReleaseLongArrayElements(env, binarySizes, body, 0);
+
+    
+    /*jobjectArray ret;
+    int i;
+    
+    char *message[5]= {"first",
+        "second",
+        "third",
+        "fourth",
+        "fifth"};
+    
+    ret= (jobjectArray)env->NewObjectArray(5,
+                                           env->FindClass("java/lang/Character"),
+                                           env->NewStringUTF(""));
+    
+    for(i=0;i<5;i++) {
+        env->SetObjectArrayElement(  
+                                   ret,i,env->NewStringUTF(message[i]));
+    }
+    
+    int arraySize = retsize / sizeof(unsigned char*);
+    jobjectArray result = env->NewObjectArray(arraySize, (*env)->FindClass(env, "java/lang/Character"), (*env)->NewStringUTF(env, ""));
+    if(result == NULL)
+        return NULL;
+    jlong construct[arraySize];
+    for (int i = 0; i < arraySize; i++)
+        construct[i] = (long long)values[i];*/
+
     
     return result;
 }

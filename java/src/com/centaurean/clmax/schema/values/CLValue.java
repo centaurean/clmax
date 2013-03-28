@@ -1,5 +1,6 @@
 package com.centaurean.clmax.schema.values;
 
+import com.centaurean.clmax.schema.programs.CLProgramBinaries;
 import com.centaurean.clmax.schema.values.exceptions.CLValueFormatException;
 
 import java.util.Arrays;
@@ -64,6 +65,11 @@ public class CLValue {
         type = CLValueType.LONG_ARRAY;
     }
 
+    public CLValue(char[][] charArrayArrayValue) {
+        storage = charArrayArrayValue;
+        type = CLValueType.BYTE_ARRAY_ARRAY;
+    }
+
     public CLValueType getType() {
         return type;
     }
@@ -113,6 +119,15 @@ public class CLValue {
         }
     }
 
+    public CLProgramBinaries getByteArrayArray() {
+        switch(type) {
+            case BYTE_ARRAY_ARRAY:
+                return new CLProgramBinaries(storage);
+            default:
+                throw new CLValueFormatException("Not a char[][] value");
+        }
+    }
+
     @Override
     public String toString() {
         switch(getType()) {
@@ -126,6 +141,8 @@ public class CLValue {
                 return getString();
             case LONG_ARRAY:
                 return Arrays.toString(getLongArray());
+            case BYTE_ARRAY_ARRAY:
+                return getByteArrayArray().toString();
             default:
                 return "";
         }

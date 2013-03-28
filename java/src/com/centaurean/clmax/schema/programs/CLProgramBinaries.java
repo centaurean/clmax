@@ -1,4 +1,4 @@
-package com.centaurean.clmax.schema.values;
+package com.centaurean.clmax.schema.programs;
 
 /*
  * Copyright (c) 2013, Centaurean software
@@ -28,9 +28,37 @@ package com.centaurean.clmax.schema.values;
  *
  * jetFlow
  *
- * 26/03/13 15:12
+ * 28/03/13 22:03
  * @author gpnuma
  */
-public enum CLValueType {
-    BOOLEAN, INT, LONG, SIZE_T, BIT_FIELD, CHAR_ARRAY, LONG_ARRAY, SIZE_T_ARRAY, BYTE_ARRAY_ARRAY
+public class CLProgramBinaries {
+    private Object[] array;
+
+    public CLProgramBinaries(Object array) {
+        this.array = (Object[])array;
+    }
+
+    public String toString() {
+        StringBuilder stringBuilder = new StringBuilder("[");
+        for(int i = 0; i < array.length; i ++) {
+            stringBuilder.append(bytesToHex((byte[])array[i]));
+            if(i < array.length - 1)
+                stringBuilder.append(", ");
+        }
+        return stringBuilder.append("]").toString();
+    }
+
+    private static String bytesToHex(byte[] bytes) {
+        final char[] hexArray = {'0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 'C', 'D', 'E', 'F'};
+        char[] hexChars = new char[bytes.length * 3 - 1];
+        int v;
+        for (int i = 0; i < bytes.length; i++) {
+            v = bytes[i] & 0xFF;
+            hexChars[i * 3] = hexArray[v >>> 4];
+            hexChars[i * 3 + 1] = hexArray[v & 0x0F];
+            if(i < bytes.length - 1)
+                hexChars[i * 3 + 2] = ' ';
+        }
+        return new String(hexChars);
+    }
 }

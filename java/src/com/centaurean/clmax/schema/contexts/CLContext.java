@@ -5,6 +5,8 @@ import com.centaurean.clmax.schema.CL;
 import com.centaurean.clmax.schema.CLObject;
 import com.centaurean.clmax.schema.exceptions.CLException;
 import com.centaurean.clmax.schema.exceptions.CLNativeException;
+import com.centaurean.clmax.schema.platforms.CLPlatform;
+import com.centaurean.clmax.schema.programs.CLProgram;
 import com.centaurean.clmax.schema.values.CLValue;
 import com.centaurean.commons.logs.Log;
 
@@ -40,8 +42,11 @@ import com.centaurean.commons.logs.Log;
  * @author gpnuma
  */
 public class CLContext extends CLObject {
-    public CLContext(long pointer) {
+    private CLPlatform platform;
+
+    public CLContext(long pointer, CLPlatform platform) {
         super(pointer);
+        this.platform = platform;
     }
 
     private CLValue get(CLContextInfo contextInfo) {
@@ -49,7 +54,7 @@ public class CLContext extends CLObject {
         if (valueInCache == null) {
             switch (contextInfo.getReturnType()) {
                 case INT:
-                    valueInCache = new CLValue(CL.getContextInfoLongNative(getPointer(), contextInfo.getKey()));
+                    valueInCache = new CLValue(CL.getContextInfoIntNative(getPointer(), contextInfo.getKey()));
                     break;
                 case LONG_ARRAY:
                     valueInCache = new CLValue(CL.getContextInfoLongArrayNative(getPointer(), contextInfo.getKey()));
@@ -64,13 +69,17 @@ public class CLContext extends CLObject {
         CL.releaseContextNative(getPointer());
     }
 
+    public CLProgram createProgram(String source) {
+        return new CLProgram(CL.createProgramWithSourceNative(getPointer(), source), platform);
+    }
+
     @Override
     public String toString() {
         StringBuilder stringBuilder = new StringBuilder();
-        stringBuilder.append("{pointer='0x").append(Long.toHexString(getPointer())).append(" (").append(getPointer()).append(")'");
+        stringBuilder.append("{").append(super.toString());
         for (CLContextInfo contextInfo : CLContextInfo.values())
             try {
-                stringBuilder.append(", ").append(contextInfo.name()).append("='").append(get(contextInfo)).append("'");
+                stringBuilder.append(", ").append(contextInfo.name()).append("='").append(get(contextInfo));
             } catch (CLNativeException exception) {
                 Log.message(new CLException("[Context " + super.toString() + "] Querying context info " + contextInfo.name() + " returned error " + exception.getMessage()));
             } finally {

@@ -44,6 +44,8 @@ public class CLQueryCache {
 
     private static final ReentrantLock cacheLock = new ReentrantLock(true);
     private static Hashtable<Pair<Long, CLQueryCacheKey>, CLValue> cacheStorage;
+    private static long hits = 0;
+    private static long queries = 0;
 
     public static CLValue add(Long pointer, CLQueryCacheKey key, CLValue value) {
         cacheLock.lock();
@@ -66,7 +68,28 @@ public class CLQueryCache {
     public static CLValue get(Long pointer, CLQueryCacheKey key) {
         cacheLock.lock();
         try {
-            return cacheStorage.get(toPair(pointer, key));
+            queries ++;
+            CLValue value = cacheStorage.get(toPair(pointer, key));
+            if(value != null)
+                hits ++;
+            return value;
+        } finally {
+            cacheLock.unlock();
+        }
+    }
+
+    public static long getHits() {
+        return hits;
+    }
+
+    public static long getQueries() {
+        return queries;
+    }
+
+    public static String status() {
+        cacheLock.lock();
+        try {
+            return "Query cache : " + getHits() + " hits / " + getQueries() +  " queries ( " + Math.round((100.0 * getHits()) / getQueries()) + " % )";
         } finally {
             cacheLock.unlock();
         }

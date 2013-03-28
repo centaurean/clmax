@@ -67,13 +67,11 @@ public class CLPlatform extends CLObject {
     }
 
     public CLContext createContext() {
-        long pointer = CL.createContextNative(getPointer(), devices.getPointers());
-        return new CLContext(pointer);
+        return new CLContext(CL.createContextNative(getPointer(), devices.getPointers()), this);
     }
 
     public CLContext createCLGLContext() {
-        long pointer = CL.createCLGLContextNative(getPointer());
-        return new CLContext(pointer);
+        return new CLContext(CL.createCLGLContextNative(getPointer()), this);
     }
 
     private CLValue get(CLPlatformInfo platformInfo) {
@@ -102,7 +100,7 @@ public class CLPlatform extends CLObject {
     @Override
     public String toString() {
         StringBuilder stringBuilder = new StringBuilder();
-        stringBuilder.append("{pointer='0x").append(Long.toHexString(getPointer())).append(" (").append(getPointer()).append(")'");
+        stringBuilder.append("{").append(super.toString());
         for (CLPlatformInfo platformInfo : CLPlatformInfo.values())
             try {
                 stringBuilder.append(", ").append(platformInfo.name()).append("='").append(get(platformInfo)).append("'");

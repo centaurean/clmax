@@ -98,8 +98,10 @@ public enum CLError {
     CL_INVALID_LINKER_OPTIONS(-67),
     CL_INVALID_DEVICE_PARTITION_COUNT(-68);
 
-    private static final Map<Integer, CLError> lookupTable = new Hashtable<Integer, CLError>();
+    private static final Map<Integer, CLError> lookupTable;
+
     static {
+        lookupTable = new Hashtable<Integer, CLError>();
         for (CLError error : CLError.values())
             lookupTable.put(error.getCode(), error);
     }
@@ -120,7 +122,7 @@ public enum CLError {
 
     public static String toString(String code) {
         int codeInt = decode(code);
-        if(lookupTable.containsKey(codeInt))
+        if (lookupTable.containsKey(codeInt))
             return getError(codeInt).name();
         else
             return "Unknown CL Error";
