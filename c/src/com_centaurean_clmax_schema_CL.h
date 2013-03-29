@@ -162,7 +162,7 @@ JNIEXPORT jstring JNICALL Java_com_centaurean_clmax_schema_CL_getProgramInfoStri
 /*
  * Class:     com_centaurean_clmax_schema_CL
  * Method:    getProgramInfoBinariesNative
- * Signature: (J[J)[Ljava/lang/String;
+ * Signature: (J[J)[[B
  */
 JNIEXPORT jobjectArray JNICALL Java_com_centaurean_clmax_schema_CL_getProgramInfoBinariesNative
   (JNIEnv *, jclass, jlong, jlongArray);
