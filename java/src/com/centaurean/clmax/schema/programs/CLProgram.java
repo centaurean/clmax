@@ -50,7 +50,7 @@ public class CLProgram extends CLObject {
         this.platform = platform;
     }
 
-    private CLValue get(CLProgramInfo programInfo) {
+    public CLValue get(CLProgramInfo programInfo) {
         if (platform.getVersion().compareTo(programInfo.getMinimumCLVersion()) < 0)
             throw new CLVersionException(programInfo.name() + " (" + programInfo.getMinimumCLVersion().majorMinor() + " function) not supported by this " + platform.getVersion().majorMinor() + " platform.");
         CLValue valueInCache = CLQueryCache.get(getPointer(), programInfo);

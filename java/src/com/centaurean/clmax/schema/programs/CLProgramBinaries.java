@@ -1,5 +1,8 @@
 package com.centaurean.clmax.schema.programs;
 
+import java.io.IOException;
+import java.io.OutputStream;
+
 /*
  * Copyright (c) 2013, Centaurean software
  * All rights reserved.
@@ -35,14 +38,30 @@ public class CLProgramBinaries {
     private Object[] array;
 
     public CLProgramBinaries(Object array) {
-        this.array = (Object[])array;
+        this.array = (Object[]) array;
+    }
+
+    public int size() {
+        return array.length;
+    }
+
+    public byte[] getBinary(int index) {
+        if (index < 0 || index > array.length)
+            throw new IndexOutOfBoundsException();
+        return (byte[]) array[index];
+    }
+
+    public void toStream(int index, OutputStream out) throws IOException {
+        byte[] bytes = getBinary(index);
+        for (int i = 0; i < bytes.length; i++)
+            out.write(bytes[i]);
     }
 
     public String toString() {
         StringBuilder stringBuilder = new StringBuilder("[");
-        for(int i = 0; i < array.length; i ++) {
-            stringBuilder.append(bytesToHex((byte[])array[i]));
-            if(i < array.length - 1)
+        for (int i = 0; i < array.length; i++) {
+            stringBuilder.append(bytesToHex(getBinary(i)));
+            if (i < array.length - 1)
                 stringBuilder.append(", ");
         }
         return stringBuilder.append("]").toString();
@@ -51,12 +70,12 @@ public class CLProgramBinaries {
     private static String bytesToHex(byte[] bytes) {
         final char[] hexArray = {'0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 'C', 'D', 'E', 'F'};
         char[] hexChars = new char[bytes.length * 3 - 1];
-        int v;
+        int byteValue;
         for (int i = 0; i < bytes.length; i++) {
-            v = bytes[i] & 0xFF;
-            hexChars[i * 3] = hexArray[v >>> 4];
-            hexChars[i * 3 + 1] = hexArray[v & 0x0F];
-            if(i < bytes.length - 1)
+            byteValue = bytes[i] & 0xFF;
+            hexChars[i * 3] = hexArray[byteValue >>> 4];
+            hexChars[i * 3 + 1] = hexArray[byteValue & 0x0F];
+            if (i < bytes.length - 1)
                 hexChars[i * 3 + 2] = ' ';
         }
         return new String(hexChars);

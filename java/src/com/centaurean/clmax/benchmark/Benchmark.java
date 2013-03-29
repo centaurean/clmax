@@ -8,8 +8,14 @@ import com.centaurean.clmax.schema.devices.CLDevices;
 import com.centaurean.clmax.schema.platforms.CLPlatform;
 import com.centaurean.clmax.schema.platforms.CLPlatforms;
 import com.centaurean.clmax.schema.programs.CLProgram;
+import com.centaurean.clmax.schema.programs.CLProgramBinaries;
+import com.centaurean.clmax.schema.programs.CLProgramInfo;
 import com.centaurean.commons.logs.Log;
 import com.centaurean.commons.logs.LogStatus;
+
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
 
 /*
  * Copyright (c) 2013, Centaurean software
@@ -47,22 +53,22 @@ public class Benchmark {
         System.loadLibrary("clmax");
     }
 
-    private static final String PROGRAM = "// OpenCL Kernel Function for element by element vector addition\n"+
-            "    kernel void VectorAdd(global const float* a, global const float* b, global float* c, int numElements) {\n"+
-            "\n"+
-            "        // get index into global data array\n"+
-            "        int iGID = get_global_id(0);\n"+
-            "\n"+
-            "        // bound check, equivalent to the limit on a 'for' loop\n"+
-            "        if (iGID >= numElements)  {\n"+
-            "            return;\n"+
-            "        }\n"+
-            "\n"+
-            "        // add the vector elements\n"+
-            "        c[iGID] = a[iGID] + b[iGID];\n"+
+    private static final String PROGRAM = "// OpenCL Kernel Function for element by element vector addition\n" +
+            "    kernel void VectorAdd(global const float* a, global const float* b, global float* c, int numElements) {\n" +
+            "\n" +
+            "        // get index into global data array\n" +
+            "        int iGID = get_global_id(0);\n" +
+            "\n" +
+            "        // bound check, equivalent to the limit on a 'for' loop\n" +
+            "        if (iGID >= numElements)  {\n" +
+            "            return;\n" +
+            "        }\n" +
+            "\n" +
+            "        // add the vector elements\n" +
+            "        c[iGID] = a[iGID] + b[iGID];\n" +
             "    }";
 
-    public Benchmark() {
+    public Benchmark() throws IOException {
         /*Log.startMessage("Creating GL context");
         GLProfile.initSingleton();
         GLProfile glp = GLProfile.getDefault();
@@ -105,6 +111,13 @@ public class Benchmark {
             program.build(platform.attachedDevices());
             Log.endMessage(LogStatus.OK);
             Log.message(program);
+            CLProgramBinaries binaries = program.get(CLProgramInfo.CL_PROGRAM_BINARIES).getBinaries();
+            for (int i = 0; i < binaries.size(); i++) {
+                FileOutputStream out = new FileOutputStream("out.bn" + i);
+                binaries.toStream(i, out);
+                out.close();
+            }
+            Log.message(new File("out.bn0").length());
             Log.startMessage("Releasing program");
             program.release();
             Log.endMessage(LogStatus.OK);
@@ -122,7 +135,7 @@ public class Benchmark {
         }
     }
 
-    public static void main(String... args) {
+    public static void main(String... args) throws IOException {
         new Benchmark();
     }
 }

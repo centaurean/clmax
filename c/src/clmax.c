@@ -378,8 +378,10 @@ JNIEXPORT jobjectArray JNICALL Java_com_centaurean_clmax_schema_CL_getProgramInf
         (*env)->SetByteArrayRegion(env, element, 0, body[i], construct);
         (*env)->SetObjectArrayElement(env, result, i, element);
     }
+    for (jint i = 0; i < length; i++)
+        free(valuesArray[i]);
     
-	(*env)->ReleaseLongArrayElements(env, binarySizes, body, 0);
+    (*env)->ReleaseLongArrayElements(env, binarySizes, body, 0);
     
     free(valuesArray);
     

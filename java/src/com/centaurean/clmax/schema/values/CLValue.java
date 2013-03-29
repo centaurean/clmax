@@ -119,12 +119,12 @@ public class CLValue {
         }
     }
 
-    public CLProgramBinaries getByteArrayArray() {
+    public CLProgramBinaries getBinaries() {
         switch(type) {
             case BYTE_ARRAY_ARRAY:
                 return new CLProgramBinaries(storage);
             default:
-                throw new CLValueFormatException("Not a char[][] value");
+                throw new CLValueFormatException("Not a byte[][] value");
         }
     }
 
@@ -142,7 +142,7 @@ public class CLValue {
             case LONG_ARRAY:
                 return Arrays.toString(getLongArray());
             case BYTE_ARRAY_ARRAY:
-                return getByteArrayArray().toString();
+                return getBinaries().toString();
             default:
                 return "";
         }
