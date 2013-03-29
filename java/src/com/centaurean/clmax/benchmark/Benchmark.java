@@ -13,7 +13,6 @@ import com.centaurean.clmax.schema.programs.CLProgramInfo;
 import com.centaurean.commons.logs.Log;
 import com.centaurean.commons.logs.LogStatus;
 
-import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 
@@ -117,7 +116,6 @@ public class Benchmark {
                 binaries.toStream(i, out);
                 out.close();
             }
-            Log.message(new File("out.bn0").length());
             Log.startMessage("Releasing program");
             program.release();
             Log.endMessage(LogStatus.OK);

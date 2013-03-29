@@ -65,8 +65,8 @@ public class CLValue {
         type = CLValueType.LONG_ARRAY;
     }
 
-    public CLValue(char[][] charArrayArrayValue) {
-        storage = charArrayArrayValue;
+    public CLValue(byte[][] byteArrayArrayValue) {
+        storage = byteArrayArrayValue;
         type = CLValueType.BYTE_ARRAY_ARRAY;
     }
 

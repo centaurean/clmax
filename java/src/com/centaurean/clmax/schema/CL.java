@@ -54,5 +54,5 @@ public class CL {
     public static native long getProgramInfoLongNative(long pointerProgram, int parameter);
     public static native long[] getProgramInfoLongArrayNative(long pointerProgram, int parameter);
     public static native String getProgramInfoStringNative(long pointerProgram, int parameter);
-    public static native char[][] getProgramInfoBinariesNative(long pointerProgram, long[] binarySizes);
+    public static native byte[][] getProgramInfoBinariesNative(long pointerProgram, long[] binarySizes);
 }
