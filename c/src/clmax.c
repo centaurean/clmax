@@ -380,34 +380,8 @@ JNIEXPORT jobjectArray JNICALL Java_com_centaurean_clmax_schema_CL_getProgramInf
     }
     
 	(*env)->ReleaseLongArrayElements(env, binarySizes, body, 0);
-
     
-    /*jobjectArray ret;
-    int i;
-    
-    char *message[5]= {"first",
-        "second",
-        "third",
-        "fourth",
-        "fifth"};
-    
-    ret= (jobjectArray)env->NewObjectArray(5,
-                                           env->FindClass("java/lang/Character"),
-                                           env->NewStringUTF(""));
-    
-    for(i=0;i<5;i++) {
-        env->SetObjectArrayElement(  
-                                   ret,i,env->NewStringUTF(message[i]));
-    }
-    
-    int arraySize = retsize / sizeof(unsigned char*);
-    jobjectArray result = env->NewObjectArray(arraySize, (*env)->FindClass(env, "java/lang/Character"), (*env)->NewStringUTF(env, ""));
-    if(result == NULL)
-        return NULL;
-    jlong construct[arraySize];
-    for (int i = 0; i < arraySize; i++)
-        construct[i] = (long long)values[i];*/
-
+    free(valuesArray);
     
     return result;
 }
