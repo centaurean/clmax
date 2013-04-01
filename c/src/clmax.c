@@ -387,3 +387,22 @@ JNIEXPORT jobjectArray JNICALL Java_com_centaurean_clmax_schema_CL_getProgramInf
     
     return result;
 }
+
+// Kernel creation
+JNIEXPORT jlong JNICALL Java_com_centaurean_clmax_schema_CL_createKernelNative(JNIEnv *env, jclass this, jlong pointerProgram, jstring kernelName) {
+    cl_int errcode_ret;
+    const char* nativeKernelName = (*env)->GetStringUTFChars(env, kernelName, 0);
+    
+    cl_kernel kernel = clCreateKernel((cl_program)pointerProgram, nativeKernelName, &errcode_ret);
+    
+    (*env)->ReleaseStringUTFChars(env, kernelName, nativeKernelName);
+    
+    checkResult(errcode_ret, env);
+    
+    return (long long)kernel;
+}
+
+// Kernel release
+JNIEXPORT void JNICALL Java_com_centaurean_clmax_schema_CL_releaseKernelNative(JNIEnv *env, jclass this, jlong pointerKernel) {
+    checkResult(clReleaseKernel((cl_kernel)pointerKernel), env);
+}

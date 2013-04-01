@@ -167,6 +167,22 @@ JNIEXPORT jstring JNICALL Java_com_centaurean_clmax_schema_CL_getProgramInfoStri
 JNIEXPORT jobjectArray JNICALL Java_com_centaurean_clmax_schema_CL_getProgramInfoBinariesNative
   (JNIEnv *, jclass, jlong, jlongArray);
 
+/*
+ * Class:     com_centaurean_clmax_schema_CL
+ * Method:    createKernelNative
+ * Signature: (JLjava/lang/String;)J
+ */
+JNIEXPORT jlong JNICALL Java_com_centaurean_clmax_schema_CL_createKernelNative
+  (JNIEnv *, jclass, jlong, jstring);
+
+/*
+ * Class:     com_centaurean_clmax_schema_CL
+ * Method:    releaseKernelNative
+ * Signature: (J)V
+ */
+JNIEXPORT void JNICALL Java_com_centaurean_clmax_schema_CL_releaseKernelNative
+  (JNIEnv *, jclass, jlong);
+
 #ifdef __cplusplus
 }
 #endif

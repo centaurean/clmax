@@ -5,15 +5,13 @@ import com.centaurean.clmax.schema.contexts.CLContext;
 import com.centaurean.clmax.schema.devices.CLDevice;
 import com.centaurean.clmax.schema.devices.CLDeviceType;
 import com.centaurean.clmax.schema.devices.CLDevices;
+import com.centaurean.clmax.schema.kernels.CLKernel;
 import com.centaurean.clmax.schema.platforms.CLPlatform;
 import com.centaurean.clmax.schema.platforms.CLPlatforms;
 import com.centaurean.clmax.schema.programs.CLProgram;
-import com.centaurean.clmax.schema.programs.CLProgramBinaries;
-import com.centaurean.clmax.schema.programs.CLProgramInfo;
 import com.centaurean.commons.logs.Log;
 import com.centaurean.commons.logs.LogStatus;
 
-import java.io.FileOutputStream;
 import java.io.IOException;
 
 /*
@@ -52,8 +50,9 @@ public class Benchmark {
         System.loadLibrary("clmax");
     }
 
+    private static final String KERNEL = "VectorAdd";
     private static final String PROGRAM = "// OpenCL Kernel Function for element by element vector addition\n" +
-            "    kernel void VectorAdd(global const float* a, global const float* b, global float* c, int numElements) {\n" +
+            "    kernel void " + KERNEL + "(global const float* a, global const float* b, global float* c, int numElements) {\n" +
             "\n" +
             "        // get index into global data array\n" +
             "        int iGID = get_global_id(0);\n" +
@@ -87,7 +86,7 @@ public class Benchmark {
             Log.message(platform);
         for (CLPlatform platform : platforms.values()) {
             Log.startMessage("Getting devices for platform " + platform.getPointer());
-            CLDevices devices = platform.getDevices(CLDeviceType.CL_DEVICE_TYPE_ALL);
+            CLDevices devices = platform.getDevices(CLDeviceType.CL_DEVICE_TYPE_CPU);
             Log.endMessage(LogStatus.OK);
             Log.message("Found " + devices.size() + " device(s)");
             for (CLDevice device : devices.values())
@@ -110,12 +109,18 @@ public class Benchmark {
             program.build(platform.attachedDevices());
             Log.endMessage(LogStatus.OK);
             Log.message(program);
-            CLProgramBinaries binaries = program.get(CLProgramInfo.CL_PROGRAM_BINARIES).getBinaries();
+            /*CLProgramBinaries binaries = program.get(CLProgramInfo.CL_PROGRAM_BINARIES).getBinaries();
             for (int i = 0; i < binaries.size(); i++) {
                 FileOutputStream out = new FileOutputStream("out.bn" + i);
                 binaries.toStream(i, out);
                 out.close();
-            }
+            }*/
+            Log.startMessage("Creating kernel");
+            CLKernel kernel = program.createKernel(KERNEL);
+            Log.endMessage(LogStatus.OK);
+            Log.startMessage("Releasing kernel");
+            kernel.release();
+            Log.endMessage(LogStatus.OK);
             Log.startMessage("Releasing program");
             program.release();
             Log.endMessage(LogStatus.OK);

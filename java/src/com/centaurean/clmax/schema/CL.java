@@ -55,4 +55,7 @@ public class CL {
     public static native long[] getProgramInfoLongArrayNative(long pointerProgram, int parameter);
     public static native String getProgramInfoStringNative(long pointerProgram, int parameter);
     public static native byte[][] getProgramInfoBinariesNative(long pointerProgram, long[] binarySizes);
+
+    public static native long createKernelNative(long pointerProgram, String kernelName);
+    public static native void releaseKernelNative(long pointerKernel);
 }

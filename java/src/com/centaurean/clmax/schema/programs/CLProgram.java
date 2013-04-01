@@ -6,6 +6,7 @@ import com.centaurean.clmax.schema.CLObject;
 import com.centaurean.clmax.schema.devices.CLDevices;
 import com.centaurean.clmax.schema.exceptions.CLException;
 import com.centaurean.clmax.schema.exceptions.CLNativeException;
+import com.centaurean.clmax.schema.kernels.CLKernel;
 import com.centaurean.clmax.schema.platforms.CLPlatform;
 import com.centaurean.clmax.schema.values.CLValue;
 import com.centaurean.clmax.schema.versions.exceptions.CLVersionException;
@@ -91,6 +92,10 @@ public class CLProgram extends CLObject {
 
     public void build(CLDevices devices) {
         CL.buildProgramNative(getPointer(), devices.getPointers(), "");
+    }
+
+    public CLKernel createKernel(String kernelName) {
+        return new CLKernel(CL.createKernelNative(getPointer(), kernelName));
     }
 
     public void release() {
