@@ -7,6 +7,7 @@
 #define MAX_CL_CONTEXT_INFO_SIZE        1024
 #define MAX_CL_PROGRAM_INFO_SIZE        1024
 #define MAX_CL_PROGRAM_INFO_ARRAY_SIZE  256
+#define MAX_CL_KERNEL_INFO_SIZE         1024
 #define MAX_ERROR_MESSAGE_SIZE          32
 
 void checkResult(cl_int result, JNIEnv *env) {
@@ -405,4 +406,36 @@ JNIEXPORT jlong JNICALL Java_com_centaurean_clmax_schema_CL_createKernelNative(J
 // Kernel release
 JNIEXPORT void JNICALL Java_com_centaurean_clmax_schema_CL_releaseKernelNative(JNIEnv *env, jclass this, jlong pointerKernel) {
     checkResult(clReleaseKernel((cl_kernel)pointerKernel), env);
+}
+
+// Kernel infos
+JNIEXPORT jint JNICALL Java_com_centaurean_clmax_schema_CL_getKernelInfoIntNative(JNIEnv *env, jclass this, jlong pointerKernel, jint parameter) {
+    int result;
+    size_t retsize;
+    
+    checkResult(clGetKernelInfo((cl_kernel)pointerKernel, parameter, sizeof(&result), &result, &retsize), env);
+    
+    return result;
+}
+
+JNIEXPORT jlong JNICALL Java_com_centaurean_clmax_schema_CL_getKernelInfoLongNative(JNIEnv *env, jclass this, jlong pointerKernel, jint parameter) {
+    long result;
+    size_t retsize;
+    
+    checkResult(clGetKernelInfo((cl_kernel)pointerKernel, parameter, sizeof(&result), &result, &retsize), env);
+    
+    return result;
+}
+
+JNIEXPORT jstring JNICALL Java_com_centaurean_clmax_schema_CL_getKernelInfoStringNative(JNIEnv *env, jclass this, jlong pointerKernel, jint parameter) {
+    char* info = (char*)malloc(MAX_CL_KERNEL_INFO_SIZE * sizeof(char));
+    size_t retsize;
+    
+    checkResult(clGetKernelInfo((cl_kernel)pointerKernel, parameter, MAX_CL_KERNEL_INFO_SIZE, info, &retsize), env);
+    
+    jstring result = (*env)->NewStringUTF(env, info);
+    
+    free(info);
+    
+    return result;
 }

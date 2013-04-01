@@ -58,4 +58,7 @@ public class CL {
 
     public static native long createKernelNative(long pointerProgram, String kernelName);
     public static native void releaseKernelNative(long pointerKernel);
+    public static native int getKernelInfoIntNative(long pointerKernel, int parameter);
+    public static native long getKernelInfoLongNative(long pointerKernel, int parameter);
+    public static native String getKernelInfoStringNative(long pointerKernel, int parameter);
 }

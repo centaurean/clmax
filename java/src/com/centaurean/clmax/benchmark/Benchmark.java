@@ -118,6 +118,7 @@ public class Benchmark {
             Log.startMessage("Creating kernel");
             CLKernel kernel = program.createKernel(KERNEL);
             Log.endMessage(LogStatus.OK);
+            Log.message(kernel);
             Log.startMessage("Releasing kernel");
             kernel.release();
             Log.endMessage(LogStatus.OK);

@@ -95,7 +95,7 @@ public class CLProgram extends CLObject {
     }
 
     public CLKernel createKernel(String kernelName) {
-        return new CLKernel(CL.createKernelNative(getPointer(), kernelName));
+        return new CLKernel(CL.createKernelNative(getPointer(), kernelName), platform);
     }
 
     public void release() {
