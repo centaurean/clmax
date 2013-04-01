@@ -31,7 +31,7 @@ import static com.centaurean.clmax.schema.values.CLValueType.CHAR_ARRAY;
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *                                            @
- * jetFlow
+ * CLmax
  *
  * 27/03/13 01:53
  * @author gpnuma

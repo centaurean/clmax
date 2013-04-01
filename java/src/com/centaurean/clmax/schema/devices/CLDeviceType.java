@@ -31,7 +31,7 @@ import static com.centaurean.clmax.schema.versions.CLVersion.OPENCL_1_2;
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *
- * jetFlow
+ * CLmax
  *
  * 25/03/13 14:53
  * @author gpnuma

@@ -32,7 +32,7 @@ import java.util.concurrent.locks.ReentrantLock;
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *
- * jetFlow
+ * CLmax
  *
  * 25/03/13 21:31
  * @author gpnuma

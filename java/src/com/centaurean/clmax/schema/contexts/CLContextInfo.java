@@ -32,7 +32,7 @@ import static com.centaurean.clmax.schema.values.CLValueType.LONG_ARRAY;
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *
- * jetFlow
+ * CLmax
  *
  * 25/03/13 20:12
  * @author gpnuma
