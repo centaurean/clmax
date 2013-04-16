@@ -6,6 +6,7 @@ import com.centaurean.clmax.schema.devices.CLDevice;
 import com.centaurean.clmax.schema.devices.CLDeviceType;
 import com.centaurean.clmax.schema.devices.CLDevices;
 import com.centaurean.clmax.schema.kernels.CLKernel;
+import com.centaurean.clmax.schema.mem.buffers.CLBuffer;
 import com.centaurean.clmax.schema.platforms.CLPlatform;
 import com.centaurean.clmax.schema.platforms.CLPlatforms;
 import com.centaurean.clmax.schema.programs.CLProgram;
@@ -14,8 +15,11 @@ import com.centaurean.commons.logs.LogStatus;
 
 import java.io.IOException;
 
+import static com.centaurean.clmax.schema.mem.CLMemFlag.CL_MEM_READ_ONLY;
+import static com.centaurean.clmax.schema.mem.CLMemFlag.CL_MEM_USE_HOST_PTR;
+
 /*
- * Copyright (c) 2013, Centaurean software
+ * Copyright (c) 2013, Centaurean
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -25,14 +29,14 @@ import java.io.IOException;
  *     * Redistributions in binary form must reproduce the above copyright
  *       notice, this list of conditions and the following disclaimer in the
  *       documentation and/or other materials provided with the distribution.
- *     * Neither the name of Centaurean software nor the
+ *     * Neither the name of Centaurean nor the
  *       names of its contributors may be used to endorse or promote products
  *       derived from this software without specific prior written permission.
  *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
  * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
  * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
- * DISCLAIMED. IN NO EVENT SHALL Centaurean software BE LIABLE FOR ANY
+ * DISCLAIMED. IN NO EVENT SHALL Centaurean BE LIABLE FOR ANY
  * DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
  * (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
  * LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
@@ -66,7 +70,7 @@ public class Benchmark {
             "        c[iGID] = a[iGID] + b[iGID];\n" +
             "    }";
 
-    public Benchmark() throws IOException {
+    public Benchmark() throws IOException, InterruptedException {
         /*Log.startMessage("Creating GL context");
         GLProfile.initSingleton();
         GLProfile glp = GLProfile.getDefault();
@@ -119,6 +123,11 @@ public class Benchmark {
             CLKernel kernel = program.createKernel(KERNEL);
             Log.endMessage(LogStatus.OK);
             Log.message(kernel);
+            Log.startMessage("Creating buffer");
+            CLBuffer a = context.createBuffer(16384, CL_MEM_READ_ONLY, CL_MEM_USE_HOST_PTR);
+            Log.endMessage(LogStatus.OK);
+            Log.message(a);
+            kernel.setArgs(a);
             Log.startMessage("Releasing kernel");
             kernel.release();
             Log.endMessage(LogStatus.OK);
@@ -139,7 +148,7 @@ public class Benchmark {
         }
     }
 
-    public static void main(String... args) throws IOException {
+    public static void main(String... args) throws IOException, InterruptedException {
         new Benchmark();
     }
 }

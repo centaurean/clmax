@@ -5,13 +5,17 @@ import com.centaurean.clmax.schema.CL;
 import com.centaurean.clmax.schema.CLObject;
 import com.centaurean.clmax.schema.exceptions.CLException;
 import com.centaurean.clmax.schema.exceptions.CLNativeException;
+import com.centaurean.clmax.schema.mem.CLMemFlag;
+import com.centaurean.clmax.schema.mem.buffers.CLBuffer;
 import com.centaurean.clmax.schema.platforms.CLPlatform;
 import com.centaurean.clmax.schema.programs.CLProgram;
 import com.centaurean.clmax.schema.values.CLValue;
 import com.centaurean.commons.logs.Log;
 
+import java.nio.ByteBuffer;
+
 /*
- * Copyright (c) 2013, Centaurean software
+ * Copyright (c) 2013, Centaurean
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -21,14 +25,14 @@ import com.centaurean.commons.logs.Log;
  *     * Redistributions in binary form must reproduce the above copyright
  *       notice, this list of conditions and the following disclaimer in the
  *       documentation and/or other materials provided with the distribution.
- *     * Neither the name of Centaurean software nor the
+ *     * Neither the name of Centaurean nor the
  *       names of its contributors may be used to endorse or promote products
  *       derived from this software without specific prior written permission.
  *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
  * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
  * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
- * DISCLAIMED. IN NO EVENT SHALL Centaurean software BE LIABLE FOR ANY
+ * DISCLAIMED. IN NO EVENT SHALL Centaurean BE LIABLE FOR ANY
  * DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
  * (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
  * LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
@@ -67,6 +71,19 @@ public class CLContext extends CLObject {
 
     public void release() {
         CL.releaseContextNative(getPointer());
+    }
+
+    public CLBuffer createBuffer(int size, CLMemFlag... flags) {
+        ByteBuffer newBuffer = ByteBuffer.allocateDirect(size);
+        if (!newBuffer.isDirect())
+            throw new CLException("Unable to create direct buffer");
+        int orFlags = 0;
+        for (CLMemFlag flag : flags)
+            if (flag.getMinimumCLVersion().compareTo(platform.getVersion()) <= 0)
+                orFlags += flag.getValue();
+            else
+                throw new CLException("Flag " + flag.name() + " requires an " + platform.getVersion().majorMinor() + " compatible platform.");
+        return new CLBuffer(CL.createBufferNative(getPointer(), newBuffer, orFlags), newBuffer);
     }
 
     public CLProgram createProgram(String source) {

@@ -207,6 +207,22 @@ JNIEXPORT jlong JNICALL Java_com_centaurean_clmax_schema_CL_getKernelInfoLongNat
 JNIEXPORT jstring JNICALL Java_com_centaurean_clmax_schema_CL_getKernelInfoStringNative
   (JNIEnv *, jclass, jlong, jint);
 
+/*
+ * Class:     com_centaurean_clmax_schema_CL
+ * Method:    setKernelArgNative
+ * Signature: (JIJ)V
+ */
+JNIEXPORT void JNICALL Java_com_centaurean_clmax_schema_CL_setKernelArgNative
+  (JNIEnv *, jclass, jlong, jint, jlong);
+
+/*
+ * Class:     com_centaurean_clmax_schema_CL
+ * Method:    createBufferNative
+ * Signature: (JLjava/nio/ByteBuffer;I)J
+ */
+JNIEXPORT jlong JNICALL Java_com_centaurean_clmax_schema_CL_createBufferNative
+  (JNIEnv *, jclass, jlong, jobject, jint);
+
 #ifdef __cplusplus
 }
 #endif

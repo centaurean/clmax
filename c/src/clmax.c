@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013, Centaurean software
+ * Copyright (c) 2013, Centaurean
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -9,14 +9,14 @@
  *     * Redistributions in binary form must reproduce the above copyright
  *       notice, this list of conditions and the following disclaimer in the
  *       documentation and/or other materials provided with the distribution.
- *     * Neither the name of Centaurean software nor the
+ *     * Neither the name of Centaurean nor the
  *       names of its contributors may be used to endorse or promote products
  *       derived from this software without specific prior written permission.
  *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
  * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
  * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
- * DISCLAIMED. IN NO EVENT SHALL Centaurean software BE LIABLE FOR ANY
+ * DISCLAIMED. IN NO EVENT SHALL Centaurean BE LIABLE FOR ANY
  * DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
  * (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
  * LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
@@ -470,4 +470,21 @@ JNIEXPORT jstring JNICALL Java_com_centaurean_clmax_schema_CL_getKernelInfoStrin
     free(info);
     
     return result;
+}
+
+// Kernel args
+JNIEXPORT void JNICALL Java_com_centaurean_clmax_schema_CL_setKernelArgNative(JNIEnv *env, jclass this, jlong pointerKernel, jint argIndex, jlong pointerBuffer) {
+    checkResult(clSetKernelArg((cl_kernel)pointerKernel, argIndex, sizeof(cl_mem), (cl_mem)pointerBuffer), env);
+}
+
+// Buffer creation
+JNIEXPORT jlong JNICALL Java_com_centaurean_clmax_schema_CL_createBufferNative(JNIEnv *env, jclass this, jlong pointerContext, jobject buffer, jint flags) {
+    cl_int errcode_ret;
+    
+    //fprintf(stderr, "%lld, %lld", (*env)->GetDirectBufferCapacity(env, buffer), (long long)(*env)->GetDirectBufferAddress(env, buffer));
+    cl_mem clBuffer = clCreateBuffer((cl_context)pointerContext, flags, (*env)->GetDirectBufferCapacity(env, buffer), (*env)->GetDirectBufferAddress(env, buffer), &errcode_ret);
+    
+    checkResult(errcode_ret, env);
+    
+    return (long long)clBuffer;
 }
