@@ -473,8 +473,12 @@ JNIEXPORT jstring JNICALL Java_com_centaurean_clmax_schema_CL_getKernelInfoStrin
 }
 
 // Kernel args
-JNIEXPORT void JNICALL Java_com_centaurean_clmax_schema_CL_setKernelArgNative(JNIEnv *env, jclass this, jlong pointerKernel, jint argIndex, jlong pointerBuffer) {
+JNIEXPORT void JNICALL Java_com_centaurean_clmax_schema_CL_setKernelArgBufferNative(JNIEnv *env, jclass this, jlong pointerKernel, jint argIndex, jlong pointerBuffer) {
     checkResult(clSetKernelArg((cl_kernel)pointerKernel, argIndex, sizeof(cl_mem), &pointerBuffer), env);
+}
+
+JNIEXPORT void JNICALL Java_com_centaurean_clmax_schema_CL_setKernelArgIntNative(JNIEnv *env, jclass this, jlong pointerKernel, jint argIndex, jint value) {
+    checkResult(clSetKernelArg((cl_kernel)pointerKernel, argIndex, sizeof(jint), &value), env);
 }
 
 // Buffer creation

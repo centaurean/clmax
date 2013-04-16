@@ -15,8 +15,7 @@ import com.centaurean.commons.logs.LogStatus;
 
 import java.io.IOException;
 
-import static com.centaurean.clmax.schema.mem.CLMemFlag.CL_MEM_READ_ONLY;
-import static com.centaurean.clmax.schema.mem.CLMemFlag.CL_MEM_USE_HOST_PTR;
+import static com.centaurean.clmax.schema.mem.CLMemFlag.*;
 
 /*
  * Copyright (c) 2013, Centaurean
@@ -54,21 +53,13 @@ public class Benchmark {
         System.loadLibrary("clmax");
     }
 
-    private static final String KERNEL = "VectorAdd";
-    private static final String PROGRAM = "// OpenCL Kernel Function for element by element vector addition\n" +
-            "    kernel void " + KERNEL + "(global const float* a, global const float* b, global float* c, int numElements) {\n" +
-            "\n" +
-            "        // get index into global data array\n" +
-            "        int iGID = get_global_id(0);\n" +
-            "\n" +
-            "        // bound check, equivalent to the limit on a 'for' loop\n" +
-            "        if (iGID >= numElements)  {\n" +
-            "            return;\n" +
-            "        }\n" +
-            "\n" +
-            "        // add the vector elements\n" +
-            "        c[iGID] = a[iGID] + b[iGID];\n" +
-            "    }";
+    private static final String KERNEL = "square";
+    private static final String PROGRAM =
+            "__kernel void square(__global float* input, __global float* output, const unsigned int count) {" +
+            "   int i = get_global_id(0);" +
+            "   if(i < count)" +
+            "       output[i] = input[i] * input[i];" +
+            "}";
 
     public Benchmark() throws IOException, InterruptedException {
         /*Log.startMessage("Creating GL context");
@@ -123,11 +114,13 @@ public class Benchmark {
             CLKernel kernel = program.createKernel(KERNEL);
             Log.endMessage(LogStatus.OK);
             Log.message(kernel);
-            Log.startMessage("Creating buffer");
+            Log.startMessage("Creating buffers");
             CLBuffer a = context.createBuffer(16384, CL_MEM_READ_ONLY, CL_MEM_USE_HOST_PTR);
+            CLBuffer b = context.createBuffer(16384, CL_MEM_WRITE_ONLY, CL_MEM_USE_HOST_PTR);
             Log.endMessage(LogStatus.OK);
             Log.message(a);
-            kernel.setArgs(a);
+            Log.message(b);
+            kernel.setArgs(a, b).setArg(16384);
             Log.startMessage("Releasing kernel");
             kernel.release();
             Log.endMessage(LogStatus.OK);

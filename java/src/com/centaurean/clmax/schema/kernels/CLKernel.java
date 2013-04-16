@@ -44,10 +44,12 @@ import com.centaurean.commons.logs.Log;
  */
 public class CLKernel extends CLObject {
     private CLPlatform platform;
+    private int argIndex;
 
     public CLKernel(long pointer, CLPlatform platform) {
         super(pointer);
         this.platform = platform;
+        argIndex = 0;
     }
 
     private CLValue get(CLKernelInfo kernelInfo) {
@@ -75,13 +77,26 @@ public class CLKernel extends CLObject {
         CL.releaseKernelNative(getPointer());
     }
 
-    public void setArg(int index, CLBuffer buffer) {
-        CL.setKernelArgNative(getPointer(), index, buffer.getPointer());
+    public CLKernel setArg(int index, CLBuffer buffer) {
+        CL.setKernelArgBufferNative(getPointer(), index, buffer.getPointer());
+        argIndex = index + 1;
+        return this;
     }
 
-    public void setArgs(CLBuffer... buffers) {
+    public CLKernel setArgs(CLBuffer... buffers) {
         for (int i = 0; i < buffers.length; i++)
-            setArg(i, buffers[i]);
+            setArg(argIndex, buffers[i]);
+        return this;
+    }
+
+    public CLKernel setArg(int index, int value) {
+        CL.setKernelArgIntNative(getPointer(), index, value);
+        argIndex = index + 1;
+        return this;
+    }
+
+    public CLKernel setArg(int value) {
+        return setArg(argIndex, value);
     }
 
     @Override
