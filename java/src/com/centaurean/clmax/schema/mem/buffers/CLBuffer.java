@@ -1,5 +1,6 @@
 package com.centaurean.clmax.schema.mem.buffers;
 
+import com.centaurean.clmax.schema.CL;
 import com.centaurean.clmax.schema.mem.CLMem;
 
 import java.nio.ByteBuffer;
@@ -36,15 +37,19 @@ import java.nio.ByteBuffer;
  * @author gpnuma
  */
 public class CLBuffer extends CLMem {
-    private ByteBuffer support;
+    private ByteBuffer hostBuffer;
 
-    public CLBuffer(long pointerBuffer, ByteBuffer support) {
+    public CLBuffer(long pointerBuffer, ByteBuffer hostBuffer) {
         super(pointerBuffer);
-        this.support = support;
+        this.hostBuffer = hostBuffer;
     }
 
-    public ByteBuffer getSupport() {
-        return support;
+    public void release() {
+        CL.releaseMemObjectNative(getPointer());
+    }
+
+    public ByteBuffer getHostBuffer() {
+        return hostBuffer;
     }
 
     @Override

@@ -1,10 +1,6 @@
-package com.centaurean.clmax.schema.mem;
+package com.centaurean.clmax.schema.queues;
 
-import com.centaurean.clmax.schema.versions.CLVersion;
-import com.centaurean.clmax.schema.versions.CLVersionMatcher;
-
-import static com.centaurean.clmax.schema.versions.CLVersion.OPENCL_1_0;
-import static com.centaurean.clmax.schema.versions.CLVersion.OPENCL_1_2;
+import java.util.LinkedList;
 
 /*
  * Copyright (c) 2013, Centaurean
@@ -34,41 +30,8 @@ import static com.centaurean.clmax.schema.versions.CLVersion.OPENCL_1_2;
  *
  * jetFlow
  *
- * 15/04/13 02:38
+ * 16/04/13 22:58
  * @author gpnuma
  */
-public enum CLMemFlag implements CLVersionMatcher {
-    CL_MEM_READ_WRITE(1),
-    CL_MEM_WRITE_ONLY(1 << 1),
-    CL_MEM_READ_ONLY(1 << 2),
-    CL_MEM_USE_HOST_PTR(1 << 3),
-    CL_MEM_ALLOC_HOST_PTR(1 << 4),
-    CL_MEM_COPY_HOST_PTR(1 << 5),
-    // reserved                                         (1 << 6)
-
-    // OpenCL 1.2
-    CL_MEM_HOST_WRITE_ONLY(1 << 7, OPENCL_1_2),
-    CL_MEM_HOST_READ_ONLY(1 << 8, OPENCL_1_2),
-    CL_MEM_HOST_NO_ACCESS(1 << 9, OPENCL_1_2);
-
-    private int value;
-    private CLVersion minimumVersion;
-
-    private CLMemFlag(int value, CLVersion minimumVersion) {
-        this.value = value;
-        this.minimumVersion = minimumVersion;
-    }
-
-    private CLMemFlag(int value) {
-        this(value, OPENCL_1_0);
-    }
-
-    public int getValue() {
-        return value;
-    }
-
-    @Override
-    public CLVersion getMinimumCLVersion() {
-        return minimumVersion;
-    }
+public class CLCommandQueues extends LinkedList<CLCommandQueue> {
 }

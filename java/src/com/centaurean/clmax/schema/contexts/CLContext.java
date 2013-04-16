@@ -3,12 +3,15 @@ package com.centaurean.clmax.schema.contexts;
 import com.centaurean.clmax.cache.CLQueryCache;
 import com.centaurean.clmax.schema.CL;
 import com.centaurean.clmax.schema.CLObject;
+import com.centaurean.clmax.schema.devices.CLDevice;
+import com.centaurean.clmax.schema.devices.CLDevices;
 import com.centaurean.clmax.schema.exceptions.CLException;
 import com.centaurean.clmax.schema.exceptions.CLNativeException;
-import com.centaurean.clmax.schema.mem.CLMemFlag;
 import com.centaurean.clmax.schema.mem.buffers.CLBuffer;
+import com.centaurean.clmax.schema.mem.buffers.CLBufferType;
 import com.centaurean.clmax.schema.platforms.CLPlatform;
 import com.centaurean.clmax.schema.programs.CLProgram;
+import com.centaurean.clmax.schema.queues.CLCommandQueue;
 import com.centaurean.clmax.schema.values.CLValue;
 import com.centaurean.commons.logs.Log;
 
@@ -47,10 +50,12 @@ import java.nio.ByteBuffer;
  */
 public class CLContext extends CLObject {
     private CLPlatform platform;
+    private CLDevices devices;
 
-    public CLContext(long pointer, CLPlatform platform) {
+    public CLContext(long pointer, CLDevices devices, CLPlatform platform) {
         super(pointer);
         this.platform = platform;
+        this.devices = devices;
     }
 
     private CLValue get(CLContextInfo contextInfo) {
@@ -73,21 +78,28 @@ public class CLContext extends CLObject {
         CL.releaseContextNative(getPointer());
     }
 
-    public CLBuffer createBuffer(int size, CLMemFlag... flags) {
-        ByteBuffer newBuffer = ByteBuffer.allocateDirect(size);
-        if (!newBuffer.isDirect())
-            throw new CLException("Unable to create direct buffer");
-        int orFlags = 0;
-        for (CLMemFlag flag : flags)
-            if (flag.getMinimumCLVersion().compareTo(platform.getVersion()) <= 0)
-                orFlags += flag.getValue();
-            else
-                throw new CLException("Flag " + flag.name() + " requires an " + platform.getVersion().majorMinor() + " compatible platform.");
-        return new CLBuffer(CL.createBufferNative(getPointer(), newBuffer, orFlags), newBuffer);
+    public CLPlatform getPlatform() {
+        return platform;
+    }
+
+    public CLDevices getDevices() {
+        return devices;
+    }
+
+    public CLBuffer createBuffer(ByteBuffer support, CLBufferType type) {
+        if (!support.isDirect())
+            throw new CLException("Buffer must be direct");
+        return new CLBuffer(CL.createBufferNative(getPointer(), support, type.getValue()), support);
     }
 
     public CLProgram createProgram(String source) {
-        return new CLProgram(CL.createProgramWithSourceNative(getPointer(), source), platform);
+        return new CLProgram(CL.createProgramWithSourceNative(getPointer(), source), platform, this);
+    }
+
+    public CLCommandQueue createCommandQueue(CLDevice device) {
+        if(!devices.containsKey(device.getPointer()))
+            throw new CLException("Context must contain device !");
+        return new CLCommandQueue(CL.createCommandQueueNative(getPointer(), device.getPointer()), this, device);
     }
 
     @Override

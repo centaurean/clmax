@@ -481,14 +481,42 @@ JNIEXPORT void JNICALL Java_com_centaurean_clmax_schema_CL_setKernelArgIntNative
     checkResult(clSetKernelArg((cl_kernel)pointerKernel, argIndex, sizeof(jint), &value), env);
 }
 
+// Kernel run
+JNIEXPORT void JNICALL Java_com_centaurean_clmax_schema_CL_runKernelNative(JNIEnv *env, jclass this, jlong pointerKernel, jlong pointerCommandQueue) {
+    size_t global_work_size[1];
+    global_work_size[0] = 1024;
+    checkResult(clEnqueueNDRangeKernel((cl_command_queue)pointerCommandQueue, (cl_kernel)pointerKernel, 1, NULL, global_work_size, NULL, 0, NULL, NULL), env);
+    checkResult(clFinish((cl_command_queue)pointerCommandQueue), env);
+}
+
 // Buffer creation
 JNIEXPORT jlong JNICALL Java_com_centaurean_clmax_schema_CL_createBufferNative(JNIEnv *env, jclass this, jlong pointerContext, jobject buffer, jint flags) {
     cl_int errcode_ret;
     
-    //fprintf(stderr, "%lld, %lld", (*env)->GetDirectBufferCapacity(env, buffer), (long long)(*env)->GetDirectBufferAddress(env, buffer));
-    cl_mem clBuffer = clCreateBuffer((cl_context)pointerContext, flags, (*env)->GetDirectBufferCapacity(env, buffer), (*env)->GetDirectBufferAddress(env, buffer), &errcode_ret);
+    cl_mem clBuffer = clCreateBuffer((cl_context)pointerContext, flags | CL_MEM_USE_HOST_PTR, (*env)->GetDirectBufferCapacity(env, buffer), (*env)->GetDirectBufferAddress(env, buffer), &errcode_ret);
     
     checkResult(errcode_ret, env);
     
     return (long long)clBuffer;
+}
+
+// Mem object release
+JNIEXPORT void JNICALL Java_com_centaurean_clmax_schema_CL_releaseMemObjectNative(JNIEnv *env, jclass this, jlong pointerMemObject) {
+    checkResult(clReleaseMemObject((cl_mem)pointerMemObject), env);
+}
+
+// Command queue creation
+JNIEXPORT jlong JNICALL Java_com_centaurean_clmax_schema_CL_createCommandQueueNative(JNIEnv *env, jclass this, jlong pointerContext, jlong pointerDevice) {
+    cl_int errcode_ret;
+    
+    cl_command_queue commandQueue = clCreateCommandQueue((cl_context)pointerContext, (cl_device_id)pointerDevice, 0, &errcode_ret);
+    
+    checkResult(errcode_ret, env);
+    
+    return (long long)commandQueue;
+}
+
+// Command queue release
+JNIEXPORT void JNICALL Java_com_centaurean_clmax_schema_CL_releaseCommandQueueNative(JNIEnv *env, jclass this, jlong pointerCommandQueue) {
+    checkResult(clReleaseCommandQueue((cl_command_queue)pointerCommandQueue), env);
 }

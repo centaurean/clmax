@@ -225,11 +225,43 @@ JNIEXPORT void JNICALL Java_com_centaurean_clmax_schema_CL_setKernelArgIntNative
 
 /*
  * Class:     com_centaurean_clmax_schema_CL
+ * Method:    runKernelNative
+ * Signature: (JJ)V
+ */
+JNIEXPORT void JNICALL Java_com_centaurean_clmax_schema_CL_runKernelNative
+  (JNIEnv *, jclass, jlong, jlong);
+
+/*
+ * Class:     com_centaurean_clmax_schema_CL
  * Method:    createBufferNative
  * Signature: (JLjava/nio/ByteBuffer;I)J
  */
 JNIEXPORT jlong JNICALL Java_com_centaurean_clmax_schema_CL_createBufferNative
   (JNIEnv *, jclass, jlong, jobject, jint);
+
+/*
+ * Class:     com_centaurean_clmax_schema_CL
+ * Method:    releaseMemObjectNative
+ * Signature: (J)V
+ */
+JNIEXPORT void JNICALL Java_com_centaurean_clmax_schema_CL_releaseMemObjectNative
+  (JNIEnv *, jclass, jlong);
+
+/*
+ * Class:     com_centaurean_clmax_schema_CL
+ * Method:    createCommandQueueNative
+ * Signature: (JJ)J
+ */
+JNIEXPORT jlong JNICALL Java_com_centaurean_clmax_schema_CL_createCommandQueueNative
+  (JNIEnv *, jclass, jlong, jlong);
+
+/*
+ * Class:     com_centaurean_clmax_schema_CL
+ * Method:    releaseCommandQueueNative
+ * Signature: (J)V
+ */
+JNIEXPORT void JNICALL Java_com_centaurean_clmax_schema_CL_releaseCommandQueueNative
+  (JNIEnv *, jclass, jlong);
 
 #ifdef __cplusplus
 }

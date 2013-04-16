@@ -3,6 +3,7 @@ package com.centaurean.clmax.schema.programs;
 import com.centaurean.clmax.cache.CLQueryCache;
 import com.centaurean.clmax.schema.CL;
 import com.centaurean.clmax.schema.CLObject;
+import com.centaurean.clmax.schema.contexts.CLContext;
 import com.centaurean.clmax.schema.devices.CLDevices;
 import com.centaurean.clmax.schema.exceptions.CLException;
 import com.centaurean.clmax.schema.exceptions.CLNativeException;
@@ -45,10 +46,12 @@ import com.centaurean.commons.logs.Log;
  */
 public class CLProgram extends CLObject {
     private CLPlatform platform;
+    private CLContext context;
 
-    public CLProgram(long pointer, CLPlatform platform) {
+    public CLProgram(long pointer, CLPlatform platform, CLContext context) {
         super(pointer);
         this.platform = platform;
+        this.context = context;
     }
 
     public CLValue get(CLProgramInfo programInfo) {
@@ -95,11 +98,19 @@ public class CLProgram extends CLObject {
     }
 
     public CLKernel createKernel(String kernelName) {
-        return new CLKernel(CL.createKernelNative(getPointer(), kernelName), platform);
+        return new CLKernel(CL.createKernelNative(getPointer(), kernelName), platform, context);
     }
 
     public void release() {
         CL.releaseProgramNative(getPointer());
+    }
+
+    public CLPlatform getPlatform() {
+        return platform;
+    }
+
+    public CLContext getContext() {
+        return context;
     }
 
     @Override

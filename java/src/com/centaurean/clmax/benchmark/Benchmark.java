@@ -7,15 +7,16 @@ import com.centaurean.clmax.schema.devices.CLDeviceType;
 import com.centaurean.clmax.schema.devices.CLDevices;
 import com.centaurean.clmax.schema.kernels.CLKernel;
 import com.centaurean.clmax.schema.mem.buffers.CLBuffer;
+import com.centaurean.clmax.schema.mem.buffers.CLBufferType;
 import com.centaurean.clmax.schema.platforms.CLPlatform;
 import com.centaurean.clmax.schema.platforms.CLPlatforms;
 import com.centaurean.clmax.schema.programs.CLProgram;
+import com.centaurean.clmax.schema.queues.CLCommandQueue;
 import com.centaurean.commons.logs.Log;
 import com.centaurean.commons.logs.LogStatus;
 
 import java.io.IOException;
-
-import static com.centaurean.clmax.schema.mem.CLMemFlag.*;
+import java.nio.ByteBuffer;
 
 /*
  * Copyright (c) 2013, Centaurean
@@ -89,7 +90,7 @@ public class Benchmark {
         }
         for (CLPlatform platform : platforms.values()) {
             CLDevice first = platform.attachedDevices().values().iterator().next();
-            Log.startMessage("Ignoring and reinstating context");
+            Log.startMessage("Ignoring and reinstating device");
             platform.attachedDevices().ignore(first);
             platform.attachedDevices().reinstate(first);
             Log.endMessage(LogStatus.OK);
@@ -97,6 +98,9 @@ public class Benchmark {
             CLContext context = platform.createContext();
             Log.endMessage(LogStatus.OK);
             Log.message(context);
+            Log.startMessage("Creating command queue");
+            CLCommandQueue queue = first.createCommandQueue(context);
+            Log.endMessage(LogStatus.OK);
             Log.startMessage("Creating program");
             CLProgram program = context.createProgram(PROGRAM);
             Log.endMessage(LogStatus.OK);
@@ -115,12 +119,25 @@ public class Benchmark {
             Log.endMessage(LogStatus.OK);
             Log.message(kernel);
             Log.startMessage("Creating buffers");
-            CLBuffer a = context.createBuffer(16384, CL_MEM_READ_ONLY, CL_MEM_USE_HOST_PTR);
-            CLBuffer b = context.createBuffer(16384, CL_MEM_WRITE_ONLY, CL_MEM_USE_HOST_PTR);
+            ByteBuffer a = ByteBuffer.allocateDirect(16384);
+            ByteBuffer b = ByteBuffer.allocateDirect(16384);
+            CLBuffer clA = context.createBuffer(a, CLBufferType.READ_ONLY);
+            CLBuffer clB = context.createBuffer(b, CLBufferType.WRITE_ONLY);
             Log.endMessage(LogStatus.OK);
             Log.message(a);
+            Log.message(clA);
             Log.message(b);
-            kernel.setArgs(a, b).setArg(16384);
+            Log.message(clB);
+            Log.startMessage("Setting kernel args");
+            kernel.setArgs(clA, clB).setArg(16384);
+            Log.endMessage(LogStatus.OK);
+            Log.startMessage("Launching kernel");
+            //queue.
+            Log.endMessage(LogStatus.OK);
+            Log.startMessage("Releasing buffers");
+            clA.release();
+            clB.release();
+            Log.endMessage(LogStatus.OK);
             Log.startMessage("Releasing kernel");
             kernel.release();
             Log.endMessage(LogStatus.OK);

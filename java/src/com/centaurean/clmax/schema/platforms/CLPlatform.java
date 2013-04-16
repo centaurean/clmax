@@ -67,11 +67,11 @@ public class CLPlatform extends CLObject {
     }
 
     public CLContext createContext() {
-        return new CLContext(CL.createContextNative(getPointer(), devices.getPointers()), this);
+        return new CLContext(CL.createContextNative(getPointer(), devices.getPointers()), devices, this);
     }
 
     public CLContext createCLGLContext() {
-        return new CLContext(CL.createCLGLContextNative(getPointer()), this);
+        return new CLContext(CL.createCLGLContextNative(getPointer()), devices, this);
     }
 
     private CLValue get(CLPlatformInfo platformInfo) {

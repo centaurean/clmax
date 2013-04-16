@@ -3,10 +3,12 @@ package com.centaurean.clmax.schema.kernels;
 import com.centaurean.clmax.cache.CLQueryCache;
 import com.centaurean.clmax.schema.CL;
 import com.centaurean.clmax.schema.CLObject;
+import com.centaurean.clmax.schema.contexts.CLContext;
 import com.centaurean.clmax.schema.exceptions.CLException;
 import com.centaurean.clmax.schema.exceptions.CLNativeException;
 import com.centaurean.clmax.schema.mem.buffers.CLBuffer;
 import com.centaurean.clmax.schema.platforms.CLPlatform;
+import com.centaurean.clmax.schema.queues.CLCommandQueue;
 import com.centaurean.clmax.schema.values.CLValue;
 import com.centaurean.clmax.schema.versions.exceptions.CLVersionException;
 import com.centaurean.commons.logs.Log;
@@ -44,11 +46,13 @@ import com.centaurean.commons.logs.Log;
  */
 public class CLKernel extends CLObject {
     private CLPlatform platform;
+    private CLContext context;
     private int argIndex;
 
-    public CLKernel(long pointer, CLPlatform platform) {
+    public CLKernel(long pointer, CLPlatform platform, CLContext context) {
         super(pointer);
         this.platform = platform;
+        this.context = context;
         argIndex = 0;
     }
 
@@ -97,6 +101,24 @@ public class CLKernel extends CLObject {
 
     public CLKernel setArg(int value) {
         return setArg(argIndex, value);
+    }
+
+    public void runIn(CLCommandQueue commandQueue) {
+        if(!commandQueue.getContext().equals(getContext()))
+            throw new CLException("The OpenCL context associated with kernel and command-queue must be the same !");
+        CL.runKernelNative(getPointer(), commandQueue.getPointer());
+    }
+
+    public CLPlatform getPlatform() {
+        return platform;
+    }
+
+    public CLContext getContext() {
+        return context;
+    }
+
+    public int getArgIndex() {
+        return argIndex;
     }
 
     @Override

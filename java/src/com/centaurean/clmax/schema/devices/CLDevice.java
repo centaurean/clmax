@@ -3,8 +3,10 @@ package com.centaurean.clmax.schema.devices;
 import com.centaurean.clmax.cache.CLQueryCache;
 import com.centaurean.clmax.schema.CL;
 import com.centaurean.clmax.schema.CLObject;
+import com.centaurean.clmax.schema.contexts.CLContext;
 import com.centaurean.clmax.schema.exceptions.CLException;
 import com.centaurean.clmax.schema.exceptions.CLNativeException;
+import com.centaurean.clmax.schema.queues.CLCommandQueue;
 import com.centaurean.clmax.schema.values.CLValue;
 import com.centaurean.clmax.schema.versions.CLVersion;
 import com.centaurean.clmax.schema.versions.exceptions.CLVersionException;
@@ -48,6 +50,12 @@ public class CLDevice extends CLObject {
         super(pointer);
     }
 
+    public CLCommandQueue createCommandQueue(CLContext context) {
+        if(!context.getDevices().containsKey(getPointer()))
+            throw new CLException("Context must contain device !");
+        return new CLCommandQueue(CL.createCommandQueueNative(context.getPointer(), getPointer()), context, this);
+    }
+
     private CLValue get(CLDeviceInfo deviceInfo) {
         if (deviceInfo != CLDeviceInfo.CL_DEVICE_VERSION)
             if (getVersion().compareTo(deviceInfo.getMinimumCLVersion()) < 0)
@@ -81,23 +89,6 @@ public class CLDevice extends CLObject {
         if (version == null)
             version = CLVersion.parse(get(CLDeviceInfo.CL_DEVICE_VERSION).getString());
         return version;
-    }
-
-    @Override
-    public int hashCode() {
-        return (int) getPointer();
-    }
-
-    @Override
-    public boolean equals(Object object) {
-        if (object == null)
-            return false;
-        if (object == this)
-            return true;
-        if (!(object instanceof CLDevice))
-            return false;
-        CLDevice device = (CLDevice) object;
-        return (getPointer() == device.getPointer());
     }
 
     @Override

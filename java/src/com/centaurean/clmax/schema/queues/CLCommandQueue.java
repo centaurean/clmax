@@ -1,6 +1,9 @@
-package com.centaurean.clmax.schema;
+package com.centaurean.clmax.schema.queues;
 
-import com.centaurean.clmax.schema.exceptions.CLException;
+import com.centaurean.clmax.schema.CL;
+import com.centaurean.clmax.schema.CLObject;
+import com.centaurean.clmax.schema.contexts.CLContext;
+import com.centaurean.clmax.schema.devices.CLDevice;
 
 /*
  * Copyright (c) 2013, Centaurean
@@ -28,43 +31,30 @@ import com.centaurean.clmax.schema.exceptions.CLException;
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *
- * CLmax
+ * jetFlow
  *
- * 26/03/13 16:16
+ * 16/04/13 22:32
  * @author gpnuma
  */
-public class CLObject {
-    private long pointer;
+public class CLCommandQueue extends CLObject {
+    private CLContext context;
+    private CLDevice device;
 
-    public CLObject(long pointer) {
-        this.pointer = pointer;
-        if(pointer == 0)
-            throw new CLException("CL object creation failed : null pointer returned");
+    public CLCommandQueue(long pointer, CLContext context, CLDevice device) {
+        super(pointer);
+        this.context = context;
+        this.device = device;
     }
 
-    public long getPointer() {
-        return pointer;
+    public void release() {
+        CL.releaseCommandQueueNative(getPointer());
     }
 
-    @Override
-    public int hashCode() {
-        return (int) getPointer();
+    public CLContext getContext() {
+        return context;
     }
 
-    @Override
-    public boolean equals(Object object) {
-        if (object == null)
-            return false;
-        if (object == this)
-            return true;
-        if (!(object instanceof CLObject))
-            return false;
-        CLObject clObject = (CLObject) object;
-        return (getPointer() == clObject.getPointer());
-    }
-
-    @Override
-    public String toString() {
-        return "pointer='0x" + Long.toHexString(getPointer()) + " (" + getPointer() + ")'";
+    public CLDevice getDevice() {
+        return device;
     }
 }
