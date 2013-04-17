@@ -1,12 +1,10 @@
-package com.centaurean.clmax.schema.mem.buffers;
+package com.centaurean.clmax.schema.mem;
 
-import com.centaurean.clmax.schema.CL;
-import com.centaurean.clmax.schema.exceptions.CLException;
-import com.centaurean.clmax.schema.mem.CLMapType;
-import com.centaurean.clmax.schema.mem.CLMem;
-import com.centaurean.clmax.schema.queues.CLCommandQueue;
+import com.centaurean.clmax.schema.versions.CLVersion;
+import com.centaurean.clmax.schema.versions.CLVersionMatcher;
 
-import java.nio.ByteBuffer;
+import static com.centaurean.clmax.schema.versions.CLVersion.OPENCL_1_0;
+import static com.centaurean.clmax.schema.versions.CLVersion.OPENCL_1_2;
 
 /*
  * Copyright (c) 2013, Centaurean
@@ -36,39 +34,32 @@ import java.nio.ByteBuffer;
  *
  * jetFlow
  *
- * 14/04/13 02:53
+ * 17/04/13 03:23
  * @author gpnuma
  */
-public class CLBuffer extends CLMem {
-    private ByteBuffer hostBuffer;
+public enum CLMapType implements CLVersionMatcher {
+    READ(1),
+    WRITE(1 << 1),
+    WRITE_INVALIDATE_REGION(1 << 2, OPENCL_1_2);
 
-    public CLBuffer(long pointerBuffer, ByteBuffer hostBuffer) {
-        super(pointerBuffer);
-        this.hostBuffer = hostBuffer;
+    private int value;
+    private CLVersion minimumVersion;
+
+    private CLMapType(int value, CLVersion minimumVersion) {
+        this.value = value;
+        this.minimumVersion = minimumVersion;
     }
 
-    public void map(CLCommandQueue commandQueue, CLMapType mapType) {
-        if(commandQueue.getDevice().getVersion().compareTo(mapType.getMinimumCLVersion()) < 0)
-            throw new CLException("Map type " + mapType.name() + " requires an " + mapType.getMinimumCLVersion().majorMinor() + " compatible device !");
-        CL.mapBufferNative(commandQueue.getPointer(), getPointer(), mapType.getValue(), getHostBuffer().capacity());
+    private CLMapType(int value) {
+        this(value, OPENCL_1_0);
     }
 
-    public void unmap(CLCommandQueue commandQueue) {
-        CL.unmapMemObjectNative(commandQueue.getPointer(), getPointer(), getHostBuffer());
-    }
-
-    public void release() {
-        CL.releaseMemObjectNative(getPointer());
-    }
-
-    public ByteBuffer getHostBuffer() {
-        return hostBuffer;
+    public int getValue() {
+        return value;
     }
 
     @Override
-    public String toString() {
-        StringBuilder stringBuilder = new StringBuilder();
-        stringBuilder.append("{").append(super.toString()).append("}");
-        return stringBuilder.toString();
+    public CLVersion getMinimumCLVersion() {
+        return minimumVersion;
     }
 }

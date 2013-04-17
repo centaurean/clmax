@@ -505,6 +505,20 @@ JNIEXPORT void JNICALL Java_com_centaurean_clmax_schema_CL_releaseMemObjectNativ
     checkResult(clReleaseMemObject((cl_mem)pointerMemObject), env);
 }
 
+// Buffer mapping
+JNIEXPORT void JNICALL Java_com_centaurean_clmax_schema_CL_mapBufferNative(JNIEnv *env, jclass this, jlong pointerCommandQueue, jlong pointerBuffer, jint mapFlags, jint bufferSize) {
+    cl_int errcode_ret;
+    
+    clEnqueueMapBuffer((cl_command_queue)pointerCommandQueue, (cl_mem)pointerBuffer, CL_TRUE, mapFlags, 0, bufferSize, 0, NULL, NULL, &errcode_ret);
+    
+    checkResult(errcode_ret, env);
+}
+
+// Mem object unmapping
+JNIEXPORT void JNICALL Java_com_centaurean_clmax_schema_CL_unmapMemObjectNative(JNIEnv *env, jclass this, jlong pointerCommandQueue, jlong pointerMemObject, jobject hostBuffer) {
+    checkResult(clEnqueueUnmapMemObject((cl_command_queue)pointerCommandQueue, (cl_mem)pointerMemObject, (*env)->GetDirectBufferAddress(env, hostBuffer), 0, NULL, NULL), env);
+}
+
 // Command queue creation
 JNIEXPORT jlong JNICALL Java_com_centaurean_clmax_schema_CL_createCommandQueueNative(JNIEnv *env, jclass this, jlong pointerContext, jlong pointerDevice) {
     cl_int errcode_ret;

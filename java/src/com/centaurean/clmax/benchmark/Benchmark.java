@@ -6,6 +6,7 @@ import com.centaurean.clmax.schema.devices.CLDevice;
 import com.centaurean.clmax.schema.devices.CLDeviceType;
 import com.centaurean.clmax.schema.devices.CLDevices;
 import com.centaurean.clmax.schema.kernels.CLKernel;
+import com.centaurean.clmax.schema.mem.CLMapType;
 import com.centaurean.clmax.schema.mem.buffers.CLBuffer;
 import com.centaurean.clmax.schema.mem.buffers.CLBufferType;
 import com.centaurean.clmax.schema.platforms.CLPlatform;
@@ -17,6 +18,7 @@ import com.centaurean.commons.logs.LogStatus;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
 
 /*
  * Copyright (c) 2013, Centaurean
@@ -58,7 +60,7 @@ public class Benchmark {
     private static final String PROGRAM =
             "__kernel void " + KERNEL + "(__global float* input, __global float* output, const unsigned int count) {" +
             "   int i = get_global_id(0);" +
-            "   for(int z = 0; z < 1000; z ++) if(i < count)" +
+            "   if(i < count)" +
             "       output[i] = input[i] * input[i];" +
             "}";
 
@@ -120,8 +122,11 @@ public class Benchmark {
             Log.message(kernel);
             Log.startMessage("Creating buffers");
             ByteBuffer a = ByteBuffer.allocateDirect(163840000);
-            a.putInt(1).putInt(2).putInt(3).putInt(4).putInt(5).putInt(6).putInt(7).putInt(8);
+            a.order(ByteOrder.nativeOrder());
+            for(int i = 0; i < 163840000 / 4; i ++)
+                a.putFloat(i);
             ByteBuffer b = ByteBuffer.allocateDirect(163840000);
+            b.order(ByteOrder.nativeOrder());
             CLBuffer clA = context.createBuffer(a, CLBufferType.READ_ONLY);
             CLBuffer clB = context.createBuffer(b, CLBufferType.WRITE_ONLY);
             Log.endMessage(LogStatus.OK);
@@ -130,20 +135,31 @@ public class Benchmark {
             a.rewind();
             StringBuilder content = new StringBuilder();
             for(int i = 0; i < 10; i++)
-                content.append(a.getInt()).append(", ");
-            Log.message(content.toString());
+                content.append(a.getFloat()).append(", ");
+            Log.message(content.append("...").toString());
             Log.message(b);
             Log.message(clB);
             content = new StringBuilder();
             for(int i = 0; i < 10; i++)
-                content.append(b.getInt()).append(", ");
-            Log.message(content.toString());
+                content.append(b.getFloat()).append(", ");
+            Log.message(content.append("...").toString());
             Log.startMessage("Setting kernel args");
             kernel.setArgs(clA, clB).setArg(163840000);
             Log.endMessage(LogStatus.OK);
-            Log.startMessage("Launching kernel");
+            Log.startMessage("Running kernel");
             kernel.runIn(queue);
             Log.endMessage(LogStatus.OK);
+            Log.startMessage("Mapping buffer");
+            clB.map(queue, CLMapType.READ);
+            Log.endMessage(LogStatus.OK);
+            Log.startMessage("Unmapping buffer");
+            clB.unmap(queue);
+            Log.endMessage(LogStatus.OK);
+            content = new StringBuilder();
+            clB.getHostBuffer().rewind();
+            for(int i = 0; i < 10; i++)
+                content.append(clB.getHostBuffer().getFloat()).append(", ");
+            Log.message(content.append("...").toString());
             Log.startMessage("Releasing buffers");
             clA.release();
             clB.release();

@@ -67,8 +67,10 @@ public class CL {
     public static native void setKernelArgIntNative(long pointerKernel, int argIndex, int value);
     public static native void runKernelNative(long pointerKernel, long pointerCommandQueue);
 
-    public static native long createBufferNative(long pointerContext, ByteBuffer buffer, int flags);
+    public static native long createBufferNative(long pointerContext, ByteBuffer hostBuffer, int flags);
     public static native void releaseMemObjectNative(long pointerMemObject);
+    public static native void mapBufferNative(long pointerCommandQueue, long pointerBuffer, int mapFlags, int bufferSize);
+    public static native void unmapMemObjectNative(long pointerCommandQueue, long pointerMemObject, ByteBuffer hostBuffer);
 
     public static native long createCommandQueueNative(long pointerContext, long pointerDevice);
     public static native void releaseCommandQueueNative(long pointerCommandQueue);
