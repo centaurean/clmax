@@ -13,6 +13,8 @@ import com.centaurean.clmax.schema.values.CLValue;
 import com.centaurean.clmax.schema.versions.exceptions.CLVersionException;
 import com.centaurean.commons.logs.Log;
 
+import java.util.concurrent.locks.ReentrantLock;
+
 /*
  * Copyright (c) 2013, Centaurean
  * All rights reserved.
@@ -45,6 +47,8 @@ import com.centaurean.commons.logs.Log;
  * @author gpnuma
  */
 public class CLKernel extends CLObject {
+    private static final ReentrantLock lock = new ReentrantLock(true);
+
     private CLPlatform platform;
     private CLContext context;
     private int argIndex;
@@ -82,8 +86,10 @@ public class CLKernel extends CLObject {
     }
 
     public CLKernel setArg(int index, CLBuffer buffer) {
+        lock.lock();
         CL.setKernelArgBufferNative(getPointer(), index, buffer.getPointer());
         argIndex = index + 1;
+        lock.unlock();
         return this;
     }
 
@@ -94,8 +100,10 @@ public class CLKernel extends CLObject {
     }
 
     public CLKernel setArg(int index, int value) {
+        lock.lock();
         CL.setKernelArgIntNative(getPointer(), index, value);
         argIndex = index + 1;
+        lock.unlock();
         return this;
     }
 

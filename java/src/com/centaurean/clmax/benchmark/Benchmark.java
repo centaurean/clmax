@@ -56,9 +56,9 @@ public class Benchmark {
 
     private static final String KERNEL = "square";
     private static final String PROGRAM =
-            "__kernel void square(__global float* input, __global float* output, const unsigned int count) {" +
+            "__kernel void " + KERNEL + "(__global float* input, __global float* output, const unsigned int count) {" +
             "   int i = get_global_id(0);" +
-            "   if(i < count)" +
+            "   for(int z = 0; z < 1000; z ++) if(i < count)" +
             "       output[i] = input[i] * input[i];" +
             "}";
 
@@ -119,20 +119,30 @@ public class Benchmark {
             Log.endMessage(LogStatus.OK);
             Log.message(kernel);
             Log.startMessage("Creating buffers");
-            ByteBuffer a = ByteBuffer.allocateDirect(16384);
-            ByteBuffer b = ByteBuffer.allocateDirect(16384);
+            ByteBuffer a = ByteBuffer.allocateDirect(163840000);
+            a.putInt(1).putInt(2).putInt(3).putInt(4).putInt(5).putInt(6).putInt(7).putInt(8);
+            ByteBuffer b = ByteBuffer.allocateDirect(163840000);
             CLBuffer clA = context.createBuffer(a, CLBufferType.READ_ONLY);
             CLBuffer clB = context.createBuffer(b, CLBufferType.WRITE_ONLY);
             Log.endMessage(LogStatus.OK);
             Log.message(a);
             Log.message(clA);
+            a.rewind();
+            StringBuilder content = new StringBuilder();
+            for(int i = 0; i < 10; i++)
+                content.append(a.getInt()).append(", ");
+            Log.message(content.toString());
             Log.message(b);
             Log.message(clB);
+            content = new StringBuilder();
+            for(int i = 0; i < 10; i++)
+                content.append(b.getInt()).append(", ");
+            Log.message(content.toString());
             Log.startMessage("Setting kernel args");
-            kernel.setArgs(clA, clB).setArg(16384);
+            kernel.setArgs(clA, clB).setArg(163840000);
             Log.endMessage(LogStatus.OK);
             Log.startMessage("Launching kernel");
-            //queue.
+            kernel.runIn(queue);
             Log.endMessage(LogStatus.OK);
             Log.startMessage("Releasing buffers");
             clA.release();
@@ -143,6 +153,9 @@ public class Benchmark {
             Log.endMessage(LogStatus.OK);
             Log.startMessage("Releasing program");
             program.release();
+            Log.endMessage(LogStatus.OK);
+            Log.startMessage("Releasing command queue");
+            queue.release();
             Log.endMessage(LogStatus.OK);
             Log.startMessage("Releasing context");
             context.release();
