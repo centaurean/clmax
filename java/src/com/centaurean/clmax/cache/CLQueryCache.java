@@ -1,7 +1,6 @@
 package com.centaurean.clmax.cache;
 
 import com.centaurean.clmax.schema.values.CLValue;
-import com.sun.tools.javac.util.Pair;
 
 import java.util.Hashtable;
 import java.util.concurrent.locks.ReentrantLock;

@@ -58,7 +58,7 @@ public class Benchmark {
 
     private static final String KERNEL = "square";
     private static final String PROGRAM =
-            "__kernel void " + KERNEL + "(__global float* input, __global float* output, const unsigned int count) {" +
+            "kernel void " + KERNEL + "(global const float* input, global float* output, const unsigned int count) {" +
             "   int i = get_global_id(0);" +
             "   if(i < count)" +
             "       output[i] = input[i] * input[i];" +
@@ -84,7 +84,7 @@ public class Benchmark {
             Log.message(platform);
         for (CLPlatform platform : platforms.values()) {
             Log.startMessage("Getting devices for platform " + platform.getPointer());
-            CLDevices devices = platform.getDevices(CLDeviceType.CL_DEVICE_TYPE_CPU);
+            CLDevices devices = platform.getDevices(CLDeviceType.CL_DEVICE_TYPE_GPU);
             Log.endMessage(LogStatus.OK);
             Log.message("Found " + devices.size() + " device(s)");
             for (CLDevice device : devices.values())
@@ -127,6 +127,8 @@ public class Benchmark {
                 a.putFloat(i);
             ByteBuffer b = ByteBuffer.allocateDirect(163840000);
             b.order(ByteOrder.nativeOrder());
+            for(int i = 0; i < 163840000 / 4; i ++)
+                b.putFloat(i);
             CLBuffer clA = context.createBuffer(a, CLBufferType.READ_ONLY);
             CLBuffer clB = context.createBuffer(b, CLBufferType.WRITE_ONLY);
             Log.endMessage(LogStatus.OK);
@@ -140,6 +142,7 @@ public class Benchmark {
             Log.message(b);
             Log.message(clB);
             content = new StringBuilder();
+            b.rewind();
             for(int i = 0; i < 10; i++)
                 content.append(b.getFloat()).append(", ");
             Log.message(content.append("...").toString());
@@ -152,14 +155,14 @@ public class Benchmark {
             Log.startMessage("Mapping buffer");
             clB.map(queue, CLMapType.READ);
             Log.endMessage(LogStatus.OK);
-            Log.startMessage("Unmapping buffer");
-            clB.unmap(queue);
-            Log.endMessage(LogStatus.OK);
             content = new StringBuilder();
             clB.getHostBuffer().rewind();
             for(int i = 0; i < 10; i++)
                 content.append(clB.getHostBuffer().getFloat()).append(", ");
             Log.message(content.append("...").toString());
+            Log.startMessage("Unmapping buffer");
+            clB.unmap(queue);
+            Log.endMessage(LogStatus.OK);
             Log.startMessage("Releasing buffers");
             clA.release();
             clB.release();
