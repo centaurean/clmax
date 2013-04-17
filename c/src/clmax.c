@@ -486,7 +486,7 @@ JNIEXPORT void JNICALL Java_com_centaurean_clmax_schema_CL_runKernelNative(JNIEn
     size_t global_work_size[] = {1024};
     checkResult(clEnqueueNDRangeKernel((cl_command_queue)pointerCommandQueue, (cl_kernel)pointerKernel, 1, NULL, global_work_size, NULL, 0, NULL, NULL), env);
     checkResult(clFinish((cl_command_queue)pointerCommandQueue), env);
-    fprintf(stderr, "Finished");
+    //fprintf(stderr, "Finished");
 }
 
 // Buffer creation
@@ -510,17 +510,17 @@ JNIEXPORT void JNICALL Java_com_centaurean_clmax_schema_CL_mapBufferNative(JNIEn
     cl_int errcode_ret;
     
     void* address = clEnqueueMapBuffer((cl_command_queue)pointerCommandQueue, (cl_mem)pointerBuffer, CL_TRUE, mapFlags, 0, bufferSize, 0, NULL, NULL, &errcode_ret);
-    fprintf(stderr, "%lld,", (long long)address);
+    /*fprintf(stderr, "%lld,", (long long)address);
     float* buf = (float*)address;
     for(int i = 0; i < 10; i ++)
-        fprintf(stderr, "%g,", buf[i]);
+        fprintf(stderr, "%g,", buf[i]);*/
     
     checkResult(errcode_ret, env);
 }
 
 // Mem object unmapping
 JNIEXPORT void JNICALL Java_com_centaurean_clmax_schema_CL_unmapMemObjectNative(JNIEnv *env, jclass this, jlong pointerCommandQueue, jlong pointerMemObject, jobject hostBuffer) {
-    fprintf(stderr, "%lld,", (long long)(*env)->GetDirectBufferAddress(env, hostBuffer));
+    //fprintf(stderr, "%lld,", (long long)(*env)->GetDirectBufferAddress(env, hostBuffer));
     checkResult(clEnqueueUnmapMemObject((cl_command_queue)pointerCommandQueue, (cl_mem)pointerMemObject, (*env)->GetDirectBufferAddress(env, hostBuffer), 0, NULL, NULL), env);
 }
 

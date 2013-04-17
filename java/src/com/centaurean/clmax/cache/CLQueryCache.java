@@ -1,6 +1,7 @@
 package com.centaurean.clmax.cache;
 
 import com.centaurean.clmax.schema.values.CLValue;
+import com.centaurean.commons.structures.Pair;
 
 import java.util.Hashtable;
 import java.util.concurrent.locks.ReentrantLock;
@@ -49,7 +50,7 @@ public class CLQueryCache {
     public static CLValue add(Long pointer, CLQueryCacheKey key, CLValue value) {
         cacheLock.lock();
         try {
-            return cacheStorage.put(toPair(pointer, key), value);
+            return cacheStorage.put(Pair.of(pointer, key), value);
         } finally {
             cacheLock.unlock();
         }
@@ -58,7 +59,7 @@ public class CLQueryCache {
     public static boolean contains(Long pointer, CLQueryCacheKey key) {
         cacheLock.lock();
         try {
-            return cacheStorage.containsKey(toPair(pointer, key));
+            return cacheStorage.containsKey(Pair.of(pointer, key));
         } finally {
             cacheLock.unlock();
         }
@@ -68,7 +69,7 @@ public class CLQueryCache {
         cacheLock.lock();
         try {
             queries ++;
-            CLValue value = cacheStorage.get(toPair(pointer, key));
+            CLValue value = cacheStorage.get(Pair.of(pointer, key));
             if(value != null)
                 hits ++;
             return value;
@@ -89,15 +90,6 @@ public class CLQueryCache {
         cacheLock.lock();
         try {
             return "Query cache : " + getHits() + " hits / " + getQueries() +  " queries ( " + Math.round((100.0 * getHits()) / getQueries()) + " % )";
-        } finally {
-            cacheLock.unlock();
-        }
-    }
-
-    private static Pair<Long, CLQueryCacheKey> toPair(Long pointer, CLQueryCacheKey key) {
-        cacheLock.lock();
-        try {
-            return new Pair<Long, CLQueryCacheKey>(pointer, key);
         } finally {
             cacheLock.unlock();
         }
