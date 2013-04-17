@@ -30,8 +30,13 @@
  * @author gpnuma
  */
 
+#ifdef __linux__
+#include <CL/opencl.h>
+#include <GL/glx.h>
+#else
 #include <OpenCL/opencl.h>
 #include <OpenGL/OpenGL.h>
+#endif
 #include <stdlib.h>
 #include <stdio.h>
 

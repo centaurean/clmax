@@ -228,7 +228,7 @@ JNIEXPORT jlong JNICALL Java_com_centaurean_clmax_schema_CL_createCLGLContextNat
     cl_context_properties properties[] = {
         CL_GL_CONTEXT_KHR, (cl_context_properties)wglGetCurrentContext(),       // WGL Context
         CL_WGL_HDC_KHR, (cl_context_properties)wglGetCurrentDC(),               // WGL HDC
-        CL_CONTEXT_PLATFORM, (cl_context_properties)(cl_platform_id)pointer,    // OpenCL platform
+        CL_CONTEXT_PLATFORM, (cl_context_properties)(cl_platform_id)pointerPlatform,    // OpenCL platform
         0
     };
 
@@ -241,7 +241,7 @@ JNIEXPORT jlong JNICALL Java_com_centaurean_clmax_schema_CL_createCLGLContextNat
     cl_context_properties properties[] = {
         CL_GL_CONTEXT_KHR, (cl_context_properties)glXGetCurrentContext(),       // GLX Context
         CL_GLX_DISPLAY_KHR, (cl_context_properties)glXGetCurrentDisplay(),      // GLX Display
-        CL_CONTEXT_PLATFORM, (cl_context_properties)(cl_platform_id)pointer,    // OpenCL platform
+        CL_CONTEXT_PLATFORM, (cl_context_properties)(cl_platform_id)pointerPlatform,    // OpenCL platform
         0
     };
 
