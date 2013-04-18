@@ -31,7 +31,7 @@ import com.centaurean.clmax.schema.devices.CLDevice;
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *
- * jetFlow
+ * CLmax
  *
  * 16/04/13 22:32
  * @author gpnuma
