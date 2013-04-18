@@ -85,7 +85,7 @@ public class Benchmark {
             Log.message(platform);
         for (CLPlatform platform : platforms.values()) {
             Log.startMessage("Getting devices for platform " + platform.getPointer());
-            CLDevices devices = platform.getDevices(CLDeviceType.CL_DEVICE_TYPE_GPU);
+            CLDevices devices = platform.getDevices(CLDeviceType.CL_DEVICE_TYPE_CPU);
             Log.endMessage(LogStatus.OK);
             Log.message("Found " + devices.size() + " device(s)");
             for (CLDevice device : devices.values())
@@ -133,14 +133,12 @@ public class Benchmark {
             CLBuffer clA = context.createBuffer(a, CLBufferType.READ_ONLY);
             CLBuffer clB = context.createBuffer(b, CLBufferType.WRITE_ONLY);
             Log.endMessage(LogStatus.OK);
-            Log.message(a);
             Log.message(clA);
             a.rewind();
             StringBuilder content = new StringBuilder();
             for(int i = 0; i < 10; i++)
                 content.append(a.getFloat()).append(", ");
             Log.message(content.append("...").toString());
-            Log.message(b);
             Log.message(clB);
             content = new StringBuilder();
             b.rewind();

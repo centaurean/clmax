@@ -13,6 +13,9 @@ import com.centaurean.clmax.schema.values.CLValue;
 import com.centaurean.clmax.schema.versions.CLVersion;
 import com.centaurean.commons.logs.Log;
 
+import java.util.Arrays;
+import java.util.Iterator;
+
 /*
  * Copyright (c) 2013, Centaurean
  * All rights reserved.
@@ -53,10 +56,10 @@ public class CLPlatform extends CLObject {
     }
 
     public CLDevices getDevices(CLDeviceType type) {
-        if(devices == null || type != devices.getType()) {
+        if (devices == null || type != devices.getType()) {
             long[] pointers = CL.getDevicesNative(getPointer(), type.getType());
             devices = new CLDevices(type);
-            for(long pointer : pointers)
+            for (long pointer : pointers)
                 devices.add(new CLDevice(pointer));
         }
         return devices;
@@ -97,18 +100,28 @@ public class CLPlatform extends CLObject {
         CL.releaseContextNative(getPointer());
     }
 
+    private void appendTo(StringBuilder stringBuilder, CLPlatformInfo platformInfo) {
+        try {
+            stringBuilder.append(platformInfo.name()).append("='").append(get(platformInfo));
+        } catch (CLNativeException exception) {
+            Log.message(new CLException("[Platform " + super.toString() + "] Querying platform info " + platformInfo.name() + " returned error " + exception.getMessage()));
+        } finally {
+            stringBuilder.append("'");
+        }
+    }
+
     @Override
     public String toString() {
         StringBuilder stringBuilder = new StringBuilder();
-        stringBuilder.append("{").append(super.toString());
-        for (CLPlatformInfo platformInfo : CLPlatformInfo.values())
-            try {
-                stringBuilder.append(", ").append(platformInfo.name()).append("='").append(get(platformInfo)).append("'");
-            } catch (CLNativeException exception) {
-                Log.message(new CLException("[Platform " + super.toString() + "] Querying platform info " + platformInfo.name() + " returned error " + exception.getMessage()));
-            } finally {
-                stringBuilder.append("'");
+        stringBuilder.append(super.toString()).append(" {");
+        Iterator<CLPlatformInfo> iterator = Arrays.asList(CLPlatformInfo.values()).iterator();
+        if (iterator.hasNext()) {
+            appendTo(stringBuilder, iterator.next());
+            while (iterator.hasNext()) {
+                stringBuilder.append(", ");
+                appendTo(stringBuilder, iterator.next());
             }
+        }
         return stringBuilder.append("}").toString();
     }
 }

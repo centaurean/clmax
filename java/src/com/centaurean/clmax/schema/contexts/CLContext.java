@@ -16,6 +16,8 @@ import com.centaurean.clmax.schema.values.CLValue;
 import com.centaurean.commons.logs.Log;
 
 import java.nio.ByteBuffer;
+import java.util.Arrays;
+import java.util.Iterator;
 
 /*
  * Copyright (c) 2013, Centaurean
@@ -97,23 +99,33 @@ public class CLContext extends CLObject {
     }
 
     public CLCommandQueue createCommandQueue(CLDevice device) {
-        if(!devices.containsKey(device.getPointer()))
+        if (!devices.containsKey(device.getPointer()))
             throw new CLException("Context must contain device !");
         return new CLCommandQueue(CL.createCommandQueueNative(getPointer(), device.getPointer()), this, device);
+    }
+
+    private void appendTo(StringBuilder stringBuilder, CLContextInfo contextInfo) {
+        try {
+            stringBuilder.append(contextInfo.name()).append("='").append(get(contextInfo));
+        } catch (CLNativeException exception) {
+            Log.message(new CLException("[Context " + super.toString() + "] Querying context info " + contextInfo.name() + " returned error " + exception.getMessage()));
+        } finally {
+            stringBuilder.append("'");
+        }
     }
 
     @Override
     public String toString() {
         StringBuilder stringBuilder = new StringBuilder();
-        stringBuilder.append("{").append(super.toString());
-        for (CLContextInfo contextInfo : CLContextInfo.values())
-            try {
-                stringBuilder.append(", ").append(contextInfo.name()).append("='").append(get(contextInfo));
-            } catch (CLNativeException exception) {
-                Log.message(new CLException("[Context " + super.toString() + "] Querying context info " + contextInfo.name() + " returned error " + exception.getMessage()));
-            } finally {
-                stringBuilder.append("'");
+        stringBuilder.append(super.toString()).append(" {");
+        Iterator<CLContextInfo> iterator = Arrays.asList(CLContextInfo.values()).iterator();
+        if (iterator.hasNext()) {
+            appendTo(stringBuilder, iterator.next());
+            while (iterator.hasNext()) {
+                stringBuilder.append(", ");
+                appendTo(stringBuilder, iterator.next());
             }
+        }
         return stringBuilder.append("}").toString();
     }
 }

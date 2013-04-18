@@ -13,6 +13,9 @@ import com.centaurean.clmax.schema.values.CLValue;
 import com.centaurean.clmax.schema.versions.exceptions.CLVersionException;
 import com.centaurean.commons.logs.Log;
 
+import java.util.Arrays;
+import java.util.Iterator;
+
 /*
  * Copyright (c) 2013, Centaurean
  * All rights reserved.
@@ -113,19 +116,28 @@ public class CLProgram extends CLObject {
         return context;
     }
 
+    private void appendTo(StringBuilder stringBuilder, CLProgramInfo programInfo) {
+        if (platform.getVersion().compareTo(programInfo.getMinimumCLVersion()) > 0)
+            try {
+                stringBuilder.append(programInfo.name()).append("='").append(get(programInfo));
+            } catch (CLNativeException exception) {
+                Log.message(new CLException("[Program " + super.toString() + "] Querying program info " + programInfo.name() + " returned error " + exception.getMessage()));
+            } finally {
+                stringBuilder.append("'");
+            }
+    }
+
     @Override
     public String toString() {
         StringBuilder stringBuilder = new StringBuilder();
-        stringBuilder.append("{").append(super.toString());
-        for (CLProgramInfo programInfo : CLProgramInfo.values()) {
-            if (platform.getVersion().compareTo(programInfo.getMinimumCLVersion()) > 0)
-                try {
-                    stringBuilder.append(", ").append(programInfo.name()).append("='").append(get(programInfo));
-                } catch (CLNativeException exception) {
-                    Log.message(new CLException("[Program " + super.toString() + "] Querying program info " + programInfo.name() + " returned error " + exception.getMessage()));
-                } finally {
-                    stringBuilder.append("'");
-                }
+        stringBuilder.append(super.toString()).append(" {");
+        Iterator<CLProgramInfo> iterator = Arrays.asList(CLProgramInfo.values()).iterator();
+        if (iterator.hasNext()) {
+            appendTo(stringBuilder, iterator.next());
+            while (iterator.hasNext()) {
+                stringBuilder.append(", ");
+                appendTo(stringBuilder, iterator.next());
+            }
         }
         return stringBuilder.append("}").toString();
     }

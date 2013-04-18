@@ -68,7 +68,7 @@ public class CLBuffer extends CLMem {
     @Override
     public String toString() {
         StringBuilder stringBuilder = new StringBuilder();
-        stringBuilder.append("{").append(super.toString()).append("}");
+        stringBuilder.append(super.toString()).append(" {").append(getHostBuffer()).append("}");
         return stringBuilder.toString();
     }
 }

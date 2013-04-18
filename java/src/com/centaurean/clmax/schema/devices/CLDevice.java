@@ -12,6 +12,9 @@ import com.centaurean.clmax.schema.versions.CLVersion;
 import com.centaurean.clmax.schema.versions.exceptions.CLVersionException;
 import com.centaurean.commons.logs.Log;
 
+import java.util.Arrays;
+import java.util.Iterator;
+
 /*
  * Copyright (c) 2013, Centaurean
  * All rights reserved.
@@ -51,7 +54,7 @@ public class CLDevice extends CLObject {
     }
 
     public CLCommandQueue createCommandQueue(CLContext context) {
-        if(!context.getDevices().containsKey(getPointer()))
+        if (!context.getDevices().containsKey(getPointer()))
             throw new CLException("Context must contain device !");
         return new CLCommandQueue(CL.createCommandQueueNative(context.getPointer(), getPointer()), context, this);
     }
@@ -91,19 +94,28 @@ public class CLDevice extends CLObject {
         return version;
     }
 
+    private void appendTo(StringBuilder stringBuilder, CLDeviceInfo deviceInfo) {
+        if (getVersion().compareTo(deviceInfo.getMinimumCLVersion()) > 0)
+            try {
+                stringBuilder.append(deviceInfo.name()).append("='").append(get(deviceInfo));
+            } catch (CLNativeException exception) {
+                Log.message(new CLException("[Device " + super.toString() + "] Querying device info " + deviceInfo.name() + " returned error " + exception.getMessage()));
+            } finally {
+                stringBuilder.append("'");
+            }
+    }
+
     @Override
     public String toString() {
         StringBuilder stringBuilder = new StringBuilder();
-        stringBuilder.append("{").append(super.toString());
-        for (CLDeviceInfo deviceInfo : CLDeviceInfo.values()) {
-            if (getVersion().compareTo(deviceInfo.getMinimumCLVersion()) > 0)
-                try {
-                    stringBuilder.append(", ").append(deviceInfo.name()).append("='").append(get(deviceInfo));
-                } catch (CLNativeException exception) {
-                    Log.message(new CLException("[Device " + super.toString() + "] Querying device info " + deviceInfo.name() + " returned error " + exception.getMessage()));
-                } finally {
-                    stringBuilder.append("'");
-                }
+        stringBuilder.append(super.toString()).append(" {");
+        Iterator<CLDeviceInfo> iterator = Arrays.asList(CLDeviceInfo.values()).iterator();
+        if (iterator.hasNext()) {
+            appendTo(stringBuilder, iterator.next());
+            while (iterator.hasNext()) {
+                stringBuilder.append(", ");
+                appendTo(stringBuilder, iterator.next());
+            }
         }
         return stringBuilder.append("}").toString();
     }

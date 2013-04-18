@@ -13,6 +13,8 @@ import com.centaurean.clmax.schema.values.CLValue;
 import com.centaurean.clmax.schema.versions.exceptions.CLVersionException;
 import com.centaurean.commons.logs.Log;
 
+import java.util.Arrays;
+import java.util.Iterator;
 import java.util.concurrent.locks.ReentrantLock;
 
 /*
@@ -112,7 +114,7 @@ public class CLKernel extends CLObject {
     }
 
     public void runIn(CLCommandQueue commandQueue) {
-        if(!commandQueue.getContext().equals(getContext()))
+        if (!commandQueue.getContext().equals(getContext()))
             throw new CLException("The OpenCL context associated with kernel and command-queue must be the same !");
         CL.runKernelNative(getPointer(), commandQueue.getPointer());
     }
@@ -129,19 +131,28 @@ public class CLKernel extends CLObject {
         return argIndex;
     }
 
+    private void appendTo(StringBuilder stringBuilder, CLKernelInfo kernelInfo) {
+        if (platform.getVersion().compareTo(kernelInfo.getMinimumCLVersion()) > 0)
+            try {
+                stringBuilder.append(kernelInfo.name()).append("='").append(get(kernelInfo));
+            } catch (CLNativeException exception) {
+                Log.message(new CLException("[Kernel " + super.toString() + "] Querying kernel info " + kernelInfo.name() + " returned error " + exception.getMessage()));
+            } finally {
+                stringBuilder.append("'");
+            }
+    }
+
     @Override
     public String toString() {
         StringBuilder stringBuilder = new StringBuilder();
-        stringBuilder.append("{").append(super.toString());
-        for (CLKernelInfo kernelInfo : CLKernelInfo.values()) {
-            if (platform.getVersion().compareTo(kernelInfo.getMinimumCLVersion()) > 0)
-                try {
-                    stringBuilder.append(", ").append(kernelInfo.name()).append("='").append(get(kernelInfo));
-                } catch (CLNativeException exception) {
-                    Log.message(new CLException("[Kernel " + super.toString() + "] Querying kernel info " + kernelInfo.name() + " returned error " + exception.getMessage()));
-                } finally {
-                    stringBuilder.append("'");
-                }
+        stringBuilder.append(super.toString()).append(" {");
+        Iterator<CLKernelInfo> iterator = Arrays.asList(CLKernelInfo.values()).iterator();
+        if (iterator.hasNext()) {
+            appendTo(stringBuilder, iterator.next());
+            while (iterator.hasNext()) {
+                stringBuilder.append(", ");
+                appendTo(stringBuilder, iterator.next());
+            }
         }
         return stringBuilder.append("}").toString();
     }

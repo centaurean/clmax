@@ -65,6 +65,6 @@ public class CLObject {
 
     @Override
     public String toString() {
-        return "pointer='0x" + Long.toHexString(getPointer()) + " (" + getPointer() + ")'";
+        return getClass().getName() + " (pointer hex=0x" + Long.toHexString(getPointer()) + ", long=" + getPointer() + ")";
     }
 }
