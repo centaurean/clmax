@@ -63,6 +63,7 @@ public class Benchmark {
             "   if(i < count)" +
             "       output[i] = input[i] * input[i];" +
             "}";
+    private static final int BUFFER_SIZE = 16384*16384;
 
     public Benchmark() throws IOException, InterruptedException {
         /*Log.startMessage("Creating GL context");
@@ -121,14 +122,14 @@ public class Benchmark {
             Log.endMessage(LogStatus.OK);
             Log.message(kernel);
             Log.startMessage("Creating buffers");
-            ByteBuffer a = ByteBuffer.allocateDirect(163840000);
+            ByteBuffer a = ByteBuffer.allocateDirect(BUFFER_SIZE);
             a.order(ByteOrder.nativeOrder());
-            for(int i = 0; i < 163840000 / 4; i ++)
+            for(int i = 0; i < BUFFER_SIZE / 4; i ++)
                 a.putFloat(i);
-            ByteBuffer b = ByteBuffer.allocateDirect(163840000);
+            ByteBuffer b = ByteBuffer.allocateDirect(BUFFER_SIZE);
             b.order(ByteOrder.nativeOrder());
-            for(int i = 0; i < 163840000 / 4; i ++)
-                b.putFloat(i);
+            for(int i = 0; i < BUFFER_SIZE / 4; i ++)
+                b.putFloat(0.0f);
             CLBuffer clA = context.createBuffer(a, CLBufferType.READ_ONLY);
             CLBuffer clB = context.createBuffer(b, CLBufferType.WRITE_ONLY);
             Log.endMessage(LogStatus.OK);
@@ -147,7 +148,7 @@ public class Benchmark {
                 content.append(b.getFloat()).append(", ");
             Log.message(content.append("...").toString());
             Log.startMessage("Setting kernel args");
-            kernel.setArgs(clA, clB).setArg(163840000);
+            kernel.setArgs(clA, clB).setArg(BUFFER_SIZE);
             Log.endMessage(LogStatus.OK);
             Log.startMessage("Running kernel");
             kernel.runIn(queue);
@@ -155,14 +156,14 @@ public class Benchmark {
             Log.startMessage("Mapping buffer");
             clB.map(queue, CLMapType.READ);
             Log.endMessage(LogStatus.OK);
+            Log.startMessage("Unmapping buffer");
+            clB.unmap(queue);
+            Log.endMessage(LogStatus.OK);
             content = new StringBuilder();
             clB.getHostBuffer().rewind();
             for(int i = 0; i < 10; i++)
                 content.append(clB.getHostBuffer().getFloat()).append(", ");
             Log.message(content.append("...").toString());
-            Log.startMessage("Unmapping buffer");
-            clB.unmap(queue);
-            Log.endMessage(LogStatus.OK);
             Log.startMessage("Releasing buffers");
             clA.release();
             clB.release();
