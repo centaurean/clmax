@@ -53,7 +53,7 @@ public class CLDevices extends Hashtable<Long, CLDevice> {
     }
 
     public long[] getPointers() {
-        return Transform.toArray(keySet());
+        return Transform.toIntArray(keySet());
     }
 
     public CLDeviceType getType() {

@@ -55,7 +55,7 @@ public class CLPlatforms extends Hashtable<Long, CLPlatform> {
     }
 
     public long[] getPointers() {
-        return Transform.toArray(keySet());
+        return Transform.toIntArray(keySet());
     }
 
     public boolean add(CLPlatform platform) {
