@@ -41,7 +41,7 @@ import static com.centaurean.clmax.schema.versions.CLVersion.*;
  */
 public enum CLDeviceInfo implements CLQueryCacheKey, CLVersionMatcher {
     // OpenCL 1.0
-    //CL_DEVICE_TYPE(0x1000, BIT_FIELD),
+    CL_DEVICE_TYPE(0x1000, BIT_FIELD),
     CL_DEVICE_VENDOR_ID(0x1001, INT),
     CL_DEVICE_MAX_COMPUTE_UNITS(0x1002, INT),
     CL_DEVICE_MAX_WORK_ITEM_DIMENSIONS(0x1003, INT),
