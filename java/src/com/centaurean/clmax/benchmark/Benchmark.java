@@ -85,7 +85,7 @@ public class Benchmark {
             Log.message(platform);
         for (CLPlatform platform : platforms.values()) {
             Log.startMessage("Getting devices for platform " + platform.getPointer());
-            CLDevices devices = platform.getDevices(CLDeviceType.CL_DEVICE_TYPE_CPU);
+            CLDevices devices = platform.getDevices(CLDeviceType.CL_DEVICE_TYPE_GPU);
             Log.endMessage(LogStatus.OK);
             Log.message("Found " + devices.size() + " device(s)");
             for (CLDevice device : devices.values())
