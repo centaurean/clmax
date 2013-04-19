@@ -33,14 +33,22 @@
 #ifdef __linux__
 #include <CL/opencl.h>
 #include <GL/glx.h>
-#else
+#elif _WIN32
+#include <windows.h>
+#include <CL/opencl.h>
+#include <GL/gl.h>
+#elif __APPLE__
 #include <OpenCL/opencl.h>
 #include <OpenGL/OpenGL.h>
 #endif
+
 #include <stdlib.h>
 #include <stdio.h>
+#include <string>
+#include <iostream>
+#include <sstream>
 
 #include "com_centaurean_clmax_schema_CL.h"
 
 void checkResult(cl_int, JNIEnv*);
-jint throwCLException(JNIEnv*, char*);
+jint throwCLException(JNIEnv*, const char*);
