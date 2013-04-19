@@ -52,10 +52,6 @@ import java.nio.ByteOrder;
  * @author gpnuma
  */
 public class Benchmark {
-    static {
-        System.loadLibrary("clmax");
-    }
-
     private static final String KERNEL = "square";
     private static final String PROGRAM =
             "kernel void " + KERNEL + "(global const float* input, global float* output, const unsigned int count) {" +
@@ -85,7 +81,7 @@ public class Benchmark {
             Log.message(platform);
         for (CLPlatform platform : platforms.values()) {
             Log.startMessage("Getting devices for platform " + platform.getPointer());
-            CLDevices devices = platform.getDevices(CLDeviceType.CL_DEVICE_TYPE_GPU);
+            CLDevices devices = platform.getDevices(CLDeviceType.CL_DEVICE_TYPE_ALL);
             Log.endMessage(LogStatus.OK);
             Log.message("Found " + devices.size() + " device(s)");
             for (CLDevice device : devices.values())

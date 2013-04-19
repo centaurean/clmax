@@ -34,6 +34,10 @@ import java.nio.ByteBuffer;
  * @author gpnuma
  */
 public class CL {
+    static {
+        System.loadLibrary("clmax");
+    }
+
     public static native long[] getPlatformsNative();
     public static native String getPlatformInfoNative(long pointerPlatform, int parameter);
 
