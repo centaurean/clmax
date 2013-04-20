@@ -257,6 +257,8 @@ JNIEXPORT jlong JNICALL Java_com_centaurean_clmax_schema_CL_createCLGLContextNat
     checkResult(clGetGLContextInfoKHR(properties, CL_DEVICES_FOR_GL_CONTEXT_KHR, MAX_CL_DEVICES_PER_PLATFORM * sizeof(cl_device_id), devices, &size), env);
     num_devices = size / sizeof(cl_device_id);
 #else
+    delete[] devices;
+
     throwCLException(env, "Unsupported platform");
 #endif
     

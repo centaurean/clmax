@@ -42,10 +42,6 @@
 #include <OpenGL/OpenGL.h>
 #endif
 
-#include <stdlib.h>
-#include <stdio.h>
-#include <string>
-#include <iostream>
 #include <sstream>
 
 #include "com_centaurean_clmax_schema_CL.h"
