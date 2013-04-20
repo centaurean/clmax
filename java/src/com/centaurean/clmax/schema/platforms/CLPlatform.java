@@ -79,7 +79,7 @@ public class CLPlatform extends CLCachedObject<CLPlatformInfo> {
         return version;
     }
 
-    protected CLValue get(CLPlatformInfo platformInfo) {
+    public CLValue get(CLPlatformInfo platformInfo) {
         CLValue valueInCache = CLQueryCache.get(getPointer(), platformInfo);
         if (valueInCache == null) {
             switch (platformInfo.getReturnType()) {

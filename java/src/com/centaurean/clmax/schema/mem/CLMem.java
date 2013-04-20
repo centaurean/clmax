@@ -1,6 +1,14 @@
 package com.centaurean.clmax.schema.mem;
 
-import com.centaurean.clmax.schema.CLObject;
+import com.centaurean.clmax.cache.CLQueryCache;
+import com.centaurean.clmax.schema.CL;
+import com.centaurean.clmax.schema.CLCachedObject;
+import com.centaurean.clmax.schema.contexts.CLContext;
+import com.centaurean.clmax.schema.platforms.CLPlatform;
+import com.centaurean.clmax.schema.values.CLValue;
+import com.centaurean.clmax.schema.versions.exceptions.CLVersionException;
+
+import java.util.LinkedList;
 
 /*
  * Copyright (c) 2013, Centaurean
@@ -33,13 +41,43 @@ import com.centaurean.clmax.schema.CLObject;
  * 15/04/13 02:25
  * @author gpnuma
  */
-public class CLMem extends CLObject {
-    public CLMem(long pointer) {
+public class CLMem extends CLCachedObject<CLMemInfo> {
+    private CLPlatform platform;
+    private CLContext context;
+
+    public CLMem(long pointer, CLPlatform platform, CLContext context) {
         super(pointer);
+        this.platform = platform;
+        this.context = context;
+    }
+
+    @Override
+    public CLValue get(CLMemInfo memInfo) {
+        if (platform.getVersion().compareTo(memInfo.getMinimumCLVersion()) < 0)
+            throw new CLVersionException(memInfo.name() + " (" + memInfo.getMinimumCLVersion().majorMinor() + " function) not supported by this " + platform.getVersion().majorMinor() + " platform.");
+        CLValue valueInCache = CLQueryCache.get(getPointer(), memInfo);
+        if (valueInCache == null) {
+            switch (memInfo.getReturnType()) {
+                case INT:
+                    valueInCache = new CLValue(CL.getMemInfoIntNative(getPointer(), memInfo.getKey()));
+                    break;
+                case LONG:
+                case SIZE_T:
+                case BIT_FIELD:
+                    valueInCache = new CLValue(CL.getMemInfoLongNative(getPointer(), memInfo.getKey()));
+                    break;
+            }
+            CLQueryCache.add(getPointer(), memInfo, valueInCache);
+        }
+        return valueInCache;
     }
 
     @Override
     public String toString() {
-        return super.toString();
+        LinkedList<CLMemInfo> displayList = new LinkedList<CLMemInfo>();
+        for (CLMemInfo memInfo : CLMemInfo.values())
+            if (platform.getVersion().compareTo(memInfo.getMinimumCLVersion()) > 0)
+                displayList.add(memInfo);
+        return toString(displayList);
     }
 }

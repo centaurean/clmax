@@ -88,7 +88,7 @@ public class CLContext extends CLCachedObject<CLContextInfo> {
     public CLBuffer createBuffer(ByteBuffer support, CLBufferType type) {
         if (!support.isDirect())
             throw new CLException("Buffer must be direct");
-        return new CLBuffer(CL.createBufferNative(getPointer(), support, type.getValue()), support);
+        return new CLBuffer(CL.createBufferNative(getPointer(), support, type.getValue()), support, platform, this);
     }
 
     public CLProgram createProgram(String source) {

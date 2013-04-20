@@ -75,6 +75,8 @@ public class CL {
     public static native void releaseMemObjectNative(long pointerMemObject);
     public static native void mapBufferNative(long pointerCommandQueue, long pointerBuffer, int mapFlags, int bufferSize);
     public static native void unmapMemObjectNative(long pointerCommandQueue, long pointerMemObject, ByteBuffer hostBuffer);
+    public static native int getMemInfoIntNative(long pointerMemObject, int parameter);
+    public static native int getMemInfoLongNative(long pointerMemObject, int parameter);
 
     public static native long createCommandQueueNative(long pointerContext, long pointerDevice);
     public static native void releaseCommandQueueNative(long pointerCommandQueue);

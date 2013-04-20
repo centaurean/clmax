@@ -265,6 +265,22 @@ JNIEXPORT void JNICALL Java_com_centaurean_clmax_schema_CL_unmapMemObjectNative
 
 /*
  * Class:     com_centaurean_clmax_schema_CL
+ * Method:    getMemInfoIntNative
+ * Signature: (JI)I
+ */
+JNIEXPORT jint JNICALL Java_com_centaurean_clmax_schema_CL_getMemInfoIntNative
+  (JNIEnv *, jclass, jlong, jint);
+
+/*
+ * Class:     com_centaurean_clmax_schema_CL
+ * Method:    getMemInfoLongNative
+ * Signature: (JI)I
+ */
+JNIEXPORT jint JNICALL Java_com_centaurean_clmax_schema_CL_getMemInfoLongNative
+  (JNIEnv *, jclass, jlong, jint);
+
+/*
+ * Class:     com_centaurean_clmax_schema_CL
  * Method:    createCommandQueueNative
  * Signature: (JJ)J
  */

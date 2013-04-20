@@ -1,9 +1,11 @@
 package com.centaurean.clmax.schema.mem.buffers;
 
 import com.centaurean.clmax.schema.CL;
+import com.centaurean.clmax.schema.contexts.CLContext;
 import com.centaurean.clmax.schema.exceptions.CLException;
 import com.centaurean.clmax.schema.mem.CLMapType;
 import com.centaurean.clmax.schema.mem.CLMem;
+import com.centaurean.clmax.schema.platforms.CLPlatform;
 import com.centaurean.clmax.schema.queues.CLCommandQueue;
 
 import java.nio.ByteBuffer;
@@ -42,8 +44,8 @@ import java.nio.ByteBuffer;
 public class CLBuffer extends CLMem {
     private ByteBuffer hostBuffer;
 
-    public CLBuffer(long pointerBuffer, ByteBuffer hostBuffer) {
-        super(pointerBuffer);
+    public CLBuffer(long pointerBuffer, ByteBuffer hostBuffer, CLPlatform platform, CLContext context) {
+        super(pointerBuffer, platform, context);
         this.hostBuffer = hostBuffer;
     }
 

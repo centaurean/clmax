@@ -1,13 +1,13 @@
-package com.centaurean.clmax.schema;
+package com.centaurean.clmax.schema.mem;
 
 import com.centaurean.clmax.cache.CLQueryCacheKey;
-import com.centaurean.clmax.schema.exceptions.CLException;
-import com.centaurean.clmax.schema.exceptions.CLNativeException;
-import com.centaurean.clmax.schema.values.CLValue;
-import com.centaurean.commons.logs.Log;
+import com.centaurean.clmax.schema.values.CLValueType;
+import com.centaurean.clmax.schema.versions.CLVersion;
+import com.centaurean.clmax.schema.versions.CLVersionMatcher;
 
-import java.util.Iterator;
-import java.util.List;
+import static com.centaurean.clmax.schema.values.CLValueType.*;
+import static com.centaurean.clmax.schema.versions.CLVersion.OPENCL_1_0;
+import static com.centaurean.clmax.schema.versions.CLVersion.OPENCL_1_1;
 
 /*
  * Copyright (c) 2013, Centaurean
@@ -37,37 +37,48 @@ import java.util.List;
  *
  * CLmax
  *
- * 20/04/13 17:38
+ * 20/04/13 18:16
  * @author gpnuma
  */
-public abstract class CLCachedObject<T extends CLQueryCacheKey> extends CLObject {
-    public CLCachedObject(long pointer) {
-        super(pointer);
+public enum CLMemInfo implements CLQueryCacheKey, CLVersionMatcher {
+    // Open CL 1.0
+    CL_MEM_TYPE(0x1100, INT),
+    CL_MEM_FLAGS(0x1101, BIT_FIELD),
+    CL_MEM_SIZE(0x1102, SIZE_T),
+    CL_MEM_HOST_PTR(0x1103, LONG),
+    CL_MEM_MAP_COUNT(0x1104, INT),
+    CL_MEM_REFERENCE_COUNT(0x1105, INT),
+    CL_MEM_CONTEXT(0x1106, LONG),
+
+    // OpenCL 1.1
+    CL_MEM_ASSOCIATED_MEMOBJECT(0x1107, LONG, OPENCL_1_1),
+    CL_MEM_OFFSET(0x1108, SIZE_T, OPENCL_1_1);
+
+    private int key;
+    private CLValueType returnType;
+    private CLVersion minimumVersion;
+
+    private CLMemInfo(int key, CLValueType returnType, CLVersion minimumVersion) {
+        this.key = key;
+        this.returnType = returnType;
+        this.minimumVersion = minimumVersion;
     }
 
-    public abstract CLValue get(T key);
-
-    private void appendTo(StringBuilder stringBuilder, T key) {
-        try {
-            stringBuilder.append(key.name()).append("='").append(get(key));
-        } catch (CLNativeException exception) {
-            Log.message(new CLException("[" + super.toString() + "] Querying " + key.name() + " returned error " + exception.getMessage()));
-        } finally {
-            stringBuilder.append("'");
-        }
+    private CLMemInfo(int key, CLValueType returnType) {
+        this(key, returnType, OPENCL_1_0);
     }
 
-    protected String toString(List<T> keys) {
-        StringBuilder stringBuilder = new StringBuilder();
-        stringBuilder.append(super.toString()).append(" {");
-        Iterator<T> iterator = keys.iterator();
-        if (iterator.hasNext()) {
-            appendTo(stringBuilder, iterator.next());
-            while (iterator.hasNext()) {
-                stringBuilder.append(", ");
-                appendTo(stringBuilder, iterator.next());
-            }
-        }
-        return stringBuilder.append("}").toString();
+    @Override
+    public int getKey() {
+        return key;
+    }
+
+    public CLValueType getReturnType() {
+        return returnType;
+    }
+
+    @Override
+    public CLVersion getMinimumCLVersion() {
+        return minimumVersion;
     }
 }
