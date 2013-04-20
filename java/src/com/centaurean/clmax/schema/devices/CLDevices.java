@@ -45,6 +45,7 @@ public class CLDevices extends Hashtable<Long, CLDevice> {
     public CLDevices(CLDeviceType type) {
         super();
         ignored = new HashSet<CLDevice>();
+        this.type = type;
     }
 
     public boolean add(CLDevice device) {
