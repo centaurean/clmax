@@ -1,9 +1,13 @@
 package com.centaurean.clmax.schema.queues;
 
+import com.centaurean.clmax.cache.CLQueryCache;
 import com.centaurean.clmax.schema.CL;
-import com.centaurean.clmax.schema.CLObject;
+import com.centaurean.clmax.schema.CLCachedObject;
 import com.centaurean.clmax.schema.contexts.CLContext;
 import com.centaurean.clmax.schema.devices.CLDevice;
+import com.centaurean.clmax.schema.values.CLValue;
+
+import java.util.Arrays;
 
 /*
  * Copyright (c) 2013, Centaurean
@@ -36,7 +40,7 @@ import com.centaurean.clmax.schema.devices.CLDevice;
  * 16/04/13 22:32
  * @author gpnuma
  */
-public class CLCommandQueue extends CLObject {
+public class CLCommandQueue extends CLCachedObject<CLCommandQueueInfo> {
     private CLContext context;
     private CLDevice device;
 
@@ -44,6 +48,24 @@ public class CLCommandQueue extends CLObject {
         super(pointer);
         this.context = context;
         this.device = device;
+    }
+
+    @Override
+    public CLValue get(CLCommandQueueInfo commandQueueInfo) {
+        CLValue valueInCache = CLQueryCache.get(getPointer(), commandQueueInfo);
+        if (valueInCache == null) {
+            switch (commandQueueInfo.getReturnType()) {
+                case INT:
+                    valueInCache = new CLValue(CL.getCommandQueueInfoIntNative(getPointer(), commandQueueInfo.getKey()));
+                    break;
+                case LONG:
+                case BIT_FIELD:
+                    valueInCache = new CLValue(CL.getCommandQueueInfoLongNative(getPointer(), commandQueueInfo.getKey()));
+                    break;
+            }
+            CLQueryCache.add(getPointer(), commandQueueInfo, valueInCache);
+        }
+        return valueInCache;
     }
 
     public void release() {
@@ -56,5 +78,10 @@ public class CLCommandQueue extends CLObject {
 
     public CLDevice getDevice() {
         return device;
+    }
+
+    @Override
+    public String toString() {
+        return super.toString(Arrays.asList(CLCommandQueueInfo.values()));
     }
 }

@@ -279,6 +279,22 @@ JNIEXPORT jlong JNICALL Java_com_centaurean_clmax_schema_CL_createCommandQueueNa
 JNIEXPORT void JNICALL Java_com_centaurean_clmax_schema_CL_releaseCommandQueueNative
   (JNIEnv *, jclass, jlong);
 
+/*
+ * Class:     com_centaurean_clmax_schema_CL
+ * Method:    getCommandQueueInfoIntNative
+ * Signature: (JI)I
+ */
+JNIEXPORT jint JNICALL Java_com_centaurean_clmax_schema_CL_getCommandQueueInfoIntNative
+  (JNIEnv *, jclass, jlong, jint);
+
+/*
+ * Class:     com_centaurean_clmax_schema_CL
+ * Method:    getCommandQueueInfoLongNative
+ * Signature: (JI)J
+ */
+JNIEXPORT jlong JNICALL Java_com_centaurean_clmax_schema_CL_getCommandQueueInfoLongNative
+  (JNIEnv *, jclass, jlong, jint);
+
 #ifdef __cplusplus
 }
 #endif

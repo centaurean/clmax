@@ -553,3 +553,22 @@ JNIEXPORT jlong JNICALL Java_com_centaurean_clmax_schema_CL_createCommandQueueNa
 JNIEXPORT void JNICALL Java_com_centaurean_clmax_schema_CL_releaseCommandQueueNative(JNIEnv *env, jclass callingClass, jlong pointerCommandQueue) {
     checkResult(clReleaseCommandQueue((cl_command_queue)pointerCommandQueue), env);
 }
+
+// Command queue infos
+JNIEXPORT jint JNICALL Java_com_centaurean_clmax_schema_CL_getCommandQueueInfoIntNative(JNIEnv *env, jclass callingClass, jlong pointerCommandQueue, jint parameter) {
+	int result;
+    size_t retsize;
+    
+    checkResult(clGetCommandQueueInfo((cl_command_queue)pointerCommandQueue, parameter, sizeof(&result), &result, &retsize), env);
+    
+    return result;
+}
+
+JNIEXPORT jlong JNICALL Java_com_centaurean_clmax_schema_CL_getCommandQueueInfoLongNative(JNIEnv *env, jclass callingClass, jlong pointerCommandQueue, jint parameter) {
+	long result;
+    size_t retsize;
+    
+    checkResult(clGetCommandQueueInfo((cl_command_queue)pointerCommandQueue, parameter, sizeof(&result), &result, &retsize), env);
+    
+    return result;
+}

@@ -78,4 +78,6 @@ public class CL {
 
     public static native long createCommandQueueNative(long pointerContext, long pointerDevice);
     public static native void releaseCommandQueueNative(long pointerCommandQueue);
+    public static native int getCommandQueueInfoIntNative(long pointerCommandQueue, int parameter);
+    public static native long getCommandQueueInfoLongNative(long pointerCommandQueue, int parameter);
 }
