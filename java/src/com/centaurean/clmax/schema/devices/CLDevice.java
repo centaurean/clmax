@@ -2,18 +2,15 @@ package com.centaurean.clmax.schema.devices;
 
 import com.centaurean.clmax.cache.CLQueryCache;
 import com.centaurean.clmax.schema.CL;
-import com.centaurean.clmax.schema.CLObject;
+import com.centaurean.clmax.schema.CLCachedObject;
 import com.centaurean.clmax.schema.contexts.CLContext;
 import com.centaurean.clmax.schema.exceptions.CLException;
-import com.centaurean.clmax.schema.exceptions.CLNativeException;
 import com.centaurean.clmax.schema.queues.CLCommandQueue;
 import com.centaurean.clmax.schema.values.CLValue;
 import com.centaurean.clmax.schema.versions.CLVersion;
 import com.centaurean.clmax.schema.versions.exceptions.CLVersionException;
-import com.centaurean.commons.logs.Log;
 
-import java.util.Arrays;
-import java.util.Iterator;
+import java.util.LinkedList;
 
 /*
  * Copyright (c) 2013, Centaurean
@@ -46,7 +43,7 @@ import java.util.Iterator;
  * 23/03/13 22:57
  * @author gpnuma
  */
-public class CLDevice extends CLObject {
+public class CLDevice extends CLCachedObject<CLDeviceInfo> {
     private CLVersion version;
 
     public CLDevice(long pointer) {
@@ -59,7 +56,7 @@ public class CLDevice extends CLObject {
         return new CLCommandQueue(CL.createCommandQueueNative(context.getPointer(), getPointer()), context, this);
     }
 
-    private CLValue get(CLDeviceInfo deviceInfo) {
+    public CLValue get(CLDeviceInfo deviceInfo) {
         if (deviceInfo != CLDeviceInfo.CL_DEVICE_VERSION)
             if (getVersion().compareTo(deviceInfo.getMinimumCLVersion()) < 0)
                 throw new CLVersionException(deviceInfo.name() + " (" + deviceInfo.getMinimumCLVersion().majorMinor() + " function) not supported by this " + getVersion().majorMinor() + " device.");
@@ -94,29 +91,12 @@ public class CLDevice extends CLObject {
         return version;
     }
 
-    private void appendTo(StringBuilder stringBuilder, CLDeviceInfo deviceInfo) {
-        if (getVersion().compareTo(deviceInfo.getMinimumCLVersion()) > 0)
-            try {
-                stringBuilder.append(deviceInfo.name()).append("='").append(get(deviceInfo));
-            } catch (CLNativeException exception) {
-                Log.message(new CLException("[Device " + super.toString() + "] Querying device info " + deviceInfo.name() + " returned error " + exception.getMessage()));
-            } finally {
-                stringBuilder.append("'");
-            }
-    }
-
     @Override
     public String toString() {
-        StringBuilder stringBuilder = new StringBuilder();
-        stringBuilder.append(super.toString()).append(" {");
-        Iterator<CLDeviceInfo> iterator = Arrays.asList(CLDeviceInfo.values()).iterator();
-        if (iterator.hasNext()) {
-            appendTo(stringBuilder, iterator.next());
-            while (iterator.hasNext()) {
-                stringBuilder.append(", ");
-                appendTo(stringBuilder, iterator.next());
-            }
-        }
-        return stringBuilder.append("}").toString();
+        LinkedList<CLDeviceInfo> displayList = new LinkedList<CLDeviceInfo>();
+        for(CLDeviceInfo deviceInfo : CLDeviceInfo.values())
+            if (getVersion().compareTo(deviceInfo.getMinimumCLVersion()) > 0)
+                displayList.add(deviceInfo);
+        return toString(displayList);
     }
 }

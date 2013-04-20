@@ -1,4 +1,13 @@
-package com.centaurean.clmax.cache;
+package com.centaurean.clmax.schema;
+
+import com.centaurean.clmax.cache.CLQueryCacheKey;
+import com.centaurean.clmax.schema.exceptions.CLException;
+import com.centaurean.clmax.schema.exceptions.CLNativeException;
+import com.centaurean.clmax.schema.values.CLValue;
+import com.centaurean.commons.logs.Log;
+
+import java.util.Iterator;
+import java.util.List;
 
 /*
  * Copyright (c) 2013, Centaurean
@@ -28,10 +37,37 @@ package com.centaurean.clmax.cache;
  *
  * CLmax
  *
- * 26/03/13 14:54
+ * 20/04/13 17:38
  * @author gpnuma
  */
-public interface CLQueryCacheKey {
-    public String name();
-    public int getKey();
+public abstract class CLCachedObject<T extends CLQueryCacheKey> extends CLObject {
+    public CLCachedObject(long pointer) {
+        super(pointer);
+    }
+
+    protected abstract CLValue get(T key);
+
+    private void appendTo(StringBuilder stringBuilder, T key) {
+        try {
+            stringBuilder.append(key.name()).append("='").append(get(key));
+        } catch (CLNativeException exception) {
+            Log.message(new CLException("[" + super.toString() + "] Querying " + key.name() + " returned error " + exception.getMessage()));
+        } finally {
+            stringBuilder.append("'");
+        }
+    }
+
+    protected String toString(List<T> keys) {
+        StringBuilder stringBuilder = new StringBuilder();
+        stringBuilder.append(super.toString()).append(" {");
+        Iterator<T> iterator = keys.iterator();
+        if (iterator.hasNext()) {
+            appendTo(stringBuilder, iterator.next());
+            while (iterator.hasNext()) {
+                stringBuilder.append(", ");
+                appendTo(stringBuilder, iterator.next());
+            }
+        }
+        return stringBuilder.append("}").toString();
+    }
 }

@@ -2,19 +2,15 @@ package com.centaurean.clmax.schema.programs;
 
 import com.centaurean.clmax.cache.CLQueryCache;
 import com.centaurean.clmax.schema.CL;
-import com.centaurean.clmax.schema.CLObject;
+import com.centaurean.clmax.schema.CLCachedObject;
 import com.centaurean.clmax.schema.contexts.CLContext;
 import com.centaurean.clmax.schema.devices.CLDevices;
-import com.centaurean.clmax.schema.exceptions.CLException;
-import com.centaurean.clmax.schema.exceptions.CLNativeException;
 import com.centaurean.clmax.schema.kernels.CLKernel;
 import com.centaurean.clmax.schema.platforms.CLPlatform;
 import com.centaurean.clmax.schema.values.CLValue;
 import com.centaurean.clmax.schema.versions.exceptions.CLVersionException;
-import com.centaurean.commons.logs.Log;
 
-import java.util.Arrays;
-import java.util.Iterator;
+import java.util.LinkedList;
 
 /*
  * Copyright (c) 2013, Centaurean
@@ -47,7 +43,7 @@ import java.util.Iterator;
  * 28/03/13 11:16
  * @author gpnuma
  */
-public class CLProgram extends CLObject {
+public class CLProgram extends CLCachedObject<CLProgramInfo> {
     private CLPlatform platform;
     private CLContext context;
 
@@ -116,29 +112,12 @@ public class CLProgram extends CLObject {
         return context;
     }
 
-    private void appendTo(StringBuilder stringBuilder, CLProgramInfo programInfo) {
-        if (platform.getVersion().compareTo(programInfo.getMinimumCLVersion()) > 0)
-            try {
-                stringBuilder.append(programInfo.name()).append("='").append(get(programInfo));
-            } catch (CLNativeException exception) {
-                Log.message(new CLException("[Program " + super.toString() + "] Querying program info " + programInfo.name() + " returned error " + exception.getMessage()));
-            } finally {
-                stringBuilder.append("'");
-            }
-    }
-
     @Override
     public String toString() {
-        StringBuilder stringBuilder = new StringBuilder();
-        stringBuilder.append(super.toString()).append(" {");
-        Iterator<CLProgramInfo> iterator = Arrays.asList(CLProgramInfo.values()).iterator();
-        if (iterator.hasNext()) {
-            appendTo(stringBuilder, iterator.next());
-            while (iterator.hasNext()) {
-                stringBuilder.append(", ");
-                appendTo(stringBuilder, iterator.next());
-            }
-        }
-        return stringBuilder.append("}").toString();
+        LinkedList<CLProgramInfo> displayList = new LinkedList<CLProgramInfo>();
+        for(CLProgramInfo programInfo : CLProgramInfo.values())
+            if (platform.getVersion().compareTo(programInfo.getMinimumCLVersion()) > 0)
+                displayList.add(programInfo);
+        return toString(displayList);
     }
 }

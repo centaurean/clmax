@@ -2,22 +2,19 @@ package com.centaurean.clmax.schema.contexts;
 
 import com.centaurean.clmax.cache.CLQueryCache;
 import com.centaurean.clmax.schema.CL;
-import com.centaurean.clmax.schema.CLObject;
+import com.centaurean.clmax.schema.CLCachedObject;
 import com.centaurean.clmax.schema.devices.CLDevice;
 import com.centaurean.clmax.schema.devices.CLDevices;
 import com.centaurean.clmax.schema.exceptions.CLException;
-import com.centaurean.clmax.schema.exceptions.CLNativeException;
 import com.centaurean.clmax.schema.mem.buffers.CLBuffer;
 import com.centaurean.clmax.schema.mem.buffers.CLBufferType;
 import com.centaurean.clmax.schema.platforms.CLPlatform;
 import com.centaurean.clmax.schema.programs.CLProgram;
 import com.centaurean.clmax.schema.queues.CLCommandQueue;
 import com.centaurean.clmax.schema.values.CLValue;
-import com.centaurean.commons.logs.Log;
 
 import java.nio.ByteBuffer;
 import java.util.Arrays;
-import java.util.Iterator;
 
 /*
  * Copyright (c) 2013, Centaurean
@@ -50,7 +47,7 @@ import java.util.Iterator;
  * 24/03/13 17:37
  * @author gpnuma
  */
-public class CLContext extends CLObject {
+public class CLContext extends CLCachedObject<CLContextInfo> {
     private CLPlatform platform;
     private CLDevices devices;
 
@@ -60,7 +57,7 @@ public class CLContext extends CLObject {
         this.devices = devices;
     }
 
-    private CLValue get(CLContextInfo contextInfo) {
+    public CLValue get(CLContextInfo contextInfo) {
         CLValue valueInCache = CLQueryCache.get(getPointer(), contextInfo);
         if (valueInCache == null) {
             switch (contextInfo.getReturnType()) {
@@ -104,28 +101,8 @@ public class CLContext extends CLObject {
         return new CLCommandQueue(CL.createCommandQueueNative(getPointer(), device.getPointer()), this, device);
     }
 
-    private void appendTo(StringBuilder stringBuilder, CLContextInfo contextInfo) {
-        try {
-            stringBuilder.append(contextInfo.name()).append("='").append(get(contextInfo));
-        } catch (CLNativeException exception) {
-            Log.message(new CLException("[Context " + super.toString() + "] Querying context info " + contextInfo.name() + " returned error " + exception.getMessage()));
-        } finally {
-            stringBuilder.append("'");
-        }
-    }
-
     @Override
     public String toString() {
-        StringBuilder stringBuilder = new StringBuilder();
-        stringBuilder.append(super.toString()).append(" {");
-        Iterator<CLContextInfo> iterator = Arrays.asList(CLContextInfo.values()).iterator();
-        if (iterator.hasNext()) {
-            appendTo(stringBuilder, iterator.next());
-            while (iterator.hasNext()) {
-                stringBuilder.append(", ");
-                appendTo(stringBuilder, iterator.next());
-            }
-        }
-        return stringBuilder.append("}").toString();
+        return toString(Arrays.asList(CLContextInfo.values()));
     }
 }

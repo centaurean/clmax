@@ -2,19 +2,16 @@ package com.centaurean.clmax.schema.kernels;
 
 import com.centaurean.clmax.cache.CLQueryCache;
 import com.centaurean.clmax.schema.CL;
-import com.centaurean.clmax.schema.CLObject;
+import com.centaurean.clmax.schema.CLCachedObject;
 import com.centaurean.clmax.schema.contexts.CLContext;
 import com.centaurean.clmax.schema.exceptions.CLException;
-import com.centaurean.clmax.schema.exceptions.CLNativeException;
 import com.centaurean.clmax.schema.mem.buffers.CLBuffer;
 import com.centaurean.clmax.schema.platforms.CLPlatform;
 import com.centaurean.clmax.schema.queues.CLCommandQueue;
 import com.centaurean.clmax.schema.values.CLValue;
 import com.centaurean.clmax.schema.versions.exceptions.CLVersionException;
-import com.centaurean.commons.logs.Log;
 
-import java.util.Arrays;
-import java.util.Iterator;
+import java.util.LinkedList;
 import java.util.concurrent.locks.ReentrantLock;
 
 /*
@@ -48,7 +45,7 @@ import java.util.concurrent.locks.ReentrantLock;
  * 31/03/13 20:59
  * @author gpnuma
  */
-public class CLKernel extends CLObject {
+public class CLKernel extends CLCachedObject<CLKernelInfo> {
     private static final ReentrantLock lock = new ReentrantLock(true);
 
     private CLPlatform platform;
@@ -62,7 +59,7 @@ public class CLKernel extends CLObject {
         argIndex = 0;
     }
 
-    private CLValue get(CLKernelInfo kernelInfo) {
+    public CLValue get(CLKernelInfo kernelInfo) {
         if (platform.getVersion().compareTo(kernelInfo.getMinimumCLVersion()) < 0)
             throw new CLVersionException(kernelInfo.name() + " (" + kernelInfo.getMinimumCLVersion().majorMinor() + " function) not supported by this " + platform.getVersion().majorMinor() + " platform.");
         CLValue valueInCache = CLQueryCache.get(getPointer(), kernelInfo);
@@ -96,8 +93,8 @@ public class CLKernel extends CLObject {
     }
 
     public CLKernel setArgs(CLBuffer... buffers) {
-        for (int i = 0; i < buffers.length; i++)
-            setArg(argIndex, buffers[i]);
+        for (CLBuffer buffer : buffers)
+            setArg(argIndex, buffer);
         return this;
     }
 
@@ -131,29 +128,12 @@ public class CLKernel extends CLObject {
         return argIndex;
     }
 
-    private void appendTo(StringBuilder stringBuilder, CLKernelInfo kernelInfo) {
-        if (platform.getVersion().compareTo(kernelInfo.getMinimumCLVersion()) > 0)
-            try {
-                stringBuilder.append(kernelInfo.name()).append("='").append(get(kernelInfo));
-            } catch (CLNativeException exception) {
-                Log.message(new CLException("[Kernel " + super.toString() + "] Querying kernel info " + kernelInfo.name() + " returned error " + exception.getMessage()));
-            } finally {
-                stringBuilder.append("'");
-            }
-    }
-
     @Override
     public String toString() {
-        StringBuilder stringBuilder = new StringBuilder();
-        stringBuilder.append(super.toString()).append(" {");
-        Iterator<CLKernelInfo> iterator = Arrays.asList(CLKernelInfo.values()).iterator();
-        if (iterator.hasNext()) {
-            appendTo(stringBuilder, iterator.next());
-            while (iterator.hasNext()) {
-                stringBuilder.append(", ");
-                appendTo(stringBuilder, iterator.next());
-            }
-        }
-        return stringBuilder.append("}").toString();
+        LinkedList<CLKernelInfo> displayList = new LinkedList<CLKernelInfo>();
+        for(CLKernelInfo kernelInfo : CLKernelInfo.values())
+            if (platform.getVersion().compareTo(kernelInfo.getMinimumCLVersion()) > 0)
+                displayList.add(kernelInfo);
+        return toString(displayList);
     }
 }

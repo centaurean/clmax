@@ -52,14 +52,18 @@ import java.nio.ByteOrder;
  * @author gpnuma
  */
 public class Benchmark {
-    private static final String KERNEL = "square";
+    private static final String KERNEL = "test";
     private static final String PROGRAM =
-            "kernel void " + KERNEL + "(global const float* input, global float* output, const unsigned int count) {" +
-            "   int i = get_global_id(0);" +
-            "   if(i < count)" +
-            "       output[i] = input[i] * input[i];" +
+            "kernel void " + KERNEL + "(global const float* input, global float* output, unsigned int count) {" +
+            "   int index = get_global_id(0);" +
+            "   if(index < count) {" +
+            "       float tot = 0.0f;" +
+            "       for(unsigned int j = 0; j < count; j++)" +
+            "           tot = tot + input[j];" +
+            "       output[index] = tot;" +
+            "   }" +
             "}";
-    private static final int BUFFER_SIZE = 16384*16384;
+    private static final int BUFFER_SIZE = 1048576;
 
     public Benchmark() throws IOException, InterruptedException {
         /*Log.startMessage("Creating GL context");
@@ -100,6 +104,7 @@ public class Benchmark {
             Log.startMessage("Creating command queue");
             CLCommandQueue queue = first.createCommandQueue(context);
             Log.endMessage(LogStatus.OK);
+            Log.message(queue);
             Log.startMessage("Creating program");
             CLProgram program = context.createProgram(PROGRAM);
             Log.endMessage(LogStatus.OK);

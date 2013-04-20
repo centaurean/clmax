@@ -2,19 +2,15 @@ package com.centaurean.clmax.schema.platforms;
 
 import com.centaurean.clmax.cache.CLQueryCache;
 import com.centaurean.clmax.schema.CL;
-import com.centaurean.clmax.schema.CLObject;
+import com.centaurean.clmax.schema.CLCachedObject;
 import com.centaurean.clmax.schema.contexts.CLContext;
 import com.centaurean.clmax.schema.devices.CLDevice;
 import com.centaurean.clmax.schema.devices.CLDeviceType;
 import com.centaurean.clmax.schema.devices.CLDevices;
-import com.centaurean.clmax.schema.exceptions.CLException;
-import com.centaurean.clmax.schema.exceptions.CLNativeException;
 import com.centaurean.clmax.schema.values.CLValue;
 import com.centaurean.clmax.schema.versions.CLVersion;
-import com.centaurean.commons.logs.Log;
 
 import java.util.Arrays;
-import java.util.Iterator;
 
 /*
  * Copyright (c) 2013, Centaurean
@@ -47,7 +43,7 @@ import java.util.Iterator;
  * 23/03/13 21:44
  * @author gpnuma
  */
-public class CLPlatform extends CLObject {
+public class CLPlatform extends CLCachedObject<CLPlatformInfo> {
     private CLDevices devices = null;
     private CLVersion version;
 
@@ -77,7 +73,13 @@ public class CLPlatform extends CLObject {
         return new CLContext(CL.createCLGLContextNative(getPointer()), devices, this);
     }
 
-    private CLValue get(CLPlatformInfo platformInfo) {
+    public CLVersion getVersion() {
+        if (version == null)
+            version = CLVersion.parse(get(CLPlatformInfo.CL_PLATFORM_VERSION).getString());
+        return version;
+    }
+
+    protected CLValue get(CLPlatformInfo platformInfo) {
         CLValue valueInCache = CLQueryCache.get(getPointer(), platformInfo);
         if (valueInCache == null) {
             switch (platformInfo.getReturnType()) {
@@ -90,38 +92,8 @@ public class CLPlatform extends CLObject {
         return valueInCache;
     }
 
-    public CLVersion getVersion() {
-        if (version == null)
-            version = CLVersion.parse(get(CLPlatformInfo.CL_PLATFORM_VERSION).getString());
-        return version;
-    }
-
-    public void release() {
-        CL.releaseContextNative(getPointer());
-    }
-
-    private void appendTo(StringBuilder stringBuilder, CLPlatformInfo platformInfo) {
-        try {
-            stringBuilder.append(platformInfo.name()).append("='").append(get(platformInfo));
-        } catch (CLNativeException exception) {
-            Log.message(new CLException("[Platform " + super.toString() + "] Querying platform info " + platformInfo.name() + " returned error " + exception.getMessage()));
-        } finally {
-            stringBuilder.append("'");
-        }
-    }
-
     @Override
     public String toString() {
-        StringBuilder stringBuilder = new StringBuilder();
-        stringBuilder.append(super.toString()).append(" {");
-        Iterator<CLPlatformInfo> iterator = Arrays.asList(CLPlatformInfo.values()).iterator();
-        if (iterator.hasNext()) {
-            appendTo(stringBuilder, iterator.next());
-            while (iterator.hasNext()) {
-                stringBuilder.append(", ");
-                appendTo(stringBuilder, iterator.next());
-            }
-        }
-        return stringBuilder.append("}").toString();
+        return toString(Arrays.asList(CLPlatformInfo.values()));
     }
 }
