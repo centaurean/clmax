@@ -1,8 +1,14 @@
-package com.centaurean.clmax.schema.exceptions;
+package com.centaurean.clmax.schema.programs;
 
-import com.centaurean.clmax.schema.CLError;
+import com.centaurean.clmax.cache.CLQueryCacheKey;
+import com.centaurean.clmax.schema.values.CLValueType;
+import com.centaurean.clmax.schema.versions.CLVersion;
+import com.centaurean.clmax.schema.versions.CLVersionMatcher;
 
-import static java.lang.Integer.decode;
+import static com.centaurean.clmax.schema.values.CLValueType.CHAR_ARRAY;
+import static com.centaurean.clmax.schema.values.CLValueType.INT;
+import static com.centaurean.clmax.schema.versions.CLVersion.OPENCL_1_0;
+import static com.centaurean.clmax.schema.versions.CLVersion.OPENCL_1_2;
 
 /*
  * Copyright (c) 2013, Centaurean
@@ -32,18 +38,43 @@ import static java.lang.Integer.decode;
  *
  * CLmax
  *
- * 27/03/13 15:52
+ * 21/04/13 20:20
  * @author gpnuma
  */
-public class CLNativeException extends CLException {
-    private int code;
+public enum CLProgramBuildInfo implements CLQueryCacheKey, CLVersionMatcher {
+    // OpenCL 1.0
+    CL_PROGRAM_BUILD_STATUS(0x1181, INT),
+    CL_PROGRAM_BUILD_OPTIONS(0x1182, CHAR_ARRAY),
+    CL_PROGRAM_BUILD_LOG(0x1183, CHAR_ARRAY),
 
-    private CLNativeException(String code) {
-        super(CLError.toString(code));
-        this.code = decode(code);
+    // OpenCL 1.2
+    CL_PROGRAM_BINARY_TYPE(0x1184, INT, OPENCL_1_2);
+
+    private int key;
+    private CLValueType returnType;
+    private CLVersion minimumVersion;
+
+    private CLProgramBuildInfo(int key, CLValueType returnType, CLVersion minimumVersion) {
+        this.key = key;
+        this.returnType = returnType;
+        this.minimumVersion = minimumVersion;
     }
 
-    public int code() {
-        return code;
+    private CLProgramBuildInfo(int key, CLValueType returnType) {
+        this(key, returnType, OPENCL_1_0);
+    }
+
+    @Override
+    public int getKey() {
+        return key;
+    }
+
+    public CLValueType getReturnType() {
+        return returnType;
+    }
+
+    @Override
+    public CLVersion getMinimumCLVersion() {
+        return minimumVersion;
     }
 }

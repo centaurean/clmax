@@ -4,12 +4,15 @@ import com.centaurean.clmax.cache.CLQueryCache;
 import com.centaurean.clmax.schema.CL;
 import com.centaurean.clmax.schema.CLCachedObject;
 import com.centaurean.clmax.schema.contexts.CLContext;
+import com.centaurean.clmax.schema.devices.CLDevice;
 import com.centaurean.clmax.schema.devices.CLDevices;
 import com.centaurean.clmax.schema.kernels.CLKernel;
 import com.centaurean.clmax.schema.platforms.CLPlatform;
 import com.centaurean.clmax.schema.values.CLValue;
 import com.centaurean.clmax.schema.versions.exceptions.CLVersionException;
 
+import java.io.IOException;
+import java.util.Collection;
 import java.util.LinkedList;
 
 /*
@@ -46,6 +49,7 @@ import java.util.LinkedList;
 public class CLProgram extends CLCachedObject<CLProgramInfo> {
     private CLPlatform platform;
     private CLContext context;
+    private Collection<CLDevice> buildDevices = new LinkedList<CLDevice>();
 
     public CLProgram(long pointer, CLPlatform platform, CLContext context) {
         super(pointer);
@@ -89,11 +93,30 @@ public class CLProgram extends CLCachedObject<CLProgramInfo> {
     }
 
     public void build(CLDevices devices, String options) {
+        this.buildDevices = devices.values();
         CL.buildProgramNative(getPointer(), devices.getPointers(), options);
     }
 
     public void build(CLDevices devices) {
-        CL.buildProgramNative(getPointer(), devices.getPointers(), "");
+        build(devices, "");
+    }
+
+    public CLValue getBuildInfo(CLDevice device, CLProgramBuildInfo programBuildInfo) {
+        if (platform.getVersion().compareTo(programBuildInfo.getMinimumCLVersion()) < 0)
+            throw new CLVersionException(programBuildInfo.name() + " (" + programBuildInfo.getMinimumCLVersion().majorMinor() + " function) not supported by this " + platform.getVersion().majorMinor() + " platform.");
+        CLValue valueInCache = CLQueryCache.get(getPointer(), programBuildInfo);
+        if (valueInCache == null) {
+            switch (programBuildInfo.getReturnType()) {
+                case INT:
+                    valueInCache = new CLValue(CL.getProgramBuildInfoIntNative(getPointer(), device.getPointer(), programBuildInfo.getKey()));
+                    break;
+                case CHAR_ARRAY:
+                    valueInCache = new CLValue(CL.getProgramBuildInfoStringNative(getPointer(), device.getPointer(), programBuildInfo.getKey()));
+                    break;
+            }
+            CLQueryCache.add(getPointer(), programBuildInfo, valueInCache);
+        }
+        return valueInCache;
     }
 
     public CLKernel createKernel(String kernelName) {
@@ -112,10 +135,26 @@ public class CLProgram extends CLCachedObject<CLProgramInfo> {
         return context;
     }
 
+    public Collection<CLDevice> getBuildDevices() {
+        return buildDevices;
+    }
+
+    public String buildInfos(CLDevice device) throws IOException {
+        String separator = "";
+        StringBuilder stringBuilder = new StringBuilder();
+        stringBuilder.append("Build infos for program ").append(getPointer()).append(" and device ").append(device.getPointer()).append(" {");
+        for (CLProgramBuildInfo programBuildInfo : CLProgramBuildInfo.values())
+            if (platform.getVersion().compareTo(programBuildInfo.getMinimumCLVersion()) > 0) {
+                stringBuilder.append(separator).append(programBuildInfo.name()).append(" = '").append(getBuildInfo(device, programBuildInfo).toString()).append("'");
+                separator = ", ";
+            }
+        return stringBuilder.append("}").toString();
+    }
+
     @Override
     public String toString() {
         LinkedList<CLProgramInfo> displayList = new LinkedList<CLProgramInfo>();
-        for(CLProgramInfo programInfo : CLProgramInfo.values())
+        for (CLProgramInfo programInfo : CLProgramInfo.values())
             if (platform.getVersion().compareTo(programInfo.getMinimumCLVersion()) > 0)
                 displayList.add(programInfo);
         return toString(displayList);

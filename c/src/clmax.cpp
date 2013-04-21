@@ -39,6 +39,7 @@
 #define MAX_CL_CONTEXT_INFO_SIZE        1024
 #define MAX_CL_PROGRAM_INFO_SIZE        1024
 #define MAX_CL_PROGRAM_INFO_ARRAY_SIZE  256
+#define MAX_CL_PROGRAM_BUILD_INFO_SIZE	1024
 #define MAX_CL_KERNEL_INFO_SIZE         1024
 #define MAX_ERROR_MESSAGE_SIZE          32
 
@@ -431,6 +432,29 @@ JNIEXPORT jobjectArray JNICALL Java_com_centaurean_clmax_schema_CL_getProgramInf
     env->ReleaseLongArrayElements(binarySizes, body, 0);
     
     delete[] valuesArray;
+    
+    return result;
+}
+
+// Program build infos
+JNIEXPORT jint JNICALL Java_com_centaurean_clmax_schema_CL_getProgramBuildInfoIntNative(JNIEnv *env, jclass callingClass, jlong pointerProgram, jlong pointerDevice, jint parameter) {
+	int result;
+    size_t retsize;
+    
+    checkResult(clGetProgramBuildInfo((cl_program)pointerProgram, (cl_device_id)pointerDevice, parameter, sizeof(&result), &result, &retsize), env);
+    
+    return result;
+}
+
+JNIEXPORT jstring JNICALL Java_com_centaurean_clmax_schema_CL_getProgramBuildInfoStringNative(JNIEnv *env, jclass callingClass, jlong pointerProgram, jlong pointerDevice, jint parameter) {
+	char* info = new char[MAX_CL_PROGRAM_BUILD_INFO_SIZE * sizeof(char)];
+    size_t retsize;
+    
+    checkResult(clGetProgramBuildInfo((cl_program)pointerProgram, (cl_device_id)pointerDevice, parameter, MAX_CL_PROGRAM_BUILD_INFO_SIZE, info, &retsize), env);
+    
+    jstring result = env->NewStringUTF(info);
+    
+    delete[] info;
     
     return result;
 }

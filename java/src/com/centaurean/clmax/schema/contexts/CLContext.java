@@ -13,6 +13,10 @@ import com.centaurean.clmax.schema.programs.CLProgram;
 import com.centaurean.clmax.schema.queues.CLCommandQueue;
 import com.centaurean.clmax.schema.values.CLValue;
 
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.util.Arrays;
 
@@ -48,6 +52,8 @@ import java.util.Arrays;
  * @author gpnuma
  */
 public class CLContext extends CLCachedObject<CLContextInfo> {
+    private static final int READ_SIZE = 1024;
+
     private CLPlatform platform;
     private CLDevices devices;
 
@@ -93,6 +99,17 @@ public class CLContext extends CLCachedObject<CLContextInfo> {
 
     public CLProgram createProgram(String source) {
         return new CLProgram(CL.createProgramWithSourceNative(getPointer(), source), platform, this);
+    }
+
+    public CLProgram createProgram(File file) throws IOException {
+        ByteArrayOutputStream output = new ByteArrayOutputStream();
+        int read;
+        byte[] bytesRead = new byte[READ_SIZE];
+        FileInputStream fileInputStream = new FileInputStream(file);
+        while ((read = fileInputStream.read(bytesRead)) != -1)
+            output.write(bytesRead, 0, read);
+        fileInputStream.close();
+        return createProgram(output.toString());
     }
 
     public CLCommandQueue createCommandQueue(CLDevice device) {

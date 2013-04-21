@@ -169,6 +169,22 @@ JNIEXPORT jobjectArray JNICALL Java_com_centaurean_clmax_schema_CL_getProgramInf
 
 /*
  * Class:     com_centaurean_clmax_schema_CL
+ * Method:    getProgramBuildInfoIntNative
+ * Signature: (JJI)I
+ */
+JNIEXPORT jint JNICALL Java_com_centaurean_clmax_schema_CL_getProgramBuildInfoIntNative
+  (JNIEnv *, jclass, jlong, jlong, jint);
+
+/*
+ * Class:     com_centaurean_clmax_schema_CL
+ * Method:    getProgramBuildInfoStringNative
+ * Signature: (JJI)Ljava/lang/String;
+ */
+JNIEXPORT jstring JNICALL Java_com_centaurean_clmax_schema_CL_getProgramBuildInfoStringNative
+  (JNIEnv *, jclass, jlong, jlong, jint);
+
+/*
+ * Class:     com_centaurean_clmax_schema_CL
  * Method:    createKernelNative
  * Signature: (JLjava/lang/String;)J
  */

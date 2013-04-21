@@ -5,6 +5,7 @@ import com.centaurean.clmax.schema.contexts.CLContext;
 import com.centaurean.clmax.schema.devices.CLDevice;
 import com.centaurean.clmax.schema.devices.CLDeviceType;
 import com.centaurean.clmax.schema.devices.CLDevices;
+import com.centaurean.clmax.schema.exceptions.CLNativeException;
 import com.centaurean.clmax.schema.kernels.CLKernel;
 import com.centaurean.clmax.schema.mem.CLMapType;
 import com.centaurean.clmax.schema.mem.buffers.CLBuffer;
@@ -14,8 +15,10 @@ import com.centaurean.clmax.schema.platforms.CLPlatforms;
 import com.centaurean.clmax.schema.programs.CLProgram;
 import com.centaurean.clmax.schema.queues.CLCommandQueue;
 import com.centaurean.commons.logs.Log;
+import com.centaurean.commons.logs.LogLevel;
 import com.centaurean.commons.logs.LogStatus;
 
+import java.io.File;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
@@ -52,31 +55,9 @@ import java.nio.ByteOrder;
  * @author gpnuma
  */
 public class Benchmark {
-    private static final String KERNEL = "test";
-    private static final String PROGRAM =
-            "kernel void " + KERNEL + "(global const float* input, global float* output, unsigned int count) {" +
-            "   int index = get_global_id(0);" +
-            "   if(index < count) {" +
-            "       float tot = 0.0f;" +
-            "       for(unsigned int j = 0; j < count; j++)" +
-            "           tot = tot + input[j];" +
-            "       output[index] = tot;" +
-            "   }" +
-            "}";
     private static final int BUFFER_SIZE = 1048576;
 
-    public Benchmark() throws IOException, InterruptedException {
-        /*Log.startMessage("Creating GL context");
-        GLProfile.initSingleton();
-        GLProfile glp = GLProfile.getDefault();
-        GLCapabilities caps = new GLCapabilities(null);
-        GLCanvas glCanvas = new GLCanvas(caps);
-        Frame frame = new Frame("Window Test");
-        frame.setSize(300, 300);
-        frame.add(glCanvas);
-        frame.setVisible(true);
-        Log.endMessage(LogStatus.OK);*/
-
+    public Benchmark(File clFile, String kernelName) throws IOException, InterruptedException {
         Log.startMessage("Getting platforms");
         CLPlatforms platforms = CLPlatforms.getPlatforms();
         Log.endMessage(LogStatus.OK);
@@ -84,6 +65,7 @@ public class Benchmark {
         for (CLPlatform platform : platforms.values())
             Log.message(platform);
         for (CLPlatform platform : platforms.values()) {
+            Log.message();
             Log.startMessage("Getting devices for platform " + platform.getPointer());
             CLDevices devices = platform.getDevices(CLDeviceType.CL_DEVICE_TYPE_ALL);
             Log.endMessage(LogStatus.OK);
@@ -92,6 +74,7 @@ public class Benchmark {
                 Log.message(device);
         }
         for (CLPlatform platform : platforms.values()) {
+            Log.message();
             CLDevice first = platform.attachedDevices().values().iterator().next();
             Log.startMessage("Ignoring and reinstating device");
             platform.attachedDevices().ignore(first);
@@ -106,10 +89,18 @@ public class Benchmark {
             Log.endMessage(LogStatus.OK);
             Log.message(queue);
             Log.startMessage("Creating program");
-            CLProgram program = context.createProgram(PROGRAM);
+            CLProgram program = context.createProgram(clFile);
             Log.endMessage(LogStatus.OK);
             Log.startMessage("Building program");
-            program.build(platform.attachedDevices());
+            try {
+                program.build(platform.attachedDevices());
+            } catch (CLNativeException exception) {
+                Log.endMessage(LogStatus.ERROR);
+                Thread.sleep(100);
+                for (CLDevice device : program.getBuildDevices())
+                    Log.message(System.err, LogLevel.ERROR, program.buildInfos(device));
+                throw exception;
+            }
             Log.endMessage(LogStatus.OK);
             Log.message(program);
             /*CLProgramBinaries binaries = program.get(CLProgramInfo.CL_PROGRAM_BINARIES).getBinaries();
@@ -119,17 +110,17 @@ public class Benchmark {
                 out.close();
             }*/
             Log.startMessage("Creating kernel");
-            CLKernel kernel = program.createKernel(KERNEL);
+            CLKernel kernel = program.createKernel(kernelName);
             Log.endMessage(LogStatus.OK);
             Log.message(kernel);
             Log.startMessage("Creating buffers");
             ByteBuffer a = ByteBuffer.allocateDirect(BUFFER_SIZE);
             a.order(ByteOrder.nativeOrder());
-            for(int i = 0; i < BUFFER_SIZE / 4; i ++)
+            for (int i = 0; i < BUFFER_SIZE / 4; i++)
                 a.putFloat(i);
             ByteBuffer b = ByteBuffer.allocateDirect(BUFFER_SIZE);
             b.order(ByteOrder.nativeOrder());
-            for(int i = 0; i < BUFFER_SIZE / 4; i ++)
+            for (int i = 0; i < BUFFER_SIZE / 4; i++)
                 b.putFloat(0.0f);
             CLBuffer clA = context.createBuffer(a, CLBufferType.READ_ONLY);
             CLBuffer clB = context.createBuffer(b, CLBufferType.WRITE_ONLY);
@@ -137,13 +128,13 @@ public class Benchmark {
             Log.message(clA);
             a.rewind();
             StringBuilder content = new StringBuilder();
-            for(int i = 0; i < 10; i++)
+            for (int i = 0; i < 10; i++)
                 content.append(a.getFloat()).append(", ");
             Log.message(content.append("...").toString());
             Log.message(clB);
             content = new StringBuilder();
             b.rewind();
-            for(int i = 0; i < 10; i++)
+            for (int i = 0; i < 10; i++)
                 content.append(b.getFloat()).append(", ");
             Log.message(content.append("...").toString());
             Log.startMessage("Setting kernel args");
@@ -160,7 +151,7 @@ public class Benchmark {
             Log.endMessage(LogStatus.OK);
             content = new StringBuilder();
             clB.getHostBuffer().rewind();
-            for(int i = 0; i < 10; i++)
+            for (int i = 0; i < 10; i++)
                 content.append(clB.getHostBuffer().getFloat()).append(", ");
             Log.message(content.append("...").toString());
             Log.startMessage("Releasing buffers");
@@ -180,17 +171,10 @@ public class Benchmark {
             context.release();
             Log.endMessage(LogStatus.OK);
             Log.message(CLQueryCache.status());
-            /*Log.startMessage("Creating CL GL context on platform " + platform.getPointer());
-            context = platform.createCLGLContext();
-            Log.endMessage(LogStatus.OK);
-            Log.message(context);
-            Log.startMessage("Releasing context");
-            context.release();
-            Log.endMessage(LogStatus.OK);*/
         }
     }
 
     public static void main(String... args) throws IOException, InterruptedException {
-        new Benchmark();
+        new Benchmark(new File(args[0]), args[1]);
     }
 }
