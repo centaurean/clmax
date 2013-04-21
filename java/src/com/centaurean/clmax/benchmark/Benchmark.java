@@ -102,6 +102,8 @@ public class Benchmark {
                 throw exception;
             }
             Log.endMessage(LogStatus.OK);
+            for (CLDevice device : program.getBuildDevices())
+                Log.message(program.buildInfos(device));
             Log.message(program);
             /*CLProgramBinaries binaries = program.get(CLProgramInfo.CL_PROGRAM_BINARIES).getBinaries();
             for (int i = 0; i < binaries.size(); i++) {
