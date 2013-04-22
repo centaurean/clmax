@@ -8,6 +8,7 @@ import com.centaurean.clmax.schema.devices.CLDevices;
 import com.centaurean.clmax.schema.exceptions.CLNativeException;
 import com.centaurean.clmax.schema.kernels.CLKernel;
 import com.centaurean.clmax.schema.mem.CLMapType;
+import com.centaurean.clmax.schema.mem.CLMemInfo;
 import com.centaurean.clmax.schema.mem.buffers.CLBuffer;
 import com.centaurean.clmax.schema.mem.buffers.CLBufferType;
 import com.centaurean.clmax.schema.platforms.CLPlatform;
@@ -60,6 +61,14 @@ import java.util.Arrays;
  */
 public class Benchmark {
     private static final int BUFFER_SIZE = 1048576;
+
+    private static void getCLBufferContentFloatSample(CLBuffer buffer, int elements) {
+        StringBuilder content = new StringBuilder();
+        buffer.getHostBuffer().rewind();
+        for(int i = 0; i < elements; i++)
+            content.append(buffer.getHostBuffer().getFloat()).append(", ");
+        Log.message(content.append("... (").append(buffer.get(CLMemInfo.CL_MEM_SIZE)).append(" elements)").toString());
+    }
 
     public Benchmark(File clFile, String kernelName) throws IOException, InterruptedException {
          try {
@@ -137,27 +146,26 @@ public class Benchmark {
             ByteBuffer b = ByteBuffer.allocateDirect(BUFFER_SIZE);
             b.order(ByteOrder.nativeOrder());
             for(int i = 0; i < BUFFER_SIZE / 4; i ++)
-                b.putFloat(0.0f);
+                b.putFloat(i);
+            ByteBuffer c = ByteBuffer.allocateDirect(BUFFER_SIZE);
+            c.order(ByteOrder.nativeOrder());
+            for(int i = 0; i < BUFFER_SIZE / 4; i ++)
+                c.putFloat(0.0f);
             CLBuffer clA = context.createBuffer(a, CLBufferType.READ_ONLY);
-            CLBuffer clB = context.createBuffer(b, CLBufferType.WRITE_ONLY);
+            CLBuffer clB = context.createBuffer(b, CLBufferType.READ_ONLY);
+            CLBuffer clC = context.createBuffer(c, CLBufferType.WRITE_ONLY);
             Log.endMessage(LogStatus.OK);
             Log.message(clA);
-            a.rewind();
-            StringBuilder content = new StringBuilder();
-            for(int i = 0; i < 10; i++)
-                content.append(a.getFloat()).append(", ");
-            Log.message(content.append("...").toString());
+            getCLBufferContentFloatSample(clA, 25);
             Log.message(clB);
-            content = new StringBuilder();
-            b.rewind();
-            for(int i = 0; i < 10; i++)
-                content.append(b.getFloat()).append(", ");
-            Log.message(content.append("...").toString());
+            getCLBufferContentFloatSample(clB, 25);
+            Log.message(clC);
+            getCLBufferContentFloatSample(clC, 25);
             Log.startMessage("Setting kernel args");
-            kernel.setArgs(clA, clB).setArg(BUFFER_SIZE);
+            kernel.setArgs(clA, clB, clC);
             Log.endMessage(LogStatus.OK);
             Log.startMessage("Running kernel");
-            kernel.runIn(queue);
+            kernel.runIn(queue, new int[] {1024, 1024});
             Log.endMessage(LogStatus.OK);
             Log.startMessage("Mapping buffer");
             clB.map(queue, CLMapType.READ);
@@ -165,11 +173,7 @@ public class Benchmark {
             Log.startMessage("Unmapping buffer");
             clB.unmap(queue);
             Log.endMessage(LogStatus.OK);
-            content = new StringBuilder();
-            clB.getHostBuffer().rewind();
-            for(int i = 0; i < 10; i++)
-                content.append(clB.getHostBuffer().getFloat()).append(", ");
-            Log.message(content.append("...").toString());
+            getCLBufferContentFloatSample(clC, 25);
             Log.startMessage("Releasing buffers");
             clA.release();
             clB.release();

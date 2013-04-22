@@ -242,10 +242,10 @@ JNIEXPORT void JNICALL Java_com_centaurean_clmax_schema_CL_setKernelArgIntNative
 /*
  * Class:     com_centaurean_clmax_schema_CL
  * Method:    runKernelNative
- * Signature: (JJ)V
+ * Signature: (JJ[I)V
  */
 JNIEXPORT void JNICALL Java_com_centaurean_clmax_schema_CL_runKernelNative
-  (JNIEnv *, jclass, jlong, jlong);
+  (JNIEnv *, jclass, jlong, jlong, jintArray);
 
 /*
  * Class:     com_centaurean_clmax_schema_CL

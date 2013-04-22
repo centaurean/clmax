@@ -110,10 +110,10 @@ public class CLKernel extends CLCachedObject<CLKernelInfo> {
         return setArg(argIndex, value);
     }
 
-    public void runIn(CLCommandQueue commandQueue) {
+    public void runIn(CLCommandQueue commandQueue, int[] globalWorkSizes) {
         if (!commandQueue.getContext().equals(getContext()))
             throw new CLException("The OpenCL context associated with kernel and command-queue must be the same !");
-        CL.runKernelNative(getPointer(), commandQueue.getPointer());
+        CL.runKernelNative(getPointer(), commandQueue.getPointer(), globalWorkSizes);
     }
 
     public CLPlatform getPlatform() {
