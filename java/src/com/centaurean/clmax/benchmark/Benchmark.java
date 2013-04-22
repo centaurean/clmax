@@ -125,9 +125,9 @@ public class Benchmark {
                 throw exception;
             }
             Log.endMessage(LogStatus.OK);
+            Log.message(program);
             for (CLDevice device : program.getBuildDevices())
                 Log.message(program.buildInfos(device));
-            Log.message(program);
             /*CLProgramBinaries binaries = program.get(CLProgramInfo.CL_PROGRAM_BINARIES).getBinaries();
             for (int i = 0; i < binaries.size(); i++) {
                 FileOutputStream out = new FileOutputStream("out.bn" + i);
@@ -138,6 +138,8 @@ public class Benchmark {
             CLKernel kernel = program.createKernel(kernelName);
             Log.endMessage(LogStatus.OK);
             Log.message(kernel);
+            for (CLDevice device : program.getBuildDevices())
+                Log.message(kernel.workGroupInfos(device));
             Log.startMessage("Creating buffers");
             ByteBuffer a = ByteBuffer.allocateDirect(BUFFER_SIZE);
             a.order(ByteOrder.nativeOrder());

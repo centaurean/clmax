@@ -225,6 +225,22 @@ JNIEXPORT jstring JNICALL Java_com_centaurean_clmax_schema_CL_getKernelInfoStrin
 
 /*
  * Class:     com_centaurean_clmax_schema_CL
+ * Method:    getKernelWorkGroupInfoLongNative
+ * Signature: (JJI)J
+ */
+JNIEXPORT jlong JNICALL Java_com_centaurean_clmax_schema_CL_getKernelWorkGroupInfoLongNative
+  (JNIEnv *, jclass, jlong, jlong, jint);
+
+/*
+ * Class:     com_centaurean_clmax_schema_CL
+ * Method:    getKernelWorkGroupInfoLongArrayNative
+ * Signature: (JJI)[J
+ */
+JNIEXPORT jlongArray JNICALL Java_com_centaurean_clmax_schema_CL_getKernelWorkGroupInfoLongArrayNative
+  (JNIEnv *, jclass, jlong, jlong, jint);
+
+/*
+ * Class:     com_centaurean_clmax_schema_CL
  * Method:    setKernelArgBufferNative
  * Signature: (JIJ)V
  */
