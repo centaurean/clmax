@@ -69,6 +69,10 @@ public class CLVersion implements Comparable<CLVersion> {
         return infos;
     }
 
+    public boolean isAtLeast(CLVersion version) {
+        return compareTo(version) >= 0;
+    }
+
     @Override
     public int compareTo(CLVersion version) {
         if(getMajor() != version.getMajor())

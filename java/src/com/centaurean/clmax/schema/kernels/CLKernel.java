@@ -60,7 +60,7 @@ public class CLKernel extends CLCachedObject<CLKernelInfo> {
     }
 
     public CLValue get(CLKernelInfo kernelInfo) {
-        if (platform.getVersion().compareTo(kernelInfo.getMinimumCLVersion()) < 0)
+        if (!getPlatform().getVersion().isAtLeast(kernelInfo.getMinimumCLVersion()))
             throw new CLVersionException(kernelInfo.name() + " (" + kernelInfo.getMinimumCLVersion().majorMinor() + " function) not supported by this " + platform.getVersion().majorMinor() + " platform.");
         CLValue valueInCache = CLQueryCache.get(getPointer(), kernelInfo);
         if (valueInCache == null) {
@@ -132,7 +132,7 @@ public class CLKernel extends CLCachedObject<CLKernelInfo> {
     public String toString() {
         LinkedList<CLKernelInfo> displayList = new LinkedList<CLKernelInfo>();
         for(CLKernelInfo kernelInfo : CLKernelInfo.values())
-            if (platform.getVersion().compareTo(kernelInfo.getMinimumCLVersion()) > 0)
+            if (getPlatform().getVersion().isAtLeast(kernelInfo.getMinimumCLVersion()))
                 displayList.add(kernelInfo);
         return toString(displayList);
     }

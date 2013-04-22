@@ -58,7 +58,7 @@ public class CLProgram extends CLCachedObject<CLProgramInfo> {
     }
 
     public CLValue get(CLProgramInfo programInfo) {
-        if (platform.getVersion().compareTo(programInfo.getMinimumCLVersion()) < 0)
+        if (!getPlatform().getVersion().isAtLeast(programInfo.getMinimumCLVersion()))
             throw new CLVersionException(programInfo.name() + " (" + programInfo.getMinimumCLVersion().majorMinor() + " function) not supported by this " + platform.getVersion().majorMinor() + " platform.");
         CLValue valueInCache = CLQueryCache.get(getPointer(), programInfo);
         if (valueInCache == null) {
@@ -102,9 +102,9 @@ public class CLProgram extends CLCachedObject<CLProgramInfo> {
     }
 
     public CLValue getBuildInfo(CLDevice device, CLProgramBuildInfo programBuildInfo) {
-        if (platform.getVersion().compareTo(programBuildInfo.getMinimumCLVersion()) < 0)
+        if (!device.getVersion().isAtLeast(programBuildInfo.getMinimumCLVersion()))
             throw new CLVersionException(programBuildInfo.name() + " (" + programBuildInfo.getMinimumCLVersion().majorMinor() + " function) not supported by this " + platform.getVersion().majorMinor() + " platform.");
-        CLValue valueInCache = CLQueryCache.get(getPointer(), programBuildInfo);
+        CLValue valueInCache = CLQueryCache.get(programBuildInfo, getPointer(), device.getPointer());
         if (valueInCache == null) {
             switch (programBuildInfo.getReturnType()) {
                 case INT:
@@ -114,7 +114,7 @@ public class CLProgram extends CLCachedObject<CLProgramInfo> {
                     valueInCache = new CLValue(CL.getProgramBuildInfoStringNative(getPointer(), device.getPointer(), programBuildInfo.getKey()));
                     break;
             }
-            CLQueryCache.add(getPointer(), programBuildInfo, valueInCache);
+            CLQueryCache.add(programBuildInfo, valueInCache, getPointer(), device.getPointer());
         }
         return valueInCache;
     }
@@ -144,7 +144,7 @@ public class CLProgram extends CLCachedObject<CLProgramInfo> {
         StringBuilder stringBuilder = new StringBuilder();
         stringBuilder.append("Build infos for program ").append(getPointer()).append(" and device ").append(device.getPointer()).append(" {");
         for (CLProgramBuildInfo programBuildInfo : CLProgramBuildInfo.values())
-            if (platform.getVersion().compareTo(programBuildInfo.getMinimumCLVersion()) > 0) {
+            if (device.getVersion().isAtLeast(programBuildInfo.getMinimumCLVersion())) {
                 stringBuilder.append(separator).append(programBuildInfo.name()).append(" = '").append(getBuildInfo(device, programBuildInfo).toString()).append("'");
                 separator = ", ";
             }
@@ -155,7 +155,7 @@ public class CLProgram extends CLCachedObject<CLProgramInfo> {
     public String toString() {
         LinkedList<CLProgramInfo> displayList = new LinkedList<CLProgramInfo>();
         for (CLProgramInfo programInfo : CLProgramInfo.values())
-            if (platform.getVersion().compareTo(programInfo.getMinimumCLVersion()) > 0)
+            if (getPlatform().getVersion().isAtLeast(programInfo.getMinimumCLVersion()))
                 displayList.add(programInfo);
         return toString(displayList);
     }

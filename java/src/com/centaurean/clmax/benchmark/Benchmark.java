@@ -17,11 +17,15 @@ import com.centaurean.clmax.schema.queues.CLCommandQueue;
 import com.centaurean.commons.logs.Log;
 import com.centaurean.commons.logs.LogLevel;
 import com.centaurean.commons.logs.LogStatus;
+import com.centaurean.commons.utilities.Transform;
 
 import java.io.File;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+import java.util.Arrays;
 
 /*
  * Copyright (c) 2013, Centaurean
@@ -58,6 +62,16 @@ public class Benchmark {
     private static final int BUFFER_SIZE = 1048576;
 
     public Benchmark(File clFile, String kernelName) throws IOException, InterruptedException {
+         try {
+            MessageDigest sha512 = MessageDigest.getInstance("SHA-512");
+            byte[] shaded = sha512.digest("This is a test !".getBytes());
+            Log.message(Arrays.toString(shaded));
+            String hex = Transform.toHexString(shaded);
+            Log.message(hex);
+            Log.message(Arrays.toString(Transform.toByteArray(hex)));
+        } catch (NoSuchAlgorithmException e) {
+            e.printStackTrace();
+        }
         Log.startMessage("Getting platforms");
         CLPlatforms platforms = CLPlatforms.getPlatforms();
         Log.endMessage(LogStatus.OK);
@@ -118,11 +132,11 @@ public class Benchmark {
             Log.startMessage("Creating buffers");
             ByteBuffer a = ByteBuffer.allocateDirect(BUFFER_SIZE);
             a.order(ByteOrder.nativeOrder());
-            for (int i = 0; i < BUFFER_SIZE / 4; i++)
+            for(int i = 0; i < BUFFER_SIZE / 4; i ++)
                 a.putFloat(i);
             ByteBuffer b = ByteBuffer.allocateDirect(BUFFER_SIZE);
             b.order(ByteOrder.nativeOrder());
-            for (int i = 0; i < BUFFER_SIZE / 4; i++)
+            for(int i = 0; i < BUFFER_SIZE / 4; i ++)
                 b.putFloat(0.0f);
             CLBuffer clA = context.createBuffer(a, CLBufferType.READ_ONLY);
             CLBuffer clB = context.createBuffer(b, CLBufferType.WRITE_ONLY);
@@ -130,13 +144,13 @@ public class Benchmark {
             Log.message(clA);
             a.rewind();
             StringBuilder content = new StringBuilder();
-            for (int i = 0; i < 10; i++)
+            for(int i = 0; i < 10; i++)
                 content.append(a.getFloat()).append(", ");
             Log.message(content.append("...").toString());
             Log.message(clB);
             content = new StringBuilder();
             b.rewind();
-            for (int i = 0; i < 10; i++)
+            for(int i = 0; i < 10; i++)
                 content.append(b.getFloat()).append(", ");
             Log.message(content.append("...").toString());
             Log.startMessage("Setting kernel args");
@@ -153,7 +167,7 @@ public class Benchmark {
             Log.endMessage(LogStatus.OK);
             content = new StringBuilder();
             clB.getHostBuffer().rewind();
-            for (int i = 0; i < 10; i++)
+            for(int i = 0; i < 10; i++)
                 content.append(clB.getHostBuffer().getFloat()).append(", ");
             Log.message(content.append("...").toString());
             Log.startMessage("Releasing buffers");

@@ -50,7 +50,7 @@ public class CLBuffer extends CLMem {
     }
 
     public void map(CLCommandQueue commandQueue, CLMapType mapType) {
-        if(commandQueue.getDevice().getVersion().compareTo(mapType.getMinimumCLVersion()) < 0)
+        if(!commandQueue.getDevice().getVersion().isAtLeast(mapType.getMinimumCLVersion()))
             throw new CLException("Map type " + mapType.name() + " requires an " + mapType.getMinimumCLVersion().majorMinor() + " compatible device !");
         CL.mapBufferNative(commandQueue.getPointer(), getPointer(), mapType.getValue(), getHostBuffer().capacity());
     }

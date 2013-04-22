@@ -53,7 +53,7 @@ public class CLMem extends CLCachedObject<CLMemInfo> {
 
     @Override
     public CLValue get(CLMemInfo memInfo) {
-        if (platform.getVersion().compareTo(memInfo.getMinimumCLVersion()) < 0)
+        if (!getPlatform().getVersion().isAtLeast(memInfo.getMinimumCLVersion()))
             throw new CLVersionException(memInfo.name() + " (" + memInfo.getMinimumCLVersion().majorMinor() + " function) not supported by this " + platform.getVersion().majorMinor() + " platform.");
         CLValue valueInCache = CLQueryCache.get(getPointer(), memInfo);
         if (valueInCache == null) {
@@ -72,11 +72,19 @@ public class CLMem extends CLCachedObject<CLMemInfo> {
         return valueInCache;
     }
 
+    public CLPlatform getPlatform() {
+        return platform;
+    }
+
+    public CLContext getContext() {
+        return context;
+    }
+
     @Override
     public String toString() {
         LinkedList<CLMemInfo> displayList = new LinkedList<CLMemInfo>();
         for (CLMemInfo memInfo : CLMemInfo.values())
-            if (platform.getVersion().compareTo(memInfo.getMinimumCLVersion()) > 0)
+            if (getPlatform().getVersion().isAtLeast(memInfo.getMinimumCLVersion()))
                 displayList.add(memInfo);
         return toString(displayList);
     }

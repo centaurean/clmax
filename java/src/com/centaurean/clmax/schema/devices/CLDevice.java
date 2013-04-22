@@ -58,7 +58,7 @@ public class CLDevice extends CLCachedObject<CLDeviceInfo> {
 
     public CLValue get(CLDeviceInfo deviceInfo) {
         if (deviceInfo != CLDeviceInfo.CL_DEVICE_VERSION)
-            if (getVersion().compareTo(deviceInfo.getMinimumCLVersion()) < 0)
+            if (!getVersion().isAtLeast(deviceInfo.getMinimumCLVersion()))
                 throw new CLVersionException(deviceInfo.name() + " (" + deviceInfo.getMinimumCLVersion().majorMinor() + " function) not supported by this " + getVersion().majorMinor() + " device.");
         CLValue valueInCache = CLQueryCache.get(getPointer(), deviceInfo);
         if (valueInCache == null) {
@@ -95,7 +95,7 @@ public class CLDevice extends CLCachedObject<CLDeviceInfo> {
     public String toString() {
         LinkedList<CLDeviceInfo> displayList = new LinkedList<CLDeviceInfo>();
         for(CLDeviceInfo deviceInfo : CLDeviceInfo.values())
-            if (getVersion().compareTo(deviceInfo.getMinimumCLVersion()) > 0)
+            if (getVersion().isAtLeast(deviceInfo.getMinimumCLVersion()))
                 displayList.add(deviceInfo);
         return toString(displayList);
     }
