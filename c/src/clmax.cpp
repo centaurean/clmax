@@ -527,6 +527,7 @@ JNIEXPORT jlongArray JNICALL Java_com_centaurean_clmax_schema_CL_getKernelWorkGr
     
     checkResult(clGetKernelWorkGroupInfo((cl_kernel)pointerKernel, (cl_device_id)pointerDevice, parameter, MAX_CL_KERNEL_WORK_GROUP_INFO_ARRAY_SIZE * sizeof(size_t), values, &retsize), env);
     
+    //fprintf(stderr, "\n retsize=%i", (int)retsize);
     int arraySize = (int)retsize / sizeof(size_t);
     jlongArray result;
     result = env->NewLongArray(arraySize);

@@ -5,6 +5,8 @@ import com.centaurean.clmax.schema.CL;
 import com.centaurean.clmax.schema.CLCachedObject;
 import com.centaurean.clmax.schema.contexts.CLContext;
 import com.centaurean.clmax.schema.devices.CLDevice;
+import com.centaurean.clmax.schema.devices.CLDeviceInfo;
+import com.centaurean.clmax.schema.devices.CLDeviceType;
 import com.centaurean.clmax.schema.exceptions.CLException;
 import com.centaurean.clmax.schema.mem.buffers.CLBuffer;
 import com.centaurean.clmax.schema.platforms.CLPlatform;
@@ -87,13 +89,23 @@ public class CLKernel extends CLCachedObject<CLKernelInfo> {
             throw new CLVersionException(workGroupInfo.name() + " (" + workGroupInfo.getMinimumCLVersion().majorMinor() + " function) not supported by this " + device.getVersion().majorMinor() + " device.");
         CLValue valueInCache = CLQueryCache.get(workGroupInfo, getPointer(), device.getPointer());
         if (valueInCache == null) {
-            switch (workGroupInfo.getReturnType()) {
-                case LONG:
-                case SIZE_T:
-                    valueInCache = new CLValue(CL.getKernelWorkGroupInfoLongNative(getPointer(), device.getPointer(), workGroupInfo.getKey()));
+            switch (workGroupInfo) {
+                case CL_KERNEL_GLOBAL_WORK_SIZE:
+                    if (device.get(CLDeviceInfo.CL_DEVICE_TYPE).getLong() == CLDeviceType.CL_DEVICE_TYPE_CUSTOM.getType())
+                        valueInCache = new CLValue(CL.getKernelWorkGroupInfoLongArrayNative(getPointer(), device.getPointer(), workGroupInfo.getKey()));
+                    else
+                        valueInCache = new CLValue("");
                     break;
-                case SIZE_T_ARRAY:
-                    valueInCache = new CLValue(CL.getKernelWorkGroupInfoLongArrayNative(getPointer(), device.getPointer(), workGroupInfo.getKey()));
+                default:
+                    switch (workGroupInfo.getReturnType()) {
+                        case LONG:
+                        case SIZE_T:
+                            valueInCache = new CLValue(CL.getKernelWorkGroupInfoLongNative(getPointer(), device.getPointer(), workGroupInfo.getKey()));
+                            break;
+                        case SIZE_T_ARRAY:
+                            valueInCache = new CLValue(CL.getKernelWorkGroupInfoLongArrayNative(getPointer(), device.getPointer(), workGroupInfo.getKey()));
+                            break;
+                    }
                     break;
             }
             CLQueryCache.add(workGroupInfo, valueInCache, getPointer(), device.getPointer());
@@ -164,7 +176,7 @@ public class CLKernel extends CLCachedObject<CLKernelInfo> {
     @Override
     public String toString() {
         LinkedList<CLKernelInfo> displayList = new LinkedList<CLKernelInfo>();
-        for(CLKernelInfo kernelInfo : CLKernelInfo.values())
+        for (CLKernelInfo kernelInfo : CLKernelInfo.values())
             if (getPlatform().getVersion().isAtLeast(kernelInfo.getMinimumCLVersion()))
                 displayList.add(kernelInfo);
         return toString(displayList);

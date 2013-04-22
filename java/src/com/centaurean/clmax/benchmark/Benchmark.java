@@ -65,13 +65,13 @@ public class Benchmark {
     private static void getCLBufferContentFloatSample(CLBuffer buffer, int elements) {
         StringBuilder content = new StringBuilder();
         buffer.getHostBuffer().rewind();
-        for(int i = 0; i < elements; i++)
+        for (int i = 0; i < elements; i++)
             content.append(buffer.getHostBuffer().getFloat()).append(", ");
         Log.message(content.append("... (").append(buffer.get(CLMemInfo.CL_MEM_SIZE)).append(" elements)").toString());
     }
 
     public Benchmark(File clFile, String kernelName) throws IOException, InterruptedException {
-         try {
+        try {
             MessageDigest sha512 = MessageDigest.getInstance("SHA-512");
             byte[] shaded = sha512.digest("This is a test !".getBytes());
             Log.message(Arrays.toString(shaded));
@@ -97,103 +97,125 @@ public class Benchmark {
                 Log.message(device);
         }
         for (CLPlatform platform : platforms.values()) {
-            Log.message();
-            CLDevice first = platform.attachedDevices().values().iterator().next();
-            Log.startMessage("Ignoring and reinstating device");
-            platform.attachedDevices().ignore(first);
-            platform.attachedDevices().reinstate(first);
-            Log.endMessage(LogStatus.OK);
-            Log.startMessage("Creating context on platform " + platform.getPointer());
-            CLContext context = platform.createContext();
-            Log.endMessage(LogStatus.OK);
-            Log.message(context);
-            Log.startMessage("Creating command queue");
-            CLCommandQueue queue = first.createCommandQueue(context);
-            Log.endMessage(LogStatus.OK);
-            Log.message(queue);
-            Log.startMessage("Creating program");
-            CLProgram program = context.createProgram(clFile);
-            Log.endMessage(LogStatus.OK);
-            Log.startMessage("Building program");
+            CLBuffer clA = null;
+            CLBuffer clB = null;
+            CLBuffer clC = null;
+            CLKernel kernel = null;
+            CLProgram program = null;
+            CLCommandQueue queue = null;
+            CLContext context = null;
             try {
-                program.build(platform.attachedDevices());
-            } catch (CLNativeException exception) {
-                Log.endMessage(LogStatus.ERROR);
-                Thread.sleep(100);
+                Log.message();
+                CLDevice first = platform.attachedDevices().values().iterator().next();
+                Log.startMessage("Ignoring and reinstating device");
+                platform.attachedDevices().ignore(first);
+                platform.attachedDevices().reinstate(first);
+                Log.endMessage(LogStatus.OK);
+                Log.startMessage("Creating context on platform " + platform.getPointer());
+                context = platform.createContext();
+                Log.endMessage(LogStatus.OK);
+                Log.message(context);
+                Log.startMessage("Creating command queue");
+                queue = first.createCommandQueue(context);
+                Log.endMessage(LogStatus.OK);
+                Log.message(queue);
+                Log.startMessage("Creating program");
+                program = context.createProgram(clFile);
+                Log.endMessage(LogStatus.OK);
+                Log.startMessage("Building program");
+                try {
+                    program.build(platform.attachedDevices());
+                } catch (CLNativeException exception) {
+                    Log.endMessage(LogStatus.ERROR);
+                    Thread.sleep(100);
+                    for (CLDevice device : program.getBuildDevices())
+                        Log.message(System.err, LogLevel.ERROR, program.buildInfos(device));
+                    throw exception;
+                }
+                Log.endMessage(LogStatus.OK);
                 for (CLDevice device : program.getBuildDevices())
-                    Log.message(System.err, LogLevel.ERROR, program.buildInfos(device));
-                throw exception;
-            }
-            Log.endMessage(LogStatus.OK);
-            for (CLDevice device : program.getBuildDevices())
-                Log.message(program.buildInfos(device));
-            Log.message(program);
+                    Log.message(program.buildInfos(device));
+                Log.message(program);
             /*CLProgramBinaries binaries = program.get(CLProgramInfo.CL_PROGRAM_BINARIES).getBinaries();
             for (int i = 0; i < binaries.size(); i++) {
                 FileOutputStream out = new FileOutputStream("out.bn" + i);
                 binaries.toStream(i, out);
                 out.close();
             }*/
-            Log.startMessage("Creating buffers");
-            ByteBuffer a = ByteBuffer.allocateDirect(BUFFER_SIZE);
-            a.order(ByteOrder.nativeOrder());
-            for(int i = 0; i < BUFFER_SIZE / 4; i ++)
-                a.putFloat(i);
-            ByteBuffer b = ByteBuffer.allocateDirect(BUFFER_SIZE);
-            b.order(ByteOrder.nativeOrder());
-            for(int i = 0; i < BUFFER_SIZE / 4; i ++)
-                b.putFloat(i);
-            ByteBuffer c = ByteBuffer.allocateDirect(BUFFER_SIZE);
-            c.order(ByteOrder.nativeOrder());
-            for(int i = 0; i < BUFFER_SIZE / 4; i ++)
-                c.putFloat(0.0f);
-            CLBuffer clA = context.createBuffer(a, CLBufferType.READ_ONLY);
-            CLBuffer clB = context.createBuffer(b, CLBufferType.READ_ONLY);
-            CLBuffer clC = context.createBuffer(c, CLBufferType.WRITE_ONLY);
-            Log.endMessage(LogStatus.OK);
-            Log.message(clA);
-            getCLBufferContentFloatSample(clA, 25);
-            Log.message(clB);
-            getCLBufferContentFloatSample(clB, 25);
-            Log.message(clC);
-            getCLBufferContentFloatSample(clC, 25);
-            Log.startMessage("Creating kernel");
-            CLKernel kernel = program.createKernel(kernelName);
-            Log.endMessage(LogStatus.OK);
-            Log.message(kernel);
-            for (CLDevice device : program.getBuildDevices())
-                Log.message(kernel.workGroupInfos(device));
-            Log.startMessage("Setting kernel args");
-            kernel.setArgs(clA, clB, clC);
-            Log.endMessage(LogStatus.OK);
-            Log.startMessage("Running kernel");
-            kernel.runIn(queue, new int[] {32, 32}, new int[] {32, 32});
-            Log.endMessage(LogStatus.OK);
-            Log.startMessage("Mapping buffer");
-            clB.map(queue, CLMapType.READ);
-            Log.endMessage(LogStatus.OK);
-            Log.startMessage("Unmapping buffer");
-            clB.unmap(queue);
-            Log.endMessage(LogStatus.OK);
-            Log.message(clC);
-            getCLBufferContentFloatSample(clC, 25);
-            Log.startMessage("Releasing buffers");
-            clA.release();
-            clB.release();
-            Log.endMessage(LogStatus.OK);
-            Log.startMessage("Releasing kernel");
-            kernel.release();
-            Log.endMessage(LogStatus.OK);
-            Log.startMessage("Releasing program");
-            program.release();
-            Log.endMessage(LogStatus.OK);
-            Log.startMessage("Releasing command queue");
-            queue.release();
-            Log.endMessage(LogStatus.OK);
-            Log.startMessage("Releasing context");
-            context.release();
-            Log.endMessage(LogStatus.OK);
-            Log.message(CLQueryCache.status());
+                Log.startMessage("Creating kernel");
+                kernel = program.createKernel(kernelName);
+                Log.endMessage(LogStatus.OK);
+                Log.message(kernel);
+                Log.startMessage("Creating buffers");
+                ByteBuffer a = ByteBuffer.allocateDirect(BUFFER_SIZE);
+                a.order(ByteOrder.nativeOrder());
+                for (int i = 0; i < BUFFER_SIZE / 4; i++)
+                    a.putFloat(i);
+                ByteBuffer b = ByteBuffer.allocateDirect(BUFFER_SIZE);
+                b.order(ByteOrder.nativeOrder());
+                for (int i = 0; i < BUFFER_SIZE / 4; i++)
+                    b.putFloat(i);
+                ByteBuffer c = ByteBuffer.allocateDirect(BUFFER_SIZE);
+                c.order(ByteOrder.nativeOrder());
+                for (int i = 0; i < BUFFER_SIZE / 4; i++)
+                    c.putFloat(0.0f);
+                clA = context.createBuffer(a, CLBufferType.READ_ONLY);
+                clB = context.createBuffer(b, CLBufferType.READ_ONLY);
+                clC = context.createBuffer(c, CLBufferType.WRITE_ONLY);
+                Log.endMessage(LogStatus.OK);
+                Log.message(clA);
+                getCLBufferContentFloatSample(clA, 25);
+                Log.message(clB);
+                getCLBufferContentFloatSample(clB, 25);
+                Log.message(clC);
+                getCLBufferContentFloatSample(clC, 25);
+                Log.startMessage("Creating kernel");
+                kernel = program.createKernel(kernelName);
+                Log.endMessage(LogStatus.OK);
+                Log.message(kernel);
+                for (CLDevice device : program.getBuildDevices())
+                    Log.message(kernel.workGroupInfos(device));
+                Log.startMessage("Setting kernel args");
+                kernel.setArgs(clA, clB, clC);
+                Log.endMessage(LogStatus.OK);
+                Log.startMessage("Running kernel");
+                kernel.runIn(queue, new int[]{32, 32}, new int[] {32, 32});
+                Log.endMessage(LogStatus.OK);
+                Log.startMessage("Mapping buffer");
+                clB.map(queue, CLMapType.READ);
+                Log.endMessage(LogStatus.OK);
+                Log.startMessage("Unmapping buffer");
+                clB.unmap(queue);
+                Log.endMessage(LogStatus.OK);
+                getCLBufferContentFloatSample(clC, 25);
+            } finally {
+                Log.reset();
+                Log.startMessage("Releasing buffers");
+                if (clA != null)
+                    clA.release();
+                if (clB != null)
+                    clB.release();
+                if (clC != null)
+                    clC.release();
+                Log.endMessage(LogStatus.OK);
+                Log.startMessage("Releasing kernel");
+                if (kernel != null)
+                    kernel.release();
+                Log.endMessage(LogStatus.OK);
+                Log.startMessage("Releasing program");
+                if (program != null)
+                    program.release();
+                Log.endMessage(LogStatus.OK);
+                Log.startMessage("Releasing command queue");
+                if (queue != null)
+                    queue.release();
+                Log.endMessage(LogStatus.OK);
+                Log.startMessage("Releasing context");
+                if (context != null)
+                    context.release();
+                Log.endMessage(LogStatus.OK);
+                Log.message(CLQueryCache.status());
+            }
         }
     }
 
