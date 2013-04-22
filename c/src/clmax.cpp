@@ -520,19 +520,27 @@ JNIEXPORT void JNICALL Java_com_centaurean_clmax_schema_CL_setKernelArgIntNative
 }
 
 // Kernel run
-JNIEXPORT void JNICALL Java_com_centaurean_clmax_schema_CL_runKernelNative(JNIEnv *env, jclass callingClass, jlong pointerKernel, jlong pointerCommandQueue, jintArray globalWorkSizes) {
+JNIEXPORT void JNICALL Java_com_centaurean_clmax_schema_CL_runKernelNative(JNIEnv *env, jclass callingClass, jlong pointerKernel, jlong pointerCommandQueue, jintArray globalWorkSizes, jintArray localWorkSizes) {
     jsize globalWorkSizesLength = env->GetArrayLength(globalWorkSizes);
     size_t* global_work_sizes = new size_t[globalWorkSizesLength * sizeof(size_t)];
     jint *body = env->GetIntArrayElements(globalWorkSizes, 0);
-    for (unsigned int i = 0; i < globalWorkSizesLength; i++)
+    for (int i = 0; i < globalWorkSizesLength; i++)
         global_work_sizes[i] = (int)body[i];
 	env->ReleaseIntArrayElements(globalWorkSizes, body, 0);
     
     //fprintf(stderr, "%i, %li, %li", globalWorkSizesLength, global_work_sizes[0], global_work_sizes[1]);
+	
+    jsize localWorkSizesLength = env->GetArrayLength(localWorkSizes);
+    size_t* local_work_sizes = new size_t[localWorkSizesLength * sizeof(size_t)];
+    body = env->GetIntArrayElements(localWorkSizes, 0);
+    for (int i = 0; i < localWorkSizesLength; i++)
+        local_work_sizes[i] = (int)body[i];
+	env->ReleaseIntArrayElements(localWorkSizes, body, 0);
     
-    checkResult(clEnqueueNDRangeKernel((cl_command_queue)pointerCommandQueue, (cl_kernel)pointerKernel, globalWorkSizesLength, NULL, global_work_sizes, NULL, 0, NULL, NULL), env);
+    checkResult(clEnqueueNDRangeKernel((cl_command_queue)pointerCommandQueue, (cl_kernel)pointerKernel, globalWorkSizesLength, NULL, global_work_sizes, local_work_sizes, 0, NULL, NULL), env);
     checkResult(clFinish((cl_command_queue)pointerCommandQueue), env);
     
+	delete[] local_work_sizes;
     delete[] global_work_sizes;
 }
 

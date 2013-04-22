@@ -103,7 +103,7 @@ public class CLProgram extends CLCachedObject<CLProgramInfo> {
 
     public CLValue getBuildInfo(CLDevice device, CLProgramBuildInfo programBuildInfo) {
         if (!device.getVersion().isAtLeast(programBuildInfo.getMinimumCLVersion()))
-            throw new CLVersionException(programBuildInfo.name() + " (" + programBuildInfo.getMinimumCLVersion().majorMinor() + " function) not supported by this " + platform.getVersion().majorMinor() + " platform.");
+            throw new CLVersionException(programBuildInfo.name() + " (" + programBuildInfo.getMinimumCLVersion().majorMinor() + " function) not supported by this " + device.getVersion().majorMinor() + " device.");
         CLValue valueInCache = CLQueryCache.get(programBuildInfo, getPointer(), device.getPointer());
         if (valueInCache == null) {
             switch (programBuildInfo.getReturnType()) {

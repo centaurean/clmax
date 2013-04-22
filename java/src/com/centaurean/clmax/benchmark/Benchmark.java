@@ -165,7 +165,7 @@ public class Benchmark {
             kernel.setArgs(clA, clB, clC);
             Log.endMessage(LogStatus.OK);
             Log.startMessage("Running kernel");
-            kernel.runIn(queue, new int[] {1024, 1024});
+            kernel.runIn(queue, new int[] {32, 32}, new int[] {32, 32});
             Log.endMessage(LogStatus.OK);
             Log.startMessage("Mapping buffer");
             clB.map(queue, CLMapType.READ);
@@ -173,6 +173,7 @@ public class Benchmark {
             Log.startMessage("Unmapping buffer");
             clB.unmap(queue);
             Log.endMessage(LogStatus.OK);
+            Log.message(clC);
             getCLBufferContentFloatSample(clC, 25);
             Log.startMessage("Releasing buffers");
             clA.release();

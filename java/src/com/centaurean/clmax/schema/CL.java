@@ -71,7 +71,7 @@ public class CL {
     public static native String getKernelInfoStringNative(long pointerKernel, int parameter);
     public static native void setKernelArgBufferNative(long pointerKernel, int argIndex, long pointerBuffer);
     public static native void setKernelArgIntNative(long pointerKernel, int argIndex, int value);
-    public static native void runKernelNative(long pointerKernel, long pointerCommandQueue, int[] globalWorkSizes);
+    public static native void runKernelNative(long pointerKernel, long pointerCommandQueue, int[] globalWorkSizes, int[] localWorkSizes);
 
     public static native long createBufferNative(long pointerContext, ByteBuffer hostBuffer, int flags);
     public static native void releaseMemObjectNative(long pointerMemObject);
