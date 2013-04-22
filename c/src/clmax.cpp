@@ -37,7 +37,7 @@
 #define MAX_CL_PLATFORM_INFO_SIZE       512
 #define MAX_CL_DEVICE_INFO_SIZE         1024
 #define MAX_CL_CONTEXT_INFO_SIZE        1024
-#define MAX_CL_PROGRAM_INFO_SIZE        1024
+#define MAX_CL_PROGRAM_INFO_SIZE        262144
 #define MAX_CL_PROGRAM_INFO_ARRAY_SIZE  256
 #define MAX_CL_PROGRAM_BUILD_INFO_SIZE	1024
 #define MAX_CL_KERNEL_INFO_SIZE         1024
@@ -370,9 +370,9 @@ JNIEXPORT jlong JNICALL Java_com_centaurean_clmax_schema_CL_getProgramInfoLongNa
 
 JNIEXPORT jlongArray JNICALL Java_com_centaurean_clmax_schema_CL_getProgramInfoLongArrayNative(JNIEnv *env, jclass callingClass, jlong pointerProgram, jint parameter) {
     size_t retsize;
-    size_t* values = new size_t[MAX_CL_PROGRAM_INFO_SIZE * sizeof(size_t)];
+    size_t* values = new size_t[MAX_CL_PROGRAM_INFO_ARRAY_SIZE * sizeof(size_t)];
     
-    checkResult(clGetProgramInfo((cl_program)pointerProgram, parameter, MAX_CL_PROGRAM_INFO_SIZE, values, &retsize), env);
+    checkResult(clGetProgramInfo((cl_program)pointerProgram, parameter, MAX_CL_PROGRAM_INFO_ARRAY_SIZE, values, &retsize), env);
     
     int arraySize = (int)retsize / sizeof(size_t);
     jlongArray result;
