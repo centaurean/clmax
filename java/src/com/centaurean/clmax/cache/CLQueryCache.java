@@ -3,7 +3,9 @@ package com.centaurean.clmax.cache;
 import com.centaurean.clmax.schema.values.CLValue;
 import com.centaurean.commons.structures.Pair;
 
+import java.util.Arrays;
 import java.util.Hashtable;
+import java.util.List;
 import java.util.concurrent.locks.ReentrantLock;
 
 /*
@@ -39,43 +41,55 @@ import java.util.concurrent.locks.ReentrantLock;
  */
 public class CLQueryCache {
     static {
-        cacheStorage = new Hashtable<Pair<Long, CLQueryCacheKey>, CLValue>();
+        cacheStorage = new Hashtable<Pair<List<Long>, CLQueryCacheKey>, CLValue>();
     }
 
     private static final ReentrantLock cacheLock = new ReentrantLock(true);
-    private static Hashtable<Pair<Long, CLQueryCacheKey>, CLValue> cacheStorage;
+    private static Hashtable<Pair<List<Long>, CLQueryCacheKey>, CLValue> cacheStorage;
     private static long hits = 0;
     private static long queries = 0;
 
-    public static CLValue add(Long pointer, CLQueryCacheKey key, CLValue value) {
+    public static CLValue add(CLQueryCacheKey key, CLValue value, Long... pointers) {
         cacheLock.lock();
         try {
-            return cacheStorage.put(Pair.of(pointer, key), value);
+            return cacheStorage.put(Pair.of(Arrays.asList(pointers), key), value);
+        } finally {
+            cacheLock.unlock();
+        }
+    }
+
+    public static CLValue add(Long pointer, CLQueryCacheKey key, CLValue value) {
+        return add(key, value, pointer);
+    }
+
+    public static boolean contains(CLQueryCacheKey key, Long... pointers) {
+        cacheLock.lock();
+        try {
+            return cacheStorage.containsKey(Pair.of(Arrays.asList(pointers), key));
         } finally {
             cacheLock.unlock();
         }
     }
 
     public static boolean contains(Long pointer, CLQueryCacheKey key) {
-        cacheLock.lock();
-        try {
-            return cacheStorage.containsKey(Pair.of(pointer, key));
-        } finally {
-            cacheLock.unlock();
-        }
+        return contains(key, pointer);
     }
 
-    public static CLValue get(Long pointer, CLQueryCacheKey key) {
+    public static CLValue get(CLQueryCacheKey key, Long... pointers) {
         cacheLock.lock();
         try {
             queries ++;
-            CLValue value = cacheStorage.get(Pair.of(pointer, key));
+            CLValue value = cacheStorage.get(Pair.of(Arrays.asList(pointers), key));
             if(value != null)
                 hits ++;
             return value;
         } finally {
             cacheLock.unlock();
         }
+    }
+
+    public static CLValue get(Long pointer, CLQueryCacheKey key) {
+        return get(key, pointer);
     }
 
     public static long getHits() {
