@@ -32,5 +32,5 @@ package com.centaurean.clmax.schema.values;
  * @author gpnuma
  */
 public enum CLValueType {
-    BOOLEAN, INT, UNSIGNED_INT, LONG, UNSIGNED_LONG, SIZE_T, BIT_FIELD, CHAR_ARRAY, LONG_ARRAY, SIZE_T_ARRAY, BYTE_ARRAY_ARRAY
+    BOOLEAN, INT, LONG, SIZE_T, BIT_FIELD, CHAR_ARRAY, LONG_ARRAY, SIZE_T_ARRAY, BYTE_ARRAY_ARRAY
 }
