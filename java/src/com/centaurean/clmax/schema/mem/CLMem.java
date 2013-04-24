@@ -42,19 +42,17 @@ import java.util.LinkedList;
  * @author gpnuma
  */
 public class CLMem extends CLCachedObject<CLMemInfo> {
-    private CLPlatform platform;
     private CLContext context;
 
-    public CLMem(long pointer, CLPlatform platform, CLContext context) {
+    protected CLMem(long pointer, CLContext context) {
         super(pointer);
-        this.platform = platform;
         this.context = context;
     }
 
     @Override
     public CLValue get(CLMemInfo memInfo) {
         if (!getPlatform().getVersion().isAtLeast(memInfo.getMinimumCLVersion()))
-            throw new CLVersionException(memInfo.name() + " (" + memInfo.getMinimumCLVersion().majorMinor() + " function) not supported by this " + platform.getVersion().majorMinor() + " platform.");
+            throw new CLVersionException(memInfo.name() + " (" + memInfo.getMinimumCLVersion().majorMinor() + " function) not supported by this " + getPlatform().getVersion().majorMinor() + " platform.");
         CLValue valueInCache = CLQueryCache.get(getPointer(), memInfo);
         if (valueInCache == null) {
             switch (memInfo.getReturnType()) {
@@ -73,7 +71,7 @@ public class CLMem extends CLCachedObject<CLMemInfo> {
     }
 
     public CLPlatform getPlatform() {
-        return platform;
+        return getContext().getPlatform();
     }
 
     public CLContext getContext() {

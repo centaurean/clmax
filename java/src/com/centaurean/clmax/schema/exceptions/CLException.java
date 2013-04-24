@@ -33,6 +33,6 @@ package com.centaurean.clmax.schema.exceptions;
  */
 public class CLException extends RuntimeException {
     public CLException(String message) {
-        super("\n" + message);
+        super(message);
     }
 }

@@ -9,8 +9,7 @@ import com.centaurean.clmax.schema.exceptions.CLNativeException;
 import com.centaurean.clmax.schema.kernels.CLKernel;
 import com.centaurean.clmax.schema.mem.CLMapType;
 import com.centaurean.clmax.schema.mem.CLMemInfo;
-import com.centaurean.clmax.schema.mem.buffers.CLBuffer;
-import com.centaurean.clmax.schema.mem.buffers.CLBufferType;
+import com.centaurean.clmax.schema.mem.buffers.CLFloatBuffer;
 import com.centaurean.clmax.schema.platforms.CLPlatform;
 import com.centaurean.clmax.schema.platforms.CLPlatforms;
 import com.centaurean.clmax.schema.programs.CLProgram;
@@ -27,6 +26,9 @@ import java.nio.ByteOrder;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.Arrays;
+
+import static com.centaurean.clmax.schema.mem.buffers.CLBufferType.READ_ONLY;
+import static com.centaurean.clmax.schema.mem.buffers.CLBufferType.WRITE_ONLY;
 
 /*
  * Copyright (c) 2013, Centaurean
@@ -60,14 +62,14 @@ import java.util.Arrays;
  * @author gpnuma
  */
 public class Benchmark {
-    private static final int BUFFER_SIZE = 1048576;
+    private static final int BUFFER_SIZE = 2048*2048;
 
-    private static void getCLBufferContentFloatSample(CLBuffer buffer, int elements) {
+    private static void getCLBufferContentFloatSample(CLFloatBuffer buffer, int elements) {
         StringBuilder content = new StringBuilder();
-        buffer.getHostBuffer().rewind();
+        buffer.rewind();
         for (int i = 0; i < elements; i++)
-            content.append(buffer.getHostBuffer().getFloat()).append(", ");
-        Log.message(content.append("... (").append(buffer.get(CLMemInfo.CL_MEM_SIZE)).append(" elements)").toString());
+            content.append(buffer.getFloat()).append(", ");
+        Log.message(content.append("... (").append(buffer.get(CLMemInfo.CL_MEM_SIZE).getInt() / 4).append(" elements)").toString());
     }
 
     public Benchmark(File clFile, String kernelName) throws IOException, InterruptedException {
@@ -90,16 +92,16 @@ public class Benchmark {
         for (CLPlatform platform : platforms.values()) {
             Log.message();
             Log.startMessage("Getting devices for platform " + platform.getPointer());
-            CLDevices devices = platform.getDevices(CLDeviceType.CL_DEVICE_TYPE_ALL);
+            CLDevices devices = platform.getDevices(CLDeviceType.CL_DEVICE_TYPE_GPU);
             Log.endMessage(LogStatus.OK);
             Log.message("Found " + devices.size() + " device(s)");
             for (CLDevice device : devices.values())
                 Log.message(device);
         }
         for (CLPlatform platform : platforms.values()) {
-            CLBuffer clA = null;
-            CLBuffer clB = null;
-            CLBuffer clC = null;
+            CLFloatBuffer clA = null;
+            CLFloatBuffer clB = null;
+            CLFloatBuffer clC = null;
             CLKernel kernel = null;
             CLProgram program = null;
             CLCommandQueue queue = null;
@@ -136,32 +138,26 @@ public class Benchmark {
                 for (CLDevice device : program.getBuildDevices())
                     Log.message(program.buildInfos(device));
                 Log.message(program);
-            /*CLProgramBinaries binaries = program.get(CLProgramInfo.CL_PROGRAM_BINARIES).getBinaries();
-            for (int i = 0; i < binaries.size(); i++) {
-                FileOutputStream out = new FileOutputStream("out.bn" + i);
-                binaries.toStream(i, out);
-                out.close();
-            }*/
-                Log.startMessage("Creating kernel");
-                kernel = program.createKernel(kernelName);
-                Log.endMessage(LogStatus.OK);
-                Log.message(kernel);
+                /*CLProgramBinaries binaries = program.get(CLProgramInfo.CL_PROGRAM_BINARIES).getBinaries();
+                for (int i = 0; i < binaries.size(); i++) {
+                    FileOutputStream out = new FileOutputStream("out.bn" + i);
+                    binaries.toStream(i, out);
+                    out.close();
+                }*/
                 Log.startMessage("Creating buffers");
-                ByteBuffer a = ByteBuffer.allocateDirect(BUFFER_SIZE);
-                a.order(ByteOrder.nativeOrder());
-                for (int i = 0; i < BUFFER_SIZE / 4; i++)
-                    a.putFloat(i);
-                ByteBuffer b = ByteBuffer.allocateDirect(BUFFER_SIZE);
+                clA = CLFloatBuffer.create(context, READ_ONLY, BUFFER_SIZE);
+                clB = CLFloatBuffer.create(context, READ_ONLY, BUFFER_SIZE);
+                clC = CLFloatBuffer.create(context, WRITE_ONLY, BUFFER_SIZE);
+                for (int i = 0; i < BUFFER_SIZE; i++)
+                    clA.putFloat((float) Math.random());
+                ByteBuffer b = ByteBuffer.allocateDirect(BUFFER_SIZE << 2);
                 b.order(ByteOrder.nativeOrder());
-                for (int i = 0; i < BUFFER_SIZE / 4; i++)
-                    b.putFloat(i);
-                ByteBuffer c = ByteBuffer.allocateDirect(BUFFER_SIZE);
+                for (int i = 0; i < BUFFER_SIZE; i++)
+                    clB.putFloat((float) Math.random());
+                ByteBuffer c = ByteBuffer.allocateDirect(BUFFER_SIZE << 2);
                 c.order(ByteOrder.nativeOrder());
-                for (int i = 0; i < BUFFER_SIZE / 4; i++)
-                    c.putFloat(0.0f);
-                clA = context.createBuffer(a, CLBufferType.READ_ONLY);
-                clB = context.createBuffer(b, CLBufferType.READ_ONLY);
-                clC = context.createBuffer(c, CLBufferType.WRITE_ONLY);
+                for (int i = 0; i < BUFFER_SIZE; i++)
+                    clC.putFloat((float) Math.random());
                 Log.endMessage(LogStatus.OK);
                 Log.message(clA);
                 getCLBufferContentFloatSample(clA, 25);
@@ -179,8 +175,9 @@ public class Benchmark {
                 kernel.setArgs(clA, clB, clC);
                 Log.endMessage(LogStatus.OK);
                 Log.startMessage("Running kernel");
-                kernel.runIn(queue, new int[]{32, 32}, new int[] {32, 32});
+                kernel.runIn(queue, new int[]{64, 64}, new int[]{32, 32});
                 Log.endMessage(LogStatus.OK);
+                Log.message("GFLOPS = " + 2 * Math.pow(2048, 3) / (Log.chronometer().elapsed()));
                 Log.startMessage("Mapping buffer");
                 clB.map(queue, CLMapType.READ);
                 Log.endMessage(LogStatus.OK);
@@ -189,7 +186,8 @@ public class Benchmark {
                 Log.endMessage(LogStatus.OK);
                 getCLBufferContentFloatSample(clC, 25);
             } finally {
-                Log.reset();
+                if (Log.chronometer().started() && !Log.chronometer().stopped())
+                    Log.endMessage(LogStatus.ERROR);
                 Log.startMessage("Releasing buffers");
                 if (clA != null)
                     clA.release();

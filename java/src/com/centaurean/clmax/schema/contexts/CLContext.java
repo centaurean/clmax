@@ -6,8 +6,6 @@ import com.centaurean.clmax.schema.CLCachedObject;
 import com.centaurean.clmax.schema.devices.CLDevice;
 import com.centaurean.clmax.schema.devices.CLDevices;
 import com.centaurean.clmax.schema.exceptions.CLException;
-import com.centaurean.clmax.schema.mem.buffers.CLBuffer;
-import com.centaurean.clmax.schema.mem.buffers.CLBufferType;
 import com.centaurean.clmax.schema.platforms.CLPlatform;
 import com.centaurean.clmax.schema.programs.CLProgram;
 import com.centaurean.clmax.schema.queues.CLCommandQueue;
@@ -17,7 +15,6 @@ import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
-import java.nio.ByteBuffer;
 import java.util.Arrays;
 
 /*
@@ -89,12 +86,6 @@ public class CLContext extends CLCachedObject<CLContextInfo> {
 
     public CLDevices getDevices() {
         return devices;
-    }
-
-    public CLBuffer createBuffer(ByteBuffer support, CLBufferType type) {
-        if (!support.isDirect())
-            throw new CLException("Buffer must be direct");
-        return new CLBuffer(CL.createBufferNative(getPointer(), support, type.getValue()), support, platform, this);
     }
 
     public CLProgram createProgram(String source) {

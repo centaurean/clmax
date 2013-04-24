@@ -3,11 +3,9 @@ package com.centaurean.clmax.schema.mem.buffers;
 import com.centaurean.clmax.schema.CL;
 import com.centaurean.clmax.schema.contexts.CLContext;
 import com.centaurean.clmax.schema.exceptions.CLException;
-import com.centaurean.clmax.schema.mem.CLMapType;
-import com.centaurean.clmax.schema.mem.CLMem;
-import com.centaurean.clmax.schema.queues.CLCommandQueue;
 
 import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
 
 /*
  * Copyright (c) 2013, Centaurean
@@ -37,49 +35,27 @@ import java.nio.ByteBuffer;
  *
  * CLmax
  *
- * 14/04/13 02:53
+ * 24/04/13 01:54
  * @author gpnuma
  */
-public class CLBuffer extends CLMem {
-    private int size;
-    private ByteBuffer hostBuffer;
-
-    protected CLBuffer(long pointerBuffer, ByteBuffer hostBuffer, CLContext context, int size) {
-        super(pointerBuffer, context);
-        this.hostBuffer = hostBuffer;
-        this.size = size;
+public class CLFloatBuffer extends CLBuffer {
+    public static CLFloatBuffer create(CLContext context, CLBufferType type, int size) {
+        ByteBuffer hostBuffer = ByteBuffer.allocateDirect(size << 2);
+        if (!hostBuffer.isDirect())
+            throw new CLException("Could not create direct buffer");
+        hostBuffer.order(ByteOrder.nativeOrder());
+        return new CLFloatBuffer(CL.createBufferNative(context.getPointer(), hostBuffer, type.getValue()), hostBuffer, context, size);
     }
 
-    protected ByteBuffer getHostBuffer() {
-        return hostBuffer;
+    private CLFloatBuffer(long pointerBuffer, ByteBuffer hostBuffer, CLContext context, int size) {
+        super(pointerBuffer, hostBuffer, context, size);
     }
 
-    public int getSize() {
-        return size;
+    public void putFloat(float f) {
+        super.getHostBuffer().putFloat(f);
     }
 
-    public void rewind() {
-        getHostBuffer().rewind();
-    }
-
-    public void map(CLCommandQueue commandQueue, CLMapType mapType) {
-        if(!commandQueue.getDevice().getVersion().isAtLeast(mapType.getMinimumCLVersion()))
-            throw new CLException("Map type " + mapType.name() + " requires an " + mapType.getMinimumCLVersion().majorMinor() + " compatible device !");
-        CL.mapBufferNative(commandQueue.getPointer(), getPointer(), mapType.getValue(), getHostBuffer().capacity());
-    }
-
-    public void unmap(CLCommandQueue commandQueue) {
-        CL.unmapMemObjectNative(commandQueue.getPointer(), getPointer(), getHostBuffer());
-    }
-
-    public void release() {
-        CL.releaseMemObjectNative(getPointer());
-    }
-
-    @Override
-    public String toString() {
-        StringBuilder stringBuilder = new StringBuilder();
-        stringBuilder.append(super.toString()).append(" {").append(getHostBuffer()).append("}");
-        return stringBuilder.toString();
+    public float getFloat() {
+        return super.getHostBuffer().getFloat();
     }
 }
