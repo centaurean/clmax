@@ -175,7 +175,7 @@ public class Benchmark {
                 kernel.setArgs(clA, clB, clC);
                 Log.endMessage(LogStatus.OK);
                 Log.startMessage("Running kernel");
-                kernel.runIn(queue, new int[]{64, 64}, new int[]{32, 32});
+                kernel.runIn(queue, new int[]{2048, 2048}/*, new int[]{32, 32}*/);
                 Log.endMessage(LogStatus.OK);
                 Log.message("GFLOPS = " + 2 * Math.pow(2048, 3) / (Log.chronometer().elapsed()));
                 Log.startMessage("Mapping buffer");

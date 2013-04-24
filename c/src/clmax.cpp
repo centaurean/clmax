@@ -564,18 +564,22 @@ JNIEXPORT void JNICALL Java_com_centaurean_clmax_schema_CL_runKernelNative(JNIEn
     
     //fprintf(stderr, "%i, %li, %li", globalWorkSizesLength, global_work_sizes[0], global_work_sizes[1]);
 	
-    jsize localWorkSizesLength = env->GetArrayLength(localWorkSizes);
-    size_t* local_work_sizes = new size_t[localWorkSizesLength];
-    body = env->GetIntArrayElements(localWorkSizes, 0);
-    for (int i = 0; i < localWorkSizesLength; i++)
-        local_work_sizes[i] = (int)body[i];
-	env->ReleaseIntArrayElements(localWorkSizes, body, 0);
+    if(localWorkSizes != NULL) {
+        jsize localWorkSizesLength = env->GetArrayLength(localWorkSizes);
+        size_t* local_work_sizes = new size_t[localWorkSizesLength];
+        body = env->GetIntArrayElements(localWorkSizes, 0);
+        for (int i = 0; i < localWorkSizesLength; i++)
+            local_work_sizes[i] = (int)body[i];
+        env->ReleaseIntArrayElements(localWorkSizes, body, 0);
     
-    checkResult(clEnqueueNDRangeKernel((cl_command_queue)pointerCommandQueue, (cl_kernel)pointerKernel, globalWorkSizesLength, NULL, global_work_sizes, local_work_sizes, 0, NULL, NULL), env);
+        checkResult(clEnqueueNDRangeKernel((cl_command_queue)pointerCommandQueue, (cl_kernel)pointerKernel, globalWorkSizesLength, NULL, global_work_sizes, local_work_sizes, 0, NULL, NULL), env);
+        
+        delete[] local_work_sizes;
+    } else
+        checkResult(clEnqueueNDRangeKernel((cl_command_queue)pointerCommandQueue, (cl_kernel)pointerKernel, globalWorkSizesLength, NULL, global_work_sizes, NULL, 0, NULL, NULL), env);
     checkResult(clFinish((cl_command_queue)pointerCommandQueue), env);
     
-	delete[] local_work_sizes;
-    delete[] global_work_sizes;
+	delete[] global_work_sizes;
 }
 
 // Buffer creation

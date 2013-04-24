@@ -149,6 +149,10 @@ public class CLKernel extends CLCachedObject<CLKernelInfo> {
         CL.runKernelNative(getPointer(), commandQueue.getPointer(), globalWorkSizes, localWorkSizes);
     }
 
+    public void runIn(CLCommandQueue commandQueue, int[] globalWorkSizes) {
+        runIn(commandQueue, globalWorkSizes, null);
+    }
+
     public CLPlatform getPlatform() {
         return platform;
     }
