@@ -24,6 +24,7 @@ import java.io.IOException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.Arrays;
+import java.util.Random;
 
 import static com.centaurean.clmax.schema.mem.buffers.CLBufferType.READ_ONLY;
 import static com.centaurean.clmax.schema.mem.buffers.CLBufferType.WRITE_ONLY;
@@ -87,7 +88,6 @@ public class Benchmark {
         Log.message("Found " + platforms.size() + " platform(s)");
         for (CLPlatform platform : platforms.values())
             Log.message(platform);
-        platforms.values().remove(platforms.getFirst());
         for (CLPlatform platform : platforms.values()) {
             Log.message();
             Log.startMessage("Getting devices for platform " + platform.getPointer());
@@ -147,12 +147,13 @@ public class Benchmark {
                 clA = CLFloatBuffer.create(context, READ_ONLY, BUFFER_SIZE);
                 clB = CLFloatBuffer.create(context, READ_ONLY, BUFFER_SIZE);
                 clC = CLFloatBuffer.create(context, WRITE_ONLY, BUFFER_SIZE);
+                Random random = new Random(7L);
                 for (int i = 0; i < BUFFER_SIZE; i++)
-                    clA.putFloat((float) Math.random());
+                    clA.putFloat(random.nextFloat());
                 for (int i = 0; i < BUFFER_SIZE; i++)
-                    clB.putFloat((float) Math.random());
+                    clB.putFloat(random.nextFloat());
                 for (int i = 0; i < BUFFER_SIZE; i++)
-                    clC.putFloat((float) Math.random());
+                    clC.putFloat(random.nextFloat());
                 Log.endMessage(LogStatus.OK);
                 Log.message(clA);
                 getCLBufferContentFloatSample(clA, 25);
