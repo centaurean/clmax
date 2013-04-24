@@ -8,6 +8,7 @@ import com.centaurean.clmax.schema.mem.CLMem;
 import com.centaurean.clmax.schema.queues.CLCommandQueue;
 
 import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
 
 /*
  * Copyright (c) 2013, Centaurean
@@ -41,21 +42,33 @@ import java.nio.ByteBuffer;
  * @author gpnuma
  */
 public class CLBuffer extends CLMem {
-    private int size;
+    private int elementSize;
     private ByteBuffer hostBuffer;
 
-    protected CLBuffer(long pointerBuffer, ByteBuffer hostBuffer, CLContext context, int size) {
+    protected CLBuffer(long pointerBuffer, ByteBuffer hostBuffer, CLContext context, int elementSize) {
         super(pointerBuffer, context);
         this.hostBuffer = hostBuffer;
-        this.size = size;
+        this.elementSize = elementSize;
+    }
+
+    protected static ByteBuffer createDirectByteBuffer(int capacity) {
+        ByteBuffer buffer = ByteBuffer.allocateDirect(capacity);
+        if (!buffer.isDirect())
+            throw new CLException("Could not create direct buffer");
+        buffer.order(ByteOrder.nativeOrder());
+        return buffer;
     }
 
     protected ByteBuffer getHostBuffer() {
         return hostBuffer;
     }
 
-    public int getSize() {
-        return size;
+    public int getElementSize() {
+        return elementSize;
+    }
+
+    public int getByteSize() {
+        return hostBuffer.capacity();
     }
 
     public void rewind() {

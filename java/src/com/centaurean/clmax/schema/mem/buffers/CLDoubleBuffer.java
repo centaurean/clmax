@@ -33,24 +33,24 @@ import java.nio.ByteBuffer;
  *
  * CLmax
  *
- * 24/04/13 01:54
+ * 24/04/13 17:48
  * @author gpnuma
  */
-public class CLFloatBuffer extends CLBuffer {
-    public static CLFloatBuffer create(CLContext context, CLBufferType type, int elementSize) {
-        ByteBuffer hostBuffer = createDirectByteBuffer(elementSize << 2);
-        return new CLFloatBuffer(CL.createBufferNative(context.getPointer(), hostBuffer, type.getValue()), hostBuffer, context, elementSize);
+public class CLDoubleBuffer extends CLBuffer {
+    public static CLDoubleBuffer create(CLContext context, CLBufferType type, int size) {
+        ByteBuffer hostBuffer = createDirectByteBuffer(size << 3);
+        return new CLDoubleBuffer(CL.createBufferNative(context.getPointer(), hostBuffer, type.getValue()), hostBuffer, context, size);
     }
 
-    private CLFloatBuffer(long pointerBuffer, ByteBuffer hostBuffer, CLContext context, int elementSize) {
-        super(pointerBuffer, hostBuffer, context, elementSize);
+    private CLDoubleBuffer(long pointerBuffer, ByteBuffer hostBuffer, CLContext context, int size) {
+        super(pointerBuffer, hostBuffer, context, size);
     }
 
-    public void putFloat(float f) {
-        getHostBuffer().putFloat(f);
+    public void putDouble(double d) {
+        getHostBuffer().putDouble(d);
     }
 
-    public float getFloat() {
-        return getHostBuffer().getFloat();
+    public double getDouble() {
+        return getHostBuffer().getDouble();
     }
 }

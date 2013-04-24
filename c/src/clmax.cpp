@@ -599,14 +599,14 @@ JNIEXPORT void JNICALL Java_com_centaurean_clmax_schema_CL_releaseMemObjectNativ
 }
 
 // Buffer mapping
-JNIEXPORT void JNICALL Java_com_centaurean_clmax_schema_CL_mapBufferNative(JNIEnv *env, jclass callingClass, jlong pointerCommandQueue, jlong pointerBuffer, jint mapFlags, jint bufferSize) {
+JNIEXPORT void JNICALL Java_com_centaurean_clmax_schema_CL_mapBufferNative(JNIEnv *env, jclass callingClass, jlong pointerCommandQueue, jlong pointerBuffer, jint mapFlags, jlong bufferSize) {
     cl_int errcode_ret;
     
     void* address = clEnqueueMapBuffer((cl_command_queue)pointerCommandQueue, (cl_mem)pointerBuffer, CL_TRUE, mapFlags, 0, bufferSize, 0, NULL, NULL, &errcode_ret);
     /*fprintf(stderr, "%lld,", (long long)address);
     float* buf = (float*)address;
     for(int i = 0; i < 10; i ++)
-        fprintf(stderr, "%g,", buf[i]);*/
+        fprintf(stderr, "%f,", buf[i]);*/
     
     checkResult(errcode_ret, env);
 }

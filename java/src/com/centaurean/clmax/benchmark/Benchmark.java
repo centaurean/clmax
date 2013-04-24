@@ -21,8 +21,6 @@ import com.centaurean.commons.utilities.Transform;
 
 import java.io.File;
 import java.io.IOException;
-import java.nio.ByteBuffer;
-import java.nio.ByteOrder;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.Arrays;
@@ -62,7 +60,7 @@ import static com.centaurean.clmax.schema.mem.buffers.CLBufferType.WRITE_ONLY;
  * @author gpnuma
  */
 public class Benchmark {
-    private static final int BUFFER_SIZE = 2048 * 2048;
+    private static final int BUFFER_SIZE = 2048*2048;
 
     private static void getCLBufferContentFloatSample(CLFloatBuffer buffer, int elements) {
         StringBuilder content = new StringBuilder();
@@ -89,10 +87,11 @@ public class Benchmark {
         Log.message("Found " + platforms.size() + " platform(s)");
         for (CLPlatform platform : platforms.values())
             Log.message(platform);
+        platforms.values().remove(platforms.getFirst());
         for (CLPlatform platform : platforms.values()) {
             Log.message();
             Log.startMessage("Getting devices for platform " + platform.getPointer());
-            CLDevices devices = platform.getDevices(CLDeviceType.CL_DEVICE_TYPE_GPU);
+            CLDevices devices = platform.getDevices(CLDeviceType.CL_DEVICE_TYPE_ALL);
             Log.endMessage(LogStatus.OK);
             Log.message("Found " + devices.size() + " device(s)");
             for (CLDevice device : devices.values())
@@ -150,12 +149,8 @@ public class Benchmark {
                 clC = CLFloatBuffer.create(context, WRITE_ONLY, BUFFER_SIZE);
                 for (int i = 0; i < BUFFER_SIZE; i++)
                     clA.putFloat((float) Math.random());
-                ByteBuffer b = ByteBuffer.allocateDirect(BUFFER_SIZE << 2);
-                b.order(ByteOrder.nativeOrder());
                 for (int i = 0; i < BUFFER_SIZE; i++)
                     clB.putFloat((float) Math.random());
-                ByteBuffer c = ByteBuffer.allocateDirect(BUFFER_SIZE << 2);
-                c.order(ByteOrder.nativeOrder());
                 for (int i = 0; i < BUFFER_SIZE; i++)
                     clC.putFloat((float) Math.random());
                 Log.endMessage(LogStatus.OK);
@@ -176,15 +171,15 @@ public class Benchmark {
                 Log.endMessage(LogStatus.OK);
                 for (int i = 0; i < 5; i++) {
                     Log.startMessage("Running kernel");
-                    kernel.runIn(queue, new int[]{2048, 2048});
+                    kernel.runIn(queue, new int[]{2048, 2048}/*, new int[] {32, 32}*/);
                     Log.endMessage(LogStatus.OK);
                     Log.message("GFLOPS = " + 2 * Math.pow(2048, 3) / (Log.chronometer().elapsed()));
                 }
                 Log.startMessage("Mapping buffer");
-                clB.map(queue, CLMapType.READ);
+                clC.map(queue, CLMapType.READ);
                 Log.endMessage(LogStatus.OK);
                 Log.startMessage("Unmapping buffer");
-                clB.unmap(queue);
+                clC.unmap(queue);
                 Log.endMessage(LogStatus.OK);
                 getCLBufferContentFloatSample(clC, 25);
             } finally {

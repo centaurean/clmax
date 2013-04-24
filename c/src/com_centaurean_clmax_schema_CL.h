@@ -282,10 +282,10 @@ JNIEXPORT void JNICALL Java_com_centaurean_clmax_schema_CL_releaseMemObjectNativ
 /*
  * Class:     com_centaurean_clmax_schema_CL
  * Method:    mapBufferNative
- * Signature: (JJII)V
+ * Signature: (JJIJ)V
  */
 JNIEXPORT void JNICALL Java_com_centaurean_clmax_schema_CL_mapBufferNative
-  (JNIEnv *, jclass, jlong, jlong, jint, jint);
+  (JNIEnv *, jclass, jlong, jlong, jint, jlong);
 
 /*
  * Class:     com_centaurean_clmax_schema_CL
