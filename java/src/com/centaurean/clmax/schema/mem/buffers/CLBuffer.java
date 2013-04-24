@@ -52,6 +52,15 @@ public class CLBuffer extends CLMem {
     }
 
     protected static ByteBuffer createDirectByteBuffer(int capacity) {
+        /*  Intel OpenCL requires the following :
+            If you create an image with CL_MEM_USE_HOST_PTR flag, the alignment requirement is page boundary (4096 bytes).
+            JDK 7 has removed page boundary alignment with direct buffers :
+            Synopsis: Prior to the JDK 7 release, direct buffers allocated using java.nio.ByteBuffer.allocateDirect(int) were aligned on a page boundary.
+            In JDK 7, the implementation has changed so that direct buffers are no longer page aligned. This should reduce the memory requirements of applications that create lots of small buffers.
+            Applications that previously relied on the undocumented alignment can revert to previous behavior if they are run with the command line option: -XX:+PageAlignDirectMemory.
+            RFE: 4837564
+            @todo check -XX:+PageAlignDirectMemory works or use JDK 6
+         */
         ByteBuffer buffer = ByteBuffer.allocateDirect(capacity);
         if (!buffer.isDirect())
             throw new CLException("Could not create direct buffer");
