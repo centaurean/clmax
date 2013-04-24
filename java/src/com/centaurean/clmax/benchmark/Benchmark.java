@@ -62,7 +62,7 @@ import static com.centaurean.clmax.schema.mem.buffers.CLBufferType.WRITE_ONLY;
  * @author gpnuma
  */
 public class Benchmark {
-    private static final int BUFFER_SIZE = 2048*2048;
+    private static final int BUFFER_SIZE = 2048 * 2048;
 
     private static void getCLBufferContentFloatSample(CLFloatBuffer buffer, int elements) {
         StringBuilder content = new StringBuilder();
@@ -174,10 +174,12 @@ public class Benchmark {
                 Log.startMessage("Setting kernel args");
                 kernel.setArgs(clA, clB, clC);
                 Log.endMessage(LogStatus.OK);
-                Log.startMessage("Running kernel");
-                kernel.runIn(queue, new int[]{2048, 2048}/*, new int[]{32, 32}*/);
-                Log.endMessage(LogStatus.OK);
-                Log.message("GFLOPS = " + 2 * Math.pow(2048, 3) / (Log.chronometer().elapsed()));
+                for (int i = 0; i < 5; i++) {
+                    Log.startMessage("Running kernel");
+                    kernel.runIn(queue, new int[]{2048, 2048});
+                    Log.endMessage(LogStatus.OK);
+                    Log.message("GFLOPS = " + 2 * Math.pow(2048, 3) / (Log.chronometer().elapsed()));
+                }
                 Log.startMessage("Mapping buffer");
                 clB.map(queue, CLMapType.READ);
                 Log.endMessage(LogStatus.OK);
