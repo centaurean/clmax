@@ -67,10 +67,16 @@ public class CLDevice extends CLCachedObject<CLDeviceInfo> {
                 case INT:
                     valueInCache = new CLValue(CL.getDeviceInfoIntNative(getPointer(), deviceInfo.getKey()));
                     break;
+                case UNSIGNED_INT:
+                    valueInCache = new CLValue(CL.getDeviceInfoIntNative(getPointer(), deviceInfo.getKey()), deviceInfo.getReturnType());
+                    break;
                 case LONG:
                 case SIZE_T:
                 case BIT_FIELD:
                     valueInCache = new CLValue(CL.getDeviceInfoLongNative(getPointer(), deviceInfo.getKey()));
+                    break;
+                case UNSIGNED_LONG:
+                    valueInCache = new CLValue(CL.getDeviceInfoLongNative(getPointer(), deviceInfo.getKey()), deviceInfo.getReturnType());
                     break;
                 case CHAR_ARRAY:
                     valueInCache = new CLValue(CL.getDeviceInfoStringNative(getPointer(), deviceInfo.getKey()));

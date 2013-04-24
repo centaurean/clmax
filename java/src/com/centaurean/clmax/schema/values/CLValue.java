@@ -46,13 +46,21 @@ public class CLValue {
     }
 
     public CLValue(int intValue) {
+        this(intValue, CLValueType.INT);
+    }
+
+    public CLValue(int intValue, CLValueType givenType) {
         storage = intValue;
-        type = CLValueType.INT;
+        type = givenType;
     }
 
     public CLValue(long longValue) {
+        this(longValue, CLValueType.LONG);
+    }
+
+    public CLValue(long longValue, CLValueType givenType) {
         storage = longValue;
-        type = CLValueType.LONG;
+        type = givenType;
     }
 
     public CLValue(String stringValue) {
@@ -87,6 +95,12 @@ public class CLValue {
         switch(type) {
             case INT:
                 return (Integer)storage;
+            case UNSIGNED_INT:
+                Integer intValue = (Integer)storage;
+                if(intValue > 0)
+                    return intValue;
+                else
+                    return intValue + Integer.MAX_VALUE;
             default:
                 throw new CLValueFormatException("Not an int value");
         }
@@ -96,6 +110,12 @@ public class CLValue {
         switch(type) {
             case LONG:
                 return (Long)storage;
+            case UNSIGNED_LONG:
+                Long longValue = (Long)storage;
+                if(longValue > 0)
+                    return longValue;
+                else
+                    return longValue + Long.MAX_VALUE;
             default:
                 throw new CLValueFormatException("Not a long value");
         }
@@ -134,8 +154,10 @@ public class CLValue {
             case BOOLEAN:
                 Boolean.toString(getBoolean());
             case INT:
+            case UNSIGNED_INT:
                 return Integer.toString(getInt());
             case LONG:
+            case UNSIGNED_LONG:
                 return Long.toString(getLong());
             case CHAR_ARRAY:
                 return getString();
