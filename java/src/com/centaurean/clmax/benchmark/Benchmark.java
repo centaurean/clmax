@@ -182,7 +182,7 @@ public class Benchmark {
                     Log.startMessage("Setting kernel args");
                     kernel.setArgs(clA, clB, clC);
                     Log.endMessage(LogStatus.OK);
-                    for (int i = 0; i < 5; i++) {
+                    for (int i = 0; i < 10; i++) {
                         Log.startMessage("Running kernel");
                         kernel.runIn(queue, new int[]{2048, 2048}/*, new int[] {1024}*/, new int[]{32, 32});
                         Log.endMessage(LogStatus.OK);
