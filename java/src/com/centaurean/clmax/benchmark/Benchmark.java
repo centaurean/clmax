@@ -8,7 +8,7 @@ import com.centaurean.clmax.schema.devices.CLDevices;
 import com.centaurean.clmax.schema.exceptions.CLNativeException;
 import com.centaurean.clmax.schema.kernels.CLKernel;
 import com.centaurean.clmax.schema.mem.CLMapType;
-import com.centaurean.clmax.schema.mem.CLMemInfo;
+import com.centaurean.clmax.schema.mem.buffers.CLDoubleBuffer;
 import com.centaurean.clmax.schema.mem.buffers.CLFloatBuffer;
 import com.centaurean.clmax.schema.platforms.CLPlatform;
 import com.centaurean.clmax.schema.platforms.CLPlatforms;
@@ -68,7 +68,15 @@ public class Benchmark {
         buffer.rewind();
         for (int i = 0; i < elements; i++)
             content.append(buffer.getFloat()).append(", ");
-        Log.message(content.append("... (").append(buffer.get(CLMemInfo.CL_MEM_SIZE).getInt() / 4).append(" elements)").toString());
+        Log.message(content.append("... (").append(buffer.getElementSize()).append(" elements)").toString());
+    }
+
+    private static void getCLBufferContentDoubleSample(CLDoubleBuffer buffer, int elements) {
+        StringBuilder content = new StringBuilder();
+        buffer.rewind();
+        for (int i = 0; i < elements; i++)
+            content.append(buffer.getDouble()).append(", ");
+        Log.message(content.append("... (").append(buffer.getElementSize()).append(" elements)").toString());
     }
 
     public Benchmark(File clFile, String kernelName) throws IOException, InterruptedException {
@@ -172,9 +180,9 @@ public class Benchmark {
                 Log.endMessage(LogStatus.OK);
                 for (int i = 0; i < 5; i++) {
                     Log.startMessage("Running kernel");
-                    kernel.runIn(queue, new int[]{BUFFER_SIZE}/*, new int[] {1024}*//*, new int[] {32, 32}*/);
+                    kernel.runIn(queue, new int[]{2048, 2048}/*, new int[] {1024}*/, new int[] {32, 32});
                     Log.endMessage(LogStatus.OK);
-                    Log.message("GFLOPS = " + ((float)BUFFER_SIZE) / (Log.chronometer().elapsed()) /*2 * Math.pow(2048, 3) / (Log.chronometer().elapsed())*/);
+                    Log.message("GFLOPS = " + /*((float)BUFFER_SIZE) / (Log.chronometer().elapsed())*/ 2 * Math.pow(2048, 3) / (Log.chronometer().elapsed()));
                 }
                 Log.startMessage("Mapping buffer");
                 clC.map(queue, CLMapType.READ);
